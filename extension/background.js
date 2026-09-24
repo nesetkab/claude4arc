@@ -3,6 +3,31 @@ const PROTOCOL_VERSION = "1.3";
 
 let port = null;
 let reconnectTimer = null;
+let agentTabs = null;
+
+async function loadAgentTabs() {
+  if (!agentTabs) {
+    const stored = await chrome.storage.session.get("agentTabs");
+    agentTabs = new Set(stored.agentTabs ?? []);
+  }
+  return agentTabs;
+}
+
+async function setAgentTab(tabId, enabled) {
+  const tabs = await loadAgentTabs();
+  if (enabled) tabs.add(tabId);
+  else tabs.delete(tabId);
+  await chrome.storage.session.set({ agentTabs: [...tabs] });
+}
+
+async function messageTab(tabId, message) {
+  try {
+    await chrome.tabs.sendMessage(tabId, message);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 const debuggee = (target) => (typeof target === "number" ? { tabId: target } : target);
 
@@ -25,8 +50,17 @@ const handlers = {
     version: chrome.runtime.getManifest().version,
     id: chrome.runtime.id,
     userAgent: navigator.userAgent,
-    features: ["sessions", "reload"],
+    features: ["sessions", "reload", "guard"],
   }),
+  "guard.enable": async (tabId) => {
+    await setAgentTab(tabId, true);
+    return messageTab(tabId, { type: "arc-guard" });
+  },
+  "guard.disable": (tabId) => setAgentTab(tabId, false).then(() => true),
+  "guard.sweep": async (tabId) => {
+    await setAgentTab(tabId, true);
+    return messageTab(tabId, { type: "arc-sweep" });
+  },
   "extension.reload": () => {
     setTimeout(() => chrome.runtime.reload(), 50);
     return true;
@@ -92,6 +126,13 @@ chrome.tabs.onCreated.addListener((tab) => {
 
 chrome.tabs.onRemoved.addListener((tabId) => {
   post({ type: "tabRemoved", tabId });
+  setAgentTab(tabId, false).catch(() => {});
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message?.type !== "arc-guard?" || !sender.tab) return false;
+  loadAgentTabs().then((tabs) => sendResponse(tabs.has(sender.tab.id)));
+  return true;
 });
 
 chrome.alarms.create("keepalive", { periodInMinutes: 0.5 });

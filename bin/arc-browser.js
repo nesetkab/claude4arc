@@ -3,6 +3,9 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import { Console } from "node:console";
+
+globalThis.console = new Console({ stdout: process.stdout, stderr: process.stderr, colorMode: false });
 import { Bridge } from "../lib/client.js";
 import { Task, listTasks } from "../lib/task.js";
 import { runCommands, createTask, COMMAND_NAMES } from "../lib/commands.js";
