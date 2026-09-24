@@ -50,6 +50,7 @@ Page:
   goto(url, { waitUntil: "load"|"domcontentloaded"|"networkidle"|"none", timeout })
   reload(), goBack(), goForward(), bringToFront(), close()
   snapshot({ scope: "viewport"|"full_page", root: "@N", diff, maxLines }), find(query, { limit })
+  seek(selOrText, { container, max, timeout, direction: "down"|"up" })
   text({ maxChars, all }), screenshot({ path, fullPage, selector, scale: "css"|"device" })
   click(sel, { button, clickCount, force, modifiers, label }), dblclick(sel), hover(sel)
   fill(sel, value), press(sel, key) | press(key), focus(sel), check(sel, bool), uncheck(sel)
@@ -73,7 +74,7 @@ const SELECTOR_HELP = `Selectors (every element action needs exactly one visible
   xpath=//main//h2
   css=.card:has-text("Pro")       CSS with a terminal :has-text() or :text-is()
   button.primary >> nth=0         any selector + index
-  button.primary                  raw CSS (searches open shadow roots and same-origin iframes)`;
+  button.primary                  raw CSS (searches open and closed shadow roots and same-origin iframes)`;
 
 const KEY_HELP = `Keys use Playwright names: Enter, Tab, Escape, Backspace, Delete, ArrowUp, Home, PageDown, F1, a, A, 1, ...
 Chords join with "+": "Meta+a", "Shift+Tab", "ControlOrMeta+Enter". Mac editing shortcuts (Meta+a/c/v/x/z) run the native editing command.`;
