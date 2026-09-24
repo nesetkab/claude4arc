@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Quill</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css">
+<style>#editor { width: 560px; height: 160px; }</style>
+</head>
+<body>
+<main>
+<h1>Quill editor</h1>
+<div id="editor"><p>Old <strong>draft</strong></p></div>
+<pre id="result">loading</pre>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script>
+  const quill = new Quill("#editor", { theme: "snow" });
+  let changes = 0;
+  const report = () => {
+    document.getElementById("result").textContent = JSON.stringify({ value: quill.getText().replace(/\n$/, ""), changes });
+  };
+  quill.on("text-change", () => {
+    changes += 1;
+    report();
+  });
+  report();
+</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CodeMirror 6</title>
+<style>#editor { width: 560px; height: 220px; border: 1px solid #999; } .cm-editor { height: 100%; }</style>
+</head>
+<body>
+<main>
+<h1>CodeMirror 6 editor</h1>
+<div id="editor"></div>
+</main>
+<pre id="result">loading</pre>
+<script type="module">
+  import { EditorView, basicSetup } from "https://esm.sh/codemirror@6.0.1";
+  import { javascript } from "https://esm.sh/@codemirror/lang-javascript@6.2.2";
+  const lines = Array.from({ length: 250 }, (_, index) => `const line${index + 1} = ${index + 1};`);
+  let changes = 0;
+  const report = (view) => {
+    document.getElementById("result").textContent = JSON.stringify({ value: view.state.doc.toString(), changes });
+  };
+  const view = new EditorView({
+    doc: lines.join("\n"),
+    extensions: [
+      basicSetup,
+      javascript(),
+      EditorView.updateListener.of((update) => {
+        if (!update.docChanged) return;
+        changes += 1;
+        report(update.view);
+      }),
+    ],
+    parent: document.getElementById("editor"),
+  });
+  report(view);
+</script>
+</body>
+</html>

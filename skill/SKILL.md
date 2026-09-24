@@ -29,6 +29,7 @@ arc-browser 7 fill @3 hi -- click @4 -s # chain with "--"; -s appends a diff sna
 | `click <sel>`, `dblclick`, `hover` | trusted pointer input; scrolls into view |
 | `fill <sel> <text>`, `type <text>`, `press [sel] <key>` | text and keys (`Enter`, `Meta+a`) |
 | `select <sel> <value>`, `check <sel>`, `uncheck <sel>` | form controls |
+| `drag <source> <target>` | drag and drop (HTML5 or mouse-based, chosen automatically) |
 | `upload <sel> <path...>` | set a file input |
 | `scroll <dy>`, `wait <sel\|ms\|url:part\|gone:sel>` | scroll; wait for a condition |
 | `accept [text]` | accept the next confirm/prompt; put it before the action |
@@ -39,6 +40,13 @@ arc-browser 7 fill @3 hi -- click @4 -s # chain with "--"; -s appends a diff sna
 
 Action commands print `ok` unless something notable happened (`popup p2`,
 `confirm "Delete?" dismissed`). Popups become the current page.
+
+`fill` understands code and rich-text editors (Monaco, CodeMirror, Ace, Quill,
+ProseMirror/TipTap, Lexical, CKEditor 5, TinyMCE). Target the editor or any
+element inside it; the text is set through the editor's own API, so newlines
+and indentation stay exact. If the editor ends up with other text, `fill`
+prints what it holds. `text` appends the full content of visible code editors,
+including lines that are scrolled out of view.
 
 ## Save tokens and time
 
