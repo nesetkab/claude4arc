@@ -346,7 +346,7 @@ await p.mouse.click(r.x + 60, r.y + 60);`);
     fixture: "iframe-cross.html",
     async run(s) {
       const found = await s.cmd("find", "Cross", "frame");
-      const [frame] = refs(found, /iframe/);
+      const [frame] = refs(found, /^@[\d.]+ iframe /);
       expect(frame, `no iframe ref: ${show(found)}`);
       await s.cmd("fill", `${frame} >> #q`, "cross-value", "--", "check", `${frame} >> #agree`, "--", "click", `${frame} >> #send`);
       const result = await s.result();
@@ -376,6 +376,20 @@ await p.mouse.click(r.x + 60, r.y + 60);`);
       await s.cmd("click", ref);
       const result = await s.result();
       expect(result?.leaf?.clicks === 1, `result ${show(result)}`);
+    },
+  },
+  {
+    name: "iframe-nested-mixed",
+    fixture: "iframe-nested-mixed.html",
+    async run(s) {
+      const found = await s.cmd("find", "Frame");
+      const [input] = refs(found, /Frame input/);
+      const [button] = refs(found, /Frame button/);
+      expect(input && button && button.split(".").length === 3, `find: ${show(found)}`);
+      const middle = button.split(".")[0];
+      await s.cmd("fill", input, "mixed-value", "--", "click", button, "--", "click", `${middle} >> role=button[name="Middle button"]`);
+      const result = await s.result();
+      expect(result?.leaf?.value === "mixed-value" && result.leaf.clicks === 1 && result.mid?.clicks === 1, `result ${show(result)}`);
     },
   },
   {
