@@ -55,7 +55,7 @@ Page:
   fill(sel, value), press(sel, key) | press(key), focus(sel), check(sel, bool), uncheck(sel)
   selectOption(sel, value | { label } | { index } | array | null)
   setInputFiles(sel, paths), waitForFileChooser() -> { setFiles(paths) }
-  dragAndDrop(source, target), scroll(deltaY, { deltaX, x, y })
+  dragAndDrop(source, target, { steps }) -> { mode: "html5"|"pointer" }, scroll(deltaY, { deltaX, x, y })
   waitForURL(match), waitForSelector(sel, { state }), waitForLoadState(state)
   waitForFunction(fn, arg, { timeout }), waitForTimeout(ms), waitForEvent("popup"|"dialog"|"load")
   acceptDialog(promptText), dismissDialog()

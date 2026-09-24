@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Monaco</title>
+<style>#editor { width: 560px; height: 220px; border: 1px solid #999; }</style>
+</head>
+<body>
+<main>
+<h1>Monaco editor</h1>
+<div id="editor"></div>
+</main>
+<pre id="result">loading</pre>
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs/loader.js"></script>
+<script>
+  require.config({ paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs" } });
+  require(["vs/editor/editor.main"], () => {
+    const lines = Array.from({ length: 250 }, (_, index) => `const line${index + 1} = ${index + 1};`);
+    const editor = monaco.editor.create(document.getElementById("editor"), {
+      value: lines.join("\n"),
+      language: "javascript",
+      minimap: { enabled: false },
+    });
+    let changes = 0;
+    const report = () => {
+      document.getElementById("result").textContent = JSON.stringify({ value: editor.getValue(), changes });
+    };
+    editor.onDidChangeModelContent(() => {
+      changes += 1;
+      report();
+    });
+    report();
+  });
+</script>
+</body>
+</html>

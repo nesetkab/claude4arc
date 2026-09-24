@@ -209,6 +209,45 @@ const scenarios = [
       expect(result.beforeinput > 0, `no beforeinput events: ${show(result)}`);
     },
   },
+  ...[
+    ["editor-fill-codemirror6", "codemirror.html", ".cm-content", ".cm-content"],
+    ["editor-fill-monaco", "monaco.html", ".monaco-editor .view-lines", "#editor"],
+  ].map(([name, fixture, ready, target]) => ({
+    name,
+    fixture,
+    async run(s) {
+      await s.cmd("wait", ready, "20000");
+      const text = await s.cmd("text");
+      expect(text.includes("const line250 = 250;"), `text misses the last line: ${show(text.slice(-160))}`);
+      const code = "function add(a, b) {\n  return [a, b].reduce((x, y) => x + y);\n}\n";
+      const out = await s.cmd("fill", target, code);
+      expect(out === "ok", `fill said ${show(out)}`);
+      const result = await s.result();
+      expect(result?.value === code, `value ${show(result?.value ?? result)}`);
+      expect(result.changes > 0, `no change events: ${show(result)}`);
+    },
+  })),
+  {
+    name: "editor-fill-quill",
+    fixture: "quill.html",
+    async run(s) {
+      await s.cmd("wait", ".ql-editor", "20000");
+      const out = await s.cmd("fill", ".ql-editor", "Hello\nfrom Arc");
+      expect(out === "ok", `fill said ${show(out)}`);
+      const result = await s.result();
+      expect(result?.value === "Hello\nfrom Arc", `value ${show(result?.value ?? result)}`);
+      expect(result.changes > 0, `no text-change events: ${show(result)}`);
+    },
+  },
+  {
+    name: "dnd-cli-drag",
+    fixture: "dnd.html",
+    async run(s) {
+      await s.cmd("drag", "#item-b", "#bin");
+      const result = await s.result();
+      expect(result?.trashed === "Bravo", `result ${show(result)}`);
+    },
+  },
   {
     name: "dnd-html5-reorder",
     fixture: "dnd.html",
