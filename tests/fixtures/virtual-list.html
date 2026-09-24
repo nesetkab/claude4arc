@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Virtual list</title>
+<style>
+  #viewport { height: 300px; width: 320px; overflow-y: auto; border: 1px solid #999; position: relative; }
+  #spacer { position: relative; }
+  .row { position: absolute; left: 0; right: 0; height: 30px; line-height: 30px; padding: 0 8px; border-bottom: 1px solid #eee; box-sizing: border-box; }
+</style>
+</head>
+<body>
+<main>
+<h1>Virtualized list (10,000 rows)</h1>
+<div id="viewport" role="list" aria-label="Rows"><div id="spacer"></div></div>
+<pre id="result">none</pre>
+</main>
+<script>
+  const total = 10000;
+  const height = 30;
+  const viewport = document.getElementById("viewport");
+  const spacer = document.getElementById("spacer");
+  spacer.style.height = `${total * height}px`;
+  const render = () => {
+    const first = Math.max(0, Math.floor(viewport.scrollTop / height) - 2);
+    const last = Math.min(total, first + Math.ceil(viewport.clientHeight / height) + 4);
+    const rows = [];
+    for (let i = first; i < last; i += 1) {
+      rows.push(`<div class="row" role="listitem" data-row="${i}" style="top:${i * height}px"><button onclick="document.getElementById('result').textContent='row ${i}'">Row ${i}</button></div>`);
+    }
+    spacer.innerHTML = rows.join("");
+  };
+  viewport.addEventListener("scroll", render);
+  render();
+</script>
+</body>
+</html>

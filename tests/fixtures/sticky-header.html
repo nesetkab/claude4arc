@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sticky header</title>
+<style>
+  body { margin: 0; }
+  header { position: fixed; top: 0; left: 0; right: 0; height: 120px; background: #234; color: #fff; z-index: 10; }
+  main { padding-top: 140px; }
+  .block { height: 400px; border-bottom: 1px solid #eee; }
+  #result { position: fixed; bottom: 0; right: 0; background: #ffe; margin: 0; }
+</style>
+</head>
+<body>
+<header id="header"><h2 style="margin: 0; padding: 20px">Site header</h2></header>
+<main>
+<div class="block">Intro</div>
+<div class="block">More</div>
+<button type="button" id="target">Buy now</button>
+<div class="block">Footer area</div>
+<div class="block"></div>
+</main>
+<pre id="result">none</pre>
+<script>
+  document.getElementById("header").addEventListener("click", () => { document.getElementById("result").textContent = "header"; });
+  document.getElementById("target").addEventListener("click", () => { document.getElementById("result").textContent = "target"; });
+  window.addEventListener("load", () => {
+    window.scrollTo(0, document.getElementById("target").offsetTop - 40);
+  });
+</script>
+</body>
+</html>

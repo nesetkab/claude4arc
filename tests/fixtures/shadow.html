@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Shadow DOM</title></head>
+<body>
+<main>
+<h1>Shadow roots</h1>
+<open-widget></open-widget>
+<closed-widget></closed-widget>
+<pre id="result">{}</pre>
+</main>
+<script>
+  const state = {};
+  const report = (key, value) => { state[key] = value; document.getElementById("result").textContent = JSON.stringify(state); };
+  const markup = (kind) => `
+    <style>:host { display: block; border: 1px solid #999; padding: 8px; margin: 8px 0; }</style>
+    <label>${kind} input <input id="field"></label>
+    <button id="button" type="button">${kind} shadow button</button>`;
+  customElements.define("open-widget", class extends HTMLElement {
+    connectedCallback() {
+      const root = this.attachShadow({ mode: "open" });
+      root.innerHTML = markup("Open");
+      root.getElementById("button").addEventListener("click", () => report("openClicked", true));
+      root.getElementById("field").addEventListener("input", (event) => report("openValue", event.target.value));
+    }
+  });
+  customElements.define("closed-widget", class extends HTMLElement {
+    connectedCallback() {
+      const root = this.attachShadow({ mode: "closed" });
+      root.innerHTML = markup("Closed");
+      root.getElementById("button").addEventListener("click", () => report("closedClicked", true));
+      root.getElementById("field").addEventListener("input", (event) => report("closedValue", event.target.value));
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Frame form</title>
+<style>body { font-family: sans-serif; margin: 8px; }</style>
+</head>
+<body>
+<h2 id="heading">Frame form</h2>
+<form id="form">
+  <label>Frame input <input id="q" name="q"></label>
+  <label><input id="agree" type="checkbox"> Frame checkbox</label>
+  <button type="submit" id="send">Send frame form</button>
+</form>
+<button type="button" id="ping">Frame button</button>
+<p id="status">idle</p>
+<script>
+  const name = new URLSearchParams(location.search).get("name") ?? "frame";
+  document.getElementById("heading").textContent = `Frame ${name} at ${location.host}`;
+  const state = { frame: name, origin: location.origin, clicks: 0, submitted: null, value: "", checked: false };
+  const send = () => {
+    document.getElementById("status").textContent = JSON.stringify(state);
+    window.top.postMessage({ type: "frame-state", state }, "*");
+  };
+  document.getElementById("ping").addEventListener("click", (event) => { state.clicks += 1; state.trusted = event.isTrusted; send(); });
+  document.getElementById("q").addEventListener("input", (event) => { state.value = event.target.value; send(); });
+  document.getElementById("agree").addEventListener("change", (event) => { state.checked = event.target.checked; send(); });
+  document.getElementById("form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    state.submitted = document.getElementById("q").value;
+    send();
+  });
+  send();
+</script>
+</body>
+</html>

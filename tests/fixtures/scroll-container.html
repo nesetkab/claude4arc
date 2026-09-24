@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Scroll container</title>
+<style>
+  #panel { height: 240px; width: 360px; overflow-y: auto; border: 1px solid #999; }
+  .filler { height: 60px; border-bottom: 1px solid #eee; }
+</style>
+</head>
+<body>
+<main>
+<h1>Inner scrolling panel</h1>
+<div id="panel"></div>
+<pre id="result">none</pre>
+</main>
+<script>
+  const panel = document.getElementById("panel");
+  panel.innerHTML = Array.from({ length: 40 }, (_, i) => `<div class="filler">Filler ${i + 1}</div>`).join("") +
+    `<button type="button" id="deep-button">Deep save</button><div class="filler"></div>`;
+  document.getElementById("deep-button").addEventListener("click", () => {
+    document.getElementById("result").textContent = JSON.stringify({ clicked: true, panelScrollTop: panel.scrollTop > 0 });
+  });
+</script>
+</body>
+</html>

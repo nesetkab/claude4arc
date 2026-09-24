@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hover menu</title>
+<style>
+  nav { display: inline-block; position: relative; }
+  #menu-button { padding: 8px 16px; border: 1px solid #999; }
+  #submenu { display: none; position: absolute; top: 100%; left: 0; background: #fff; border: 1px solid #999; padding: 4px 0; min-width: 160px; }
+  nav:hover #submenu { display: block; }
+  #submenu a { display: block; padding: 6px 12px; }
+  #js-panel { display: none; }
+  #js-trigger.hovered + #js-panel { display: block; }
+</style>
+</head>
+<body>
+<main>
+<h1>Hover to reveal</h1>
+<nav>
+  <span id="menu-button">Account</span>
+  <div id="submenu">
+    <a href="#profile" id="profile" onclick="document.getElementById('result').textContent = 'profile'">Profile</a>
+    <a href="#settings" id="settings" onclick="document.getElementById('result').textContent = 'settings'">Settings</a>
+  </div>
+</nav>
+<div style="margin-top: 120px">
+  <span id="js-trigger">More info</span>
+  <div id="js-panel"><button type="button" id="js-action" onclick="document.getElementById('result').textContent = 'js-action'">Reveal action</button></div>
+</div>
+<pre id="result">none</pre>
+</main>
+<script>
+  const trigger = document.getElementById("js-trigger");
+  trigger.addEventListener("mouseenter", () => trigger.classList.add("hovered"));
+  document.getElementById("js-panel").addEventListener("mouseleave", () => trigger.classList.remove("hovered"));
+</script>
+</body>
+</html>

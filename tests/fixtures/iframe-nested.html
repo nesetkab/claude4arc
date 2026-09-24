@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Nested cross-origin iframes</title></head>
+<body>
+<main>
+<h1>Nested cross-origin iframes</h1>
+<button type="button" id="top-button" onclick="document.getElementById('top-status').textContent='top clicked'">Top button</button>
+<span id="top-status"></span>
+<br>
+<iframe id="frame" title="Middle frame" src="http://127.0.0.1:8812/frame-mid.html?leaf=localhost:8811" width="480" height="380"></iframe>
+<pre id="result">{}</pre>
+</main>
+<script>
+  const frames = {};
+  window.addEventListener("message", (event) => {
+    if (event.data?.type !== "frame-state") return;
+    frames[event.data.state.frame] = event.data.state;
+    document.getElementById("result").textContent = JSON.stringify(frames);
+  });
+</script>
+</body>
+</html>

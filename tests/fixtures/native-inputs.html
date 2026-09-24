@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Native inputs</title></head>
+<body>
+<main>
+<h1>Native inputs</h1>
+<label>Country <select id="country"><option value="">Choose</option><option value="de">Germany</option><option value="fr">France</option><option value="jp">Japan</option></select></label><br>
+<label>Date <input id="date" type="date"></label><br>
+<label>Time <input id="time" type="time"></label><br>
+<label>Volume <input id="range" type="range" min="0" max="100" value="10"></label><br>
+<label>Color <input id="color" type="color" value="#000000"></label><br>
+<pre id="result">{}</pre>
+</main>
+<script>
+  const state = {};
+  const events = {};
+  for (const id of ["country", "date", "time", "range", "color"]) {
+    const element = document.getElementById(id);
+    for (const type of ["input", "change"]) {
+      element.addEventListener(type, () => {
+        state[id] = element.value;
+        events[`${id}:${type}`] = true;
+        document.getElementById("result").textContent = JSON.stringify({ state, events });
+      });
+    }
+  }
+</script>
+</body>
+</html>

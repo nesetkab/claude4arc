@@ -1,0 +1,13 @@
+{
+  "name": "arc-browser",
+  "version": "0.1.0",
+  "description": "Let Claude Code drive the Arc browser through a local extension bridge.",
+  "type": "module",
+  "bin": {
+    "arc-browser": "bin/arc-browser.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Keyboard shortcuts</title></head>
+<body>
+<main>
+<h1>Keyboard shortcuts</h1>
+<p>Press Control+K to open the palette. Press Escape to close it.</p>
+<div id="palette" hidden><label>Command <input id="command"></label></div>
+<pre id="result">{"keys":[]}</pre>
+</main>
+<script>
+  const keys = [];
+  let paletteOpened = 0;
+  const report = () => {
+    document.getElementById("result").textContent = JSON.stringify({
+      keys,
+      paletteOpened,
+      paletteVisible: !document.getElementById("palette").hidden,
+      command: document.getElementById("command").value,
+    });
+  };
+  document.addEventListener("keydown", (event) => {
+    const combo = [event.ctrlKey && "Control", event.metaKey && "Meta", event.altKey && "Alt", event.shiftKey && "Shift", event.key].filter(Boolean).join("+");
+    keys.push({ combo, code: event.code, trusted: event.isTrusted });
+    if (event.ctrlKey && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      paletteOpened += 1;
+      document.getElementById("palette").hidden = false;
+      document.getElementById("command").focus();
+    }
+    if (event.key === "Escape") document.getElementById("palette").hidden = true;
+    report();
+  });
+  document.getElementById("command").addEventListener("input", report);
+</script>
+</body>
+</html>

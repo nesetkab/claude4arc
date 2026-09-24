@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Delayed content</title></head>
+<body>
+<main>
+<h1>Slow dashboard</h1>
+<p id="spinner">Loading...</p>
+<div id="slot"></div>
+<pre id="result">none</pre>
+</main>
+<script>
+  const started = performance.now();
+  setTimeout(() => {
+    document.getElementById("spinner").remove();
+    document.getElementById("slot").innerHTML = `<button type="button" id="late">Late button</button>`;
+    document.getElementById("late").addEventListener("click", () => {
+      document.getElementById("result").textContent = JSON.stringify({ clicked: true, after: Math.round(performance.now() - started) });
+    });
+  }, 1500);
+</script>
+</body>
+</html>

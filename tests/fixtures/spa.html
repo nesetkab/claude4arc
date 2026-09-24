@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>SPA home</title></head>
+<body>
+<nav>
+  <a href="/spa/" data-route>Home</a>
+  <a href="/spa/about" data-route>About</a>
+  <a href="/spa/contact" data-route>Contact</a>
+</nav>
+<main>
+<h1 id="heading"></h1>
+<pre id="result"></pre>
+</main>
+<script>
+  const routes = { "/spa/": "Home page", "/spa": "Home page", "/spa/about": "About us", "/spa/contact": "Contact us" };
+  let renders = 0;
+  const render = () => {
+    renders += 1;
+    const title = routes[location.pathname] ?? "Not found";
+    document.getElementById("heading").textContent = title;
+    document.title = `SPA ${title}`;
+    document.getElementById("result").textContent = JSON.stringify({ path: location.pathname, title, renders });
+  };
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest("a[data-route]");
+    if (!link) return;
+    event.preventDefault();
+    history.pushState({}, "", link.getAttribute("href"));
+    setTimeout(render, 150);
+  });
+  window.addEventListener("popstate", render);
+  render();
+</script>
+</body>
+</html>

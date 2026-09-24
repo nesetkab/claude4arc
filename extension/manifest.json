@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Arc for Claude",
+  "version": "0.2.0",
+  "description": "Lets Claude Code control Arc through a local native messaging bridge.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtVt9tTARyz+OoLW9OAZRFWdqNcTTaFGqNd84PFLq0N+HpDEjRc5RHzeBkw1rjSCPL6Wvlm48MgtWSDCWwBtsmvYhCsbAodaEyRBngPGcRYN0j/BK3iaQT9CQu/EuVugSaIehizrp5JdEAyV9FUjlm3N72KnZngxnt6/07/zwI1uSTUgWrUYwgKjStS9UVNGqlGT6TFde25Q1RyysU8AtbW003QqbqsgAhXI+WQ8+OE3F26nQp4aNYk7LUn0iXhRHjKpSaJo3xbC9gHxgzGlkiVpafHdmC5sxH9DVSN45OqaxXTPtzTakoWwkVFl+MKn16t6tzzSoWRZNddyY7CPInwIDAQAB",
+  "permissions": [
+    "debugger",
+    "tabs",
+    "nativeMessaging",
+    "alarms"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "minimum_chrome_version": "125"
+}

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Editor</title>
+<style>#editor { border: 1px solid #999; min-height: 120px; padding: 8px; width: 480px; }</style>
+</head>
+<body>
+<main>
+<h1>Rich text editor</h1>
+<div id="editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Message body"><p>Old draft text</p></div>
+<pre id="result">{}</pre>
+</main>
+<script>
+  const editor = document.getElementById("editor");
+  const log = { inputs: 0, beforeinput: 0 };
+  const report = () => {
+    document.getElementById("result").textContent = JSON.stringify({ text: editor.innerText.trim(), ...log });
+  };
+  editor.addEventListener("beforeinput", () => { log.beforeinput += 1; });
+  editor.addEventListener("input", () => { log.inputs += 1; report(); });
+  report();
+</script>
+</body>
+</html>

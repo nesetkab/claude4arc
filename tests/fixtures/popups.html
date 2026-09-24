@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Popups</title></head>
+<body>
+<main>
+<h1>Popups and new tabs</h1>
+<button type="button" id="open-popup">Open popup window</button>
+<p><a id="blank-link" href="/popup-target.html?via=link" target="_blank">Open link in new tab</a></p>
+<form id="blank-form" action="/echo" method="post" target="_blank">
+  <label>Comment <input id="comment" name="comment"></label>
+  <button type="submit" id="blank-submit">Submit in new tab</button>
+</form>
+<pre id="result">none</pre>
+</main>
+<script>
+  document.getElementById("open-popup").addEventListener("click", () => {
+    const popup = window.open("/popup-target.html?via=window.open", "arcpopup", "width=480,height=360");
+    document.getElementById("result").textContent = popup ? "window.open returned a window" : "window.open blocked";
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Infinite list</title>
+<style>.item { height: 48px; border-bottom: 1px solid #ddd; } #result { position: fixed; top: 0; right: 0; background: #ffe; }</style>
+</head>
+<body>
+<main>
+<h1>Infinite feed</h1>
+<div id="feed"></div>
+<p id="loader">Loading more...</p>
+<pre id="result">none</pre>
+</main>
+<script>
+  const feed = document.getElementById("feed");
+  let count = 0;
+  const more = () => {
+    const html = [];
+    for (let i = 0; i < 20; i += 1) {
+      count += 1;
+      html.push(`<div class="item"><button id="item-${count}" onclick="document.getElementById('result').textContent='clicked ${count}'">Item ${count}</button></div>`);
+    }
+    feed.insertAdjacentHTML("beforeend", html.join(""));
+  };
+  more();
+  new IntersectionObserver((entries) => {
+    if (entries.some((entry) => entry.isIntersecting) && count < 200) setTimeout(more, 100);
+  }).observe(document.getElementById("loader"));
+</script>
+</body>
+</html>

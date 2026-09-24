@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Upload</title>
+<style>
+  #file { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+  #pick { display: inline-block; padding: 10px 18px; background: #246; color: #fff; border-radius: 6px; cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+<h1>Upload a document</h1>
+<input type="file" id="file" multiple>
+<button type="button" id="pick" onclick="document.getElementById('file').click()">Choose files</button>
+<pre id="result">none</pre>
+</main>
+<script>
+  document.getElementById("file").addEventListener("change", async (event) => {
+    const files = [...event.target.files];
+    const described = await Promise.all(files.map(async (file) => ({ name: file.name, size: file.size, text: (await file.text()).slice(0, 40) })));
+    document.getElementById("result").textContent = JSON.stringify({ files: described, trusted: event.isTrusted });
+  });
+</script>
+</body>
+</html>

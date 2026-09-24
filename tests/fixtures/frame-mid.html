@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Middle frame</title></head>
+<body>
+<h2>Middle frame</h2>
+<button type="button" id="mid-button" onclick="window.top.postMessage({ type: 'frame-state', state: { frame: 'mid', clicks: 1 } }, '*')">Middle button</button>
+<iframe id="leaf" title="Leaf frame" width="420" height="260"></iframe>
+<script>
+  const leafHost = new URLSearchParams(location.search).get("leaf") ?? "localhost:8811";
+  document.getElementById("leaf").src = `http://${leafHost}/frame-form.html?name=leaf`;
+</script>
+</body>
+</html>

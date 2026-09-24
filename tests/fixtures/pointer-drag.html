@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pointer drag</title>
+<style>
+  #list { position: relative; width: 240px; padding: 0; }
+  .row { height: 40px; line-height: 40px; margin-bottom: 6px; padding: 0 10px; border: 1px solid #999; background: #f6f6f6; list-style: none; user-select: none; cursor: grab; }
+  .row.dragging { opacity: 0.6; position: relative; z-index: 2; }
+</style>
+</head>
+<body>
+<main>
+<h1>Sortable (mouse events)</h1>
+<ul id="list">
+  <li class="row" id="row-1">One</li>
+  <li class="row" id="row-2">Two</li>
+  <li class="row" id="row-3">Three</li>
+  <li class="row" id="row-4">Four</li>
+</ul>
+<pre id="result"></pre>
+</main>
+<script>
+  const list = document.getElementById("list");
+  let drag = null;
+  let moves = 0;
+  const report = () => {
+    document.getElementById("result").textContent = JSON.stringify({ order: [...list.children].map((row) => row.textContent), moves });
+  };
+  list.addEventListener("mousedown", (event) => {
+    const row = event.target.closest(".row");
+    if (!row) return;
+    drag = { row, startY: event.clientY };
+    row.classList.add("dragging");
+    event.preventDefault();
+  });
+  document.addEventListener("mousemove", (event) => {
+    if (!drag) return;
+    moves += 1;
+    drag.row.style.top = `${event.clientY - drag.startY}px`;
+  });
+  document.addEventListener("mouseup", (event) => {
+    if (!drag) return;
+    const { row } = drag;
+    row.classList.remove("dragging");
+    row.style.top = "";
+    const others = [...list.children].filter((item) => item !== row);
+    const before = others.find((item) => event.clientY < item.getBoundingClientRect().top + item.offsetHeight / 2);
+    list.insertBefore(row, before ?? null);
+    drag = null;
+    report();
+  });
+  report();
+</script>
+</body>
+</html>

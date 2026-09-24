@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Popup target</title></head>
+<body>
+<main>
+<h1>Popup target</h1>
+<p id="result">popup loaded, opener=<span id="opener"></span></p>
+</main>
+<script>document.getElementById("opener").textContent = String(Boolean(window.opener));</script>
+</body>
+</html>

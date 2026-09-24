@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Combobox</title>
+<style>
+  .wrap { position: relative; width: 260px; }
+  [role=listbox] { position: absolute; top: 100%; left: 0; right: 0; margin: 0; padding: 0; list-style: none; border: 1px solid #999; background: #fff; }
+  [role=listbox][hidden] { display: none; }
+  [role=option] { padding: 4px 8px; cursor: pointer; }
+  [role=option][aria-selected=true] { background: #dde; }
+</style>
+</head>
+<body>
+<main>
+<h1>Custom combobox</h1>
+<label id="fruit-label" for="fruit">Fruit</label>
+<div class="wrap">
+  <input id="fruit" role="combobox" aria-expanded="false" aria-controls="fruit-list" aria-autocomplete="list" autocomplete="off">
+  <ul id="fruit-list" role="listbox" aria-labelledby="fruit-label" hidden></ul>
+</div>
+<p style="margin-top: 200px">Selected: <span id="result">none</span></p>
+</main>
+<script>
+  const fruits = ["Apple", "Apricot", "Banana", "Blueberry", "Cherry", "Grape", "Mango", "Orange"];
+  const input = document.getElementById("fruit");
+  const list = document.getElementById("fruit-list");
+  let active = -1;
+  let shown = [];
+  const render = () => {
+    const query = input.value.toLowerCase();
+    shown = fruits.filter((fruit) => fruit.toLowerCase().includes(query));
+    list.innerHTML = shown.map((fruit, index) => `<li role="option" id="opt-${fruit}" aria-selected="${index === active}">${fruit}</li>`).join("");
+    input.setAttribute("aria-activedescendant", active >= 0 ? `opt-${shown[active]}` : "");
+  };
+  const open = () => { list.hidden = false; input.setAttribute("aria-expanded", "true"); render(); };
+  const close = () => { list.hidden = true; input.setAttribute("aria-expanded", "false"); active = -1; };
+  const choose = (fruit) => { input.value = fruit; document.getElementById("result").textContent = fruit; close(); };
+  input.addEventListener("focus", open);
+  input.addEventListener("click", open);
+  input.addEventListener("input", () => { active = -1; open(); });
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowDown") { active = Math.min(active + 1, shown.length - 1); open(); event.preventDefault(); }
+    if (event.key === "ArrowUp") { active = Math.max(active - 1, 0); open(); event.preventDefault(); }
+    if (event.key === "Enter" && active >= 0) { choose(shown[active]); event.preventDefault(); }
+    if (event.key === "Escape") close();
+  });
+  input.addEventListener("blur", () => setTimeout(close, 150));
+  list.addEventListener("mousedown", (event) => {
+    const option = event.target.closest("[role=option]");
+    if (option) { event.preventDefault(); choose(option.textContent); }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Canvas</title>
+<style>canvas { border: 1px solid #999; display: block; }</style>
+</head>
+<body>
+<main>
+<h1>Canvas targets</h1>
+<canvas id="board" width="400" height="300" aria-label="Game board"></canvas>
+<pre id="result">none</pre>
+</main>
+<script>
+  const canvas = document.getElementById("board");
+  const context = canvas.getContext("2d");
+  const targets = [
+    { name: "red", x: 60, y: 60, r: 30, color: "#d33" },
+    { name: "green", x: 200, y: 150, r: 30, color: "#3a3" },
+    { name: "blue", x: 340, y: 240, r: 30, color: "#33d" },
+  ];
+  for (const target of targets) {
+    context.fillStyle = target.color;
+    context.beginPath();
+    context.arc(target.x, target.y, target.r, 0, Math.PI * 2);
+    context.fill();
+  }
+  canvas.addEventListener("click", (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.round(event.clientX - rect.left);
+    const y = Math.round(event.clientY - rect.top);
+    const hit = targets.find((target) => Math.hypot(target.x - x, target.y - y) <= target.r);
+    document.getElementById("result").textContent = JSON.stringify({ x, y, hit: hit?.name ?? null, trusted: event.isTrusted });
+  });
+</script>
+</body>
+</html>

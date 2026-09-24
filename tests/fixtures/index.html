@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Fixtures</title></head>
+<body>
+<main>
+<h1>arc-browser fixtures</h1>
+<ul id="list"></ul>
+<p id="result">index</p>
+</main>
+<script>
+  const pages = ["react-form", "combobox", "native-inputs", "editor", "dnd", "pointer-drag", "infinite-list", "virtual-list", "canvas", "shadow", "iframe-same", "iframe-cross", "iframe-cross-site", "iframe-nested", "popups", "dialogs", "hover-menu", "keys", "upload", "scroll-container", "sticky-header", "spa", "delayed", "disabled"];
+  document.getElementById("list").innerHTML = pages.map((name) => `<li><a href="/${name}.html">${name}</a></li>`).join("");
+</script>
+</body>
+</html>

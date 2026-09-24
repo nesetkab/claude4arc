@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>HTML5 drag and drop</title>
+<style>
+  li { padding: 10px; margin: 4px; border: 1px solid #999; width: 200px; background: #f6f6f6; list-style: none; }
+  #bin { margin-top: 20px; width: 220px; height: 80px; border: 2px dashed #999; }
+</style>
+</head>
+<body>
+<main>
+<h1>Drag to reorder</h1>
+<ul id="list">
+  <li draggable="true" id="item-a">Alpha</li>
+  <li draggable="true" id="item-b">Bravo</li>
+  <li draggable="true" id="item-c">Charlie</li>
+  <li draggable="true" id="item-d">Delta</li>
+</ul>
+<div id="bin">Trash</div>
+<pre id="result"></pre>
+</main>
+<script>
+  const list = document.getElementById("list");
+  const bin = document.getElementById("bin");
+  let dragged = null;
+  let dataTransferOk = false;
+  const report = (extra = {}) => {
+    document.getElementById("result").textContent = JSON.stringify({
+      order: [...list.children].map((item) => item.textContent),
+      dataTransferOk,
+      ...extra,
+    });
+  };
+  list.addEventListener("dragstart", (event) => {
+    dragged = event.target.closest("li");
+    event.dataTransfer.setData("text/plain", dragged.id);
+    event.dataTransfer.effectAllowed = "move";
+  });
+  list.addEventListener("dragover", (event) => event.preventDefault());
+  list.addEventListener("drop", (event) => {
+    event.preventDefault();
+    const target = event.target.closest("li");
+    dataTransferOk = event.dataTransfer.getData("text/plain") === dragged?.id;
+    if (target && dragged && target !== dragged) {
+      const after = event.clientY > target.getBoundingClientRect().top + target.offsetHeight / 2;
+      list.insertBefore(dragged, after ? target.nextSibling : target);
+    }
+    report();
+  });
+  bin.addEventListener("dragover", (event) => event.preventDefault());
+  bin.addEventListener("drop", (event) => {
+    event.preventDefault();
+    dataTransferOk = event.dataTransfer.getData("text/plain") === dragged?.id;
+    dragged?.remove();
+    report({ trashed: dragged?.textContent });
+  });
+  report();
+</script>
+</body>
+</html>
