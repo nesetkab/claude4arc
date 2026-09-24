@@ -27,9 +27,9 @@ arc-browser 7 fill @3 hi -- click @4 -s # chain with "--"; -s appends a diff sna
 | `text [chars]` | readable text of `<main>` (default 8000 chars) |
 | `goto <url>`, `back`, `forward`, `reload` | navigate and wait for load |
 | `click <sel>`, `dblclick`, `hover` | trusted pointer input; scrolls into view |
-| `fill <sel> <text>`, `type <text>`, `press [sel] <key>` | text and keys (`Enter`, `Meta+a`) |
+| `fill <sel> <text>`, `type <text>`, `press [sel] <key>` | text and keys (`Enter`, `Meta+a`); `fill` also sets date, time, range, and color inputs |
 | `select <sel> <value>`, `check <sel>`, `uncheck <sel>` | form controls |
-| `upload <sel> <path...>` | set a file input |
+| `upload <sel> <path...>` | set a file input (hidden inputs work; a label or wrapper also works) |
 | `scroll <dy>`, `wait <sel\|ms\|url:part\|gone:sel>` | scroll; wait for a condition |
 | `accept [text]` | accept the next confirm/prompt; put it before the action |
 | `eval <js>` | run a JS expression in the page, print the result |
