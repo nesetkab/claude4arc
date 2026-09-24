@@ -296,16 +296,35 @@ const scenarios = [
     name: "virtual-list",
     fixture: "virtual-list.html",
     async run(s) {
-      await s.script(`
-const box = await p.evaluate(() => { const r = document.getElementById("viewport").getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; });
-for (let i = 0; i < 6; i += 1) {
-  if (await p.evaluate(() => Boolean(document.querySelector('[data-row="500"]')))) break;
-  const top = await p.evaluate(() => document.getElementById("viewport").scrollTop);
-  await p.scroll(15000 - top, box);
-}
-await p.click('text="Row 500"');`);
+      const found = await s.cmd("seek", "Row 500");
+      const [ref] = refs(found, /button "Row 500"/);
+      expect(ref, `seek: ${show(found)}`);
+      await s.cmd("click", ref);
       const result = await s.result();
       expect(result === "row 500", `result ${show(result)}`);
+    },
+  },
+  {
+    name: "virtual-list-seek-container",
+    fixture: "virtual-list.html",
+    async run(s) {
+      await s.cmd("seek", '[data-row="240"] button', "#viewport", "--", "click", 'text="Row 240"');
+      const result = await s.result();
+      expect(result === "row 240", `result ${show(result)}`);
+    },
+  },
+  {
+    name: "infinite-seek",
+    fixture: "infinite-list.html",
+    async run(s) {
+      const found = await s.cmd("seek", "#item-150");
+      const [ref] = refs(found, /Item 150/);
+      expect(ref, `seek: ${show(found)}`);
+      await s.cmd("click", ref);
+      const result = await s.result();
+      expect(result === "clicked 150", `result ${show(result)}`);
+      const missing = await s.attempt("seek", "#item-999");
+      expect(!missing.ok && /reached the end/.test(missing.error), `missing item: ${show(missing)}`);
     },
   },
   {

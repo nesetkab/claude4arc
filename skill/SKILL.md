@@ -24,6 +24,7 @@ arc-browser 7 fill @3 hi -- click @4 -s # chain with "--"; -s appends a diff sna
 | `snap` / `snap full` / `snap @12` | viewport / whole page / one subtree snapshot |
 | `diff` | only what changed since the last snapshot of this page |
 | `find <words>` | matching elements anywhere on the page, with refs |
+| `seek <sel\|words> [container]` | scroll a feed or virtualized list until a match renders; prints its ref |
 | `text [chars]` | readable text of `<main>` (default 8000 chars) |
 | `goto <url>`, `back`, `forward`, `reload` | navigate and wait for load |
 | `click <sel>`, `dblclick`, `hover` | trusted pointer input; scrolls into view |
@@ -55,6 +56,10 @@ including lines that are scrolled out of view.
 - Chain every step you can already decide: `fill @3 x -- fill @4 y -- click @5 -s`.
 - Use `wait url:/done` or `wait <sel>` instead of fixed delays.
 - Refs (`@12`) stay valid while the element exists. After navigation, refs reset.
+- `find` sees only rendered elements. For infinite feeds and virtualized lists
+  (Gmail, X, large tables), use `seek "Invoice 1234"` or `seek #row-99 #list`: it
+  wheels the list container step by step until the match renders, then prints
+  its ref. Bare words are text; use `css=tag` for a tag name.
 - Use one task per user goal and reuse its pages with `goto`.
 
 ## Snapshot format
@@ -84,8 +89,8 @@ stitched into the snapshot. Their refs carry the frame ref: `@24.1` is element
 `@12`, `text=Sign in` (substring, any case), `text="Sign in"` (exact),
 `role=button[name="Sign in"]`, `role=link[name*="docs"]` (textbox, searchbox,
 and combobox match one another), `loc=href:/pricing`, `xpath=...`,
-`css=.card:has-text("Pro")`, raw CSS (includes open shadow roots and
-same-origin iframes), and a `>> nth=0` suffix. An ambiguous selector fails and
+`css=.card:has-text("Pro")`, raw CSS (includes open and closed shadow roots
+and same-origin iframes), and a `>> nth=0` suffix. An ambiguous selector fails and
 lists the candidates with refs.
 
 ## Scripts (loops, extraction, complex logic)
@@ -99,7 +104,7 @@ EOF
 
 With a task id, `t` (task) and `page` (current page) are predefined. Without
 one, use `const t = await task("name")` or `await task(7)`. Page methods:
-`goto, snapshot({scope, root, diff}), find, text, click, fill, press, check,
+`goto, snapshot({scope, root, diff}), find, seek(sel, {container, max, timeout, direction}), text, click, fill, press, check,
 selectOption, setInputFiles, hover, dragAndDrop, scroll, waitForURL,
 waitForSelector, waitForFunction, evaluate(fn, arg), fetch(url, {saveAs}),
 screenshot, bringToFront, acceptDialog, dismissDialog, mouse.*, keyboard.*,
