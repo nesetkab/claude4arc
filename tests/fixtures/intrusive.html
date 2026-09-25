@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Intrusive actions</title></head>
+<body>
+<main>
+<h1>Intrusive actions</h1>
+<button id="copy-api" onclick="navigator.clipboard.writeText('secret from api')">Copy with API</button>
+<input id="source" value="secret from exec">
+<button id="copy-exec" onclick="document.getElementById('source').select(); document.execCommand('copy')">Copy with execCommand</button>
+<button id="print" onclick="window.print()">Print</button>
+<button id="fullscreen" onclick="document.documentElement.requestFullscreen()">Fullscreen</button>
+<a id="mail" href="mailto:someone@example.com">Email us</a>
+<button id="notify" onclick="Notification.requestPermission().then((r) => (document.getElementById('result').textContent = r))">Notify</button>
+<button id="locate" onclick="navigator.geolocation.getCurrentPosition(() => (document.getElementById('result').textContent = 'located'), (e) => (document.getElementById('result').textContent = 'geo:' + e.code))">Locate</button>
+<input id="picker" type="file">
+<pre id="result"></pre>
+</main>
+</body>
+</html>

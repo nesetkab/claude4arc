@@ -132,6 +132,13 @@ userTab(), adopt(tab), finish({keep})`. `arc-browser help` has signatures.
 - `adopt` takes over the tab the user is looking at. Never close, navigate, or
   submit in a user tab unless the user asked for it. `finish` only releases it.
 
+- Agent tabs are muted and sealed off from the user's machine: clipboard
+  writes are reported as `copied (kept off the user's clipboard): "..."`, and
+  print/share/fullscreen/permission prompts/file pickers/`mailto:` links are
+  reported as `blocked ...`. Use `upload` for files; answer permission needs
+  by asking the user.
+- PDFs: `text` extracts the whole document; `shot` shows a page.
+
 ## Safety and hand-off
 
 - Confirm with the user before you send messages, post, buy, delete data, or

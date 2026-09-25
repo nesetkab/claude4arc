@@ -102,6 +102,7 @@ function onPopupEvent(message) {
 async function injectShim(tabId, sessionId) {
   const shim = shims.get(tabId);
   if (!shim) return;
+  if (!sessionId) await send(tabId, null, "Page.setInterceptFileChooserDialog", { enabled: true }).catch(() => {});
   const key = `${tabId}:${sessionId ?? "root"}`;
   const previous = shimScripts.get(key);
   if (previous?.source === shim) return;
@@ -190,6 +191,11 @@ function onExtensionMessage(message) {
       }
     }
     if (message.method === "Page.javascriptDialogClosed") dialogs.delete(message.tabId);
+    if (message.method === "Page.fileChooserOpened" && autoDialogTabs.has(message.tabId)) {
+      const log = handledDialogs.get(message.tabId) ?? [];
+      log.push({ type: "filechooser", message: "", accepted: false, native: true });
+      handledDialogs.set(message.tabId, log.slice(-20));
+    }
     for (const client of clients) sendToClient(client, message);
     return;
   }

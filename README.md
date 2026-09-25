@@ -94,6 +94,11 @@ polling.
   host relays `window.opener.postMessage` and `window.close()` back to the
   opening page.
 - Downloads land in your Downloads folder; `wait download` prints the path.
+- Claude's tabs are muted. Clipboard writes stay inside the page (your
+  clipboard is never touched), and print dialogs, share sheets, fullscreen,
+  permission prompts (notifications, location, camera), native file pickers,
+  and external-app links (`mailto:`, `zoom:`) are blocked and reported.
+- PDFs are read with macOS PDFKit (`text` on a PDF tab).
 - In Claude's tabs, `alert`, `confirm`, and `prompt` are answered inside the
   page, so no dialog appears on your screen. Confirms and prompts default to
   cancel; Claude arms `accept` before an action when it means to accept.

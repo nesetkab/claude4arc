@@ -495,6 +495,22 @@ await p.mouse.click(r.x + 60, r.y + 60);`);
     },
   },
   {
+    name: "no-intrusion",
+    fixture: "intrusive.html",
+    async run(s) {
+      const { execFileSync } = await import("node:child_process");
+      const before = execFileSync("pbpaste", { encoding: "utf8" });
+      const outputs = [];
+      for (const id of ["copy-api", "copy-exec", "print", "fullscreen", "mail", "notify", "locate", "picker"]) outputs.push(await s.cmd("click", `#${id}`));
+      const joined = outputs.join("\n");
+      for (const expected of ["secret from api", "secret from exec", "blocked print dialog", "blocked fullscreen", "blocked external link: mailto:", "notifications denied", "location denied", "blocked file chooser"]) {
+        expect(joined.includes(expected), `missing ${show(expected)} in ${show(joined)}`);
+      }
+      expect(execFileSync("pbpaste", { encoding: "utf8" }) === before, "the user's clipboard changed");
+      expect((await s.pages()).length === 1, "an extra page opened");
+    },
+  },
+  {
     name: "download-wait",
     fixture: "download.html",
     async run(s) {
