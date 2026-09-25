@@ -84,20 +84,46 @@ polling.
 
 ## Behavior in Arc
 
-- Claude works in background tabs in your current space by default. Input,
-  snapshots, and screenshots work there without switching tabs.
-- Arc does not open new tabs from a background tab. `click()` on a
-  `target=_blank` link opens the URL as a new page instead. For popups from
-  `window.open()`, Claude calls `page.bringToFront()` first.
-- In tabs Claude opens, `alert`, `confirm`, and `prompt` are answered inside
-  the page, so no dialog appears on your screen. Confirms and prompts default
-  to cancel; Claude arms `accept` before an action when it means to accept.
-  The host dismisses any native dialog that still gets through. Tabs you own
-  keep normal dialogs.
+- Claude works in background tabs in your current space. Input, snapshots,
+  and screenshots work there without switching tabs. Arc does not render
+  hidden tabs, so the CLI requests a 1×1 capture whenever an input event
+  waits, which releases the event.
+- New windows never pop up. In Claude's tabs, `target=_blank` links and
+  `window.open` become new background pages, and forms that target a new
+  window load in the same tab.
+- In Claude's tabs, `alert`, `confirm`, and `prompt` are answered inside the
+  page, so no dialog appears on your screen. Confirms and prompts default to
+  cancel; Claude arms `accept` before an action when it means to accept.
+- Cross-origin iframes (Canvas LTI tools such as Achieve, Stripe fields,
+  embedded editors) are readable and clickable. Their refs look like `@24.1`.
+- A small content script (`extension/guard.js`) removes other extensions'
+  frames from Claude's tabs, for example the iCloud Passwords autofill list.
+  Chrome detaches every other extension's debugger from a tab that contains
+  such a frame. Your own tabs are not touched.
+- Code and rich-text editors (Monaco, CodeMirror, Ace, Quill, ProseMirror,
+  Lexical, CKEditor, TinyMCE) are filled through their own APIs.
+- `seek` scrolls virtual and infinite lists until an element appears.
+  Closed shadow roots are readable.
 - Arc shows no debugging bar. The debugger stays attached to Claude's tabs
   between commands and is released by `finish`, `close`, or closing the tab.
-- `finish()` closes only the tabs that Claude opened. Tabs you own are
-  released, never closed.
+- `finish` closes only the tabs that Claude opened. Tabs you own are released,
+  never closed.
+
+## Updating the extension
+
+After a code change in `extension/`, the CLI reloads the extension itself:
+
+```bash
+arc-browser reload-extension
+```
+
+## Tests
+
+```bash
+node tests/run.js            # all scenarios, local fixtures on 127.0.0.1:8811-8812
+node tests/run.js iframe -v  # filter by name, print each command and its time
+ARC_TEST_PORT=8900 node tests/run.js   # use other ports
+```
 
 ## Security
 

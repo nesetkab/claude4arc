@@ -33,6 +33,7 @@ Usage:
   arc-browser status            Show bridge, extension, and task state
   arc-browser tabs              List open Arc tabs
   arc-browser doctor            Diagnose installation problems
+  arc-browser reload-extension  Reload the Arc extension after changing extension/
   arc-browser install           Register the native host and link the Claude skill
   arc-browser uninstall         Remove the native host registration and skill link
   arc-browser help [topic]      Print API help (topics: api, selectors, keys)`;
@@ -280,6 +281,10 @@ async function main() {
     }
     case "status":
       await status();
+      break;
+    case "reload-extension":
+      await withBridge((bridge) => bridge.call("extension.reload"));
+      console.log("Extension reloading. Run `arc-browser status` in a few seconds.");
       break;
     case "tabs":
       await tabs();
