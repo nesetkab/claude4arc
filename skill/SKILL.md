@@ -35,7 +35,7 @@ arc-browser 7 fill @3 hi -- click @4 -s # chain with "--"; -s appends a diff sna
 | `scroll <dy>`, `wait <sel\|ms\|url:part\|gone:sel>` | scroll; wait for a condition |
 | `accept [text]` | accept the next confirm/prompt; put it before the action |
 | `eval <js>` | run a JS expression in the page, print the result |
-| `shot [full]` | screenshot PNG path (CSS pixels); view it with Read |
+| `shot [full]` | screenshot path (JPEG, CSS pixels, so image x,y = mouse x,y); view it with Read |
 | `open <url>`, `use p2`, `pages`, `tabs`, `adopt [tabId]`, `close` | pages and tabs |
 | `finish [keep...]` | end the task: closes tabs Claude opened |
 
