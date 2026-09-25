@@ -10,10 +10,25 @@ extension. Work happens in background tabs, so the user is not interrupted.
 If a command fails with "Arc bridge is not running", run `arc-browser doctor`
 and relay its output.
 
+## Speed rules (each tool call costs seconds of model time; the browser is fast)
+
+- Aim for ONE `arc-browser` call per task. Open and act in the same call:
+  `arc-browser new <url> -- fill @… x -- click text=Submit -s`. Selectors like
+  `text=…`, `role=button[name="…"]`, and `css=#id` work without a snapshot first.
+- If you need to look before acting, use `arc-browser new <url> -s` (or
+  `find <words>`), then do ALL remaining steps in the next single chain.
+- Trust receipts. `ok`, `popup p2`, `confirm "…" accepted`, `navigated → …`,
+  a `-s` diff, or `wait <sel>` succeeding already confirm the step. Do not spend
+  another call re-checking with `eval` or `snap` unless the output is unclear.
+- Reuse one task for the whole goal: `arc-browser 7 goto <url> -- …` instead of
+  `new` for every page. Close it once at the end with `finish`.
+- Put other shell steps (timestamps, file checks) in the same Bash call:
+  `date +%s; arc-browser 7 …; date +%s`.
+
 ## Commands (default: use these)
 
 ```bash
-arc-browser new <url> [-s]              # new task; prints "task 7 p1 | title | url"
+arc-browser new <url> [-- <cmd> ...] [-s] # new task, optionally act right away
 arc-browser 7 <cmd> [args]              # run on the task's current page
 arc-browser 7:p2 <cmd> [args]           # run on page p2 (and make it current)
 arc-browser 7 fill @3 hi -- click @4 -s # chain with "--"; -s appends a diff snapshot

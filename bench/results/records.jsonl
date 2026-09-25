@@ -107,3 +107,4 @@
 {"time":"2026-09-25T14:17:16.417Z","run":"script-ego","task":"b8","value":"activated"}
 {"time":"2026-09-25T14:17:20.188Z","run":"script-ego","task":"b9","value":"continued"}
 {"time":"2026-09-25T14:17:20.483Z","run":"script-ego","task":"b10","value":"signed-out"}
+{"time":"2026-09-25T14:51:35.934Z","run":"selftest","task":"b10","value":"signed-out"}
