@@ -6,3 +6,104 @@
 {"time":"2026-09-25T13:55:35.606Z","run":"selftest","task":"b9","value":"continued"}
 {"time":"2026-09-25T13:55:36.137Z","run":"selftest","task":"b10","value":"signed-out"}
 {"time":"2026-09-25T13:55:54.107Z","run":"selftest","task":"b1","value":"{\"name\":\"Ada Lovelace\",\"email\":\"ada@example.com\",\"country\":\"Portugal\",\"plan\":\"Pro\",\"terms\":true}"}
+{"time":"2026-09-25T14:07:01.788Z","run":"arc","task":"b1","value":"{\"name\":\"Ada Lovelace\",\"email\":\"ada@example.com\",\"country\":\"Portugal\",\"plan\":\"Pro\",\"terms\":true}"}
+{"time":"2026-09-25T14:07:10.798Z","run":"arc","task":"b2","value":"ARC-42"}
+{"time":"2026-09-25T14:07:17.968Z","run":"arc","task":"b3","value":"deleted"}
+{"time":"2026-09-25T14:07:29.756Z","run":"arc","task":"b4","value":"Row 777"}
+{"time":"2026-09-25T14:07:48.414Z","run":"arc","task":"b5","value":"Date,Apple,Banana,Cherry"}
+{"time":"2026-09-25T14:07:56.899Z","run":"arc","task":"b6","value":"opened"}
+{"time":"2026-09-25T14:08:06.544Z","run":"arc","task":"b7","value":"function add(a, b) {\n  return a + b;\n}"}
+{"time":"2026-09-25T14:08:18.259Z","run":"arc","task":"b8","value":"activated"}
+{"time":"2026-09-25T14:08:32.205Z","run":"arc","task":"b9","value":"continued"}
+{"time":"2026-09-25T14:08:43.186Z","run":"arc","task":"b10","value":"signed-out"}
+{"time":"2026-09-25T14:10:26.899Z","run":"ego","task":"b1","value":"{\"name\":\"Ada Lovelace\",\"email\":\"ada@example.com\",\"country\":\"Portugal\",\"plan\":\"Pro\",\"terms\":true}"}
+{"time":"2026-09-25T14:10:36.054Z","run":"ego","task":"b2","value":"ARC-42"}
+{"time":"2026-09-25T14:10:45.193Z","run":"ego","task":"b3","value":"deleted"}
+{"time":"2026-09-25T14:11:00.745Z","run":"ego","task":"b4","value":"Row 777"}
+{"time":"2026-09-25T14:11:13.997Z","run":"ego","task":"b5","value":"Date,Apple,Banana,Cherry"}
+{"time":"2026-09-25T14:11:23.641Z","run":"ego","task":"b6","value":"opened"}
+{"time":"2026-09-25T14:11:38.628Z","run":"ego","task":"b7","value":"function add(a, b) {\n  return a + b;\n}"}
+{"time":"2026-09-25T14:11:47.423Z","run":"ego","task":"b8","value":"activated"}
+{"time":"2026-09-25T14:12:06.195Z","run":"ego","task":"b9","value":"continued"}
+{"time":"2026-09-25T14:12:16.035Z","run":"ego","task":"b10","value":"signed-out"}
+{"time":"2026-09-25T14:14:46.445Z","run":"script-arc","task":"b1","value":"{\"name\":\"Ada Lovelace\",\"email\":\"ada@example.com\",\"country\":\"Portugal\",\"plan\":\"Pro\",\"terms\":true}"}
+{"time":"2026-09-25T14:15:25.694Z","run":"script-arc","task":"b1","value":"{\"name\":\"Ada Lovelace\",\"email\":\"ada@example.com\",\"country\":\"Portugal\",\"plan\":\"Pro\",\"terms\":true}"}
+{"time":"2026-09-25T14:15:26.605Z","run":"script-arc","task":"b2","value":"ARC-42"}
+{"time":"2026-09-25T14:15:26.903Z","run":"script-arc","task":"b3","value":"deleted"}
+{"time":"2026-09-25T14:15:31.512Z","run":"script-arc","task":"b4","value":"Row 777"}
+{"time":"2026-09-25T14:15:32.751Z","run":"script-arc","task":"b5","value":"Date,Apple,Banana,Cherry"}
+{"time":"2026-09-25T14:15:33.474Z","run":"script-arc","task":"b6","value":"opened"}
+{"time":"2026-09-25T14:15:34.287Z","run":"script-arc","task":"b7","value":"function add(a, b) {\n  return a + b;\n}"}
+{"time":"2026-09-25T14:15:34.636Z","run":"script-arc","task":"b8","value":"activated"}
+{"time":"2026-09-25T14:15:37.569Z","run":"script-arc","task":"b9","value":"continued"}
+{"time":"2026-09-25T14:15:38.007Z","run":"script-arc","task":"b10","value":"signed-out"}
+{"time":"2026-09-25T14:15:42.208Z","run":"script-ego","task":"b1","value":"{\"name\":\"Ada Lovelace\",\"email\":\"ada@example.com\",\"country\":\"Portugal\",\"plan\":\"Pro\",\"terms\":true}"}
+{"time":"2026-09-25T14:15:43.869Z","run":"script-ego","task":"b2","value":"ARC-42"}
+{"time":"2026-09-25T14:15:44.133Z","run":"script-ego","task":"b3","value":"deleted"}
+{"time":"2026-09-25T14:15:44.385Z","run":"script-ego","task":"b4","value":"Row 777"}
+{"time":"2026-09-25T14:15:44.803Z","run":"script-ego","task":"b5","value":"Date,Apple,Banana,Cherry"}
+{"time":"2026-09-25T14:15:45.092Z","run":"script-ego","task":"b6","value":"opened"}
+{"time":"2026-09-25T14:15:46.610Z","run":"script-ego","task":"b7","value":"function add(a, b) {\n  return a + b;\n}"}
+{"time":"2026-09-25T14:15:46.904Z","run":"script-ego","task":"b8","value":"activated"}
+{"time":"2026-09-25T14:15:50.721Z","run":"script-ego","task":"b9","value":"continued"}
+{"time":"2026-09-25T14:15:51.049Z","run":"script-ego","task":"b10","value":"signed-out"}
+{"time":"2026-09-25T14:16:11.998Z","run":"script-arc","task":"b1","value":"{\"name\":\"Ada Lovelace\",\"email\":\"ada@example.com\",\"country\":\"Portugal\",\"plan\":\"Pro\",\"terms\":true}"}
+{"time":"2026-09-25T14:16:13.087Z","run":"script-arc","task":"b2","value":"ARC-42"}
+{"time":"2026-09-25T14:16:13.366Z","run":"script-arc","task":"b3","value":"deleted"}
+{"time":"2026-09-25T14:16:13.654Z","run":"script-arc","task":"b4","value":"Row 777"}
+{"time":"2026-09-25T14:16:14.779Z","run":"script-arc","task":"b5","value":"Date,Apple,Banana,Cherry"}
+{"time":"2026-09-25T14:16:15.636Z","run":"script-arc","task":"b6","value":"opened"}
+{"time":"2026-09-25T14:16:16.498Z","run":"script-arc","task":"b7","value":"function add(a, b) {\n  return a + b;\n}"}
+{"time":"2026-09-25T14:16:16.832Z","run":"script-arc","task":"b8","value":"activated"}
+{"time":"2026-09-25T14:16:19.687Z","run":"script-arc","task":"b9","value":"continued"}
+{"time":"2026-09-25T14:16:20.090Z","run":"script-arc","task":"b10","value":"signed-out"}
+{"time":"2026-09-25T14:16:24.861Z","run":"script-ego","task":"b1","value":"{\"name\":\"Ada Lovelace\",\"email\":\"ada@example.com\",\"country\":\"Portugal\",\"plan\":\"Pro\",\"terms\":true}"}
+{"time":"2026-09-25T14:16:25.587Z","run":"script-ego","task":"b2","value":"ARC-42"}
+{"time":"2026-09-25T14:16:25.804Z","run":"script-ego","task":"b3","value":"deleted"}
+{"time":"2026-09-25T14:16:25.950Z","run":"script-ego","task":"b4","value":"Row 777"}
+{"time":"2026-09-25T14:16:26.437Z","run":"script-ego","task":"b5","value":"Date,Apple,Banana,Cherry"}
+{"time":"2026-09-25T14:16:26.697Z","run":"script-ego","task":"b6","value":"opened"}
+{"time":"2026-09-25T14:16:28.197Z","run":"script-ego","task":"b7","value":"function add(a, b) {\n  return a + b;\n}"}
+{"time":"2026-09-25T14:16:28.502Z","run":"script-ego","task":"b8","value":"activated"}
+{"time":"2026-09-25T14:16:32.313Z","run":"script-ego","task":"b9","value":"continued"}
+{"time":"2026-09-25T14:16:32.625Z","run":"script-ego","task":"b10","value":"signed-out"}
+{"time":"2026-09-25T14:16:36.680Z","run":"script-ego","task":"b1","value":"{\"name\":\"Ada Lovelace\",\"email\":\"ada@example.com\",\"country\":\"Portugal\",\"plan\":\"Pro\",\"terms\":true}"}
+{"time":"2026-09-25T14:16:37.403Z","run":"script-ego","task":"b2","value":"ARC-42"}
+{"time":"2026-09-25T14:16:37.617Z","run":"script-ego","task":"b3","value":"deleted"}
+{"time":"2026-09-25T14:16:37.769Z","run":"script-ego","task":"b4","value":"Row 777"}
+{"time":"2026-09-25T14:16:39.150Z","run":"script-ego","task":"b5","value":"Date,Apple,Banana,Cherry"}
+{"time":"2026-09-25T14:16:39.387Z","run":"script-ego","task":"b6","value":"opened"}
+{"time":"2026-09-25T14:16:40.887Z","run":"script-ego","task":"b7","value":"function add(a, b) {\n  return a + b;\n}"}
+{"time":"2026-09-25T14:16:41.084Z","run":"script-ego","task":"b8","value":"activated"}
+{"time":"2026-09-25T14:16:44.884Z","run":"script-ego","task":"b9","value":"continued"}
+{"time":"2026-09-25T14:16:45.233Z","run":"script-ego","task":"b10","value":"signed-out"}
+{"time":"2026-09-25T14:16:47.680Z","run":"script-arc","task":"b1","value":"{\"name\":\"Ada Lovelace\",\"email\":\"ada@example.com\",\"country\":\"Portugal\",\"plan\":\"Pro\",\"terms\":true}"}
+{"time":"2026-09-25T14:16:48.983Z","run":"script-arc","task":"b2","value":"ARC-42"}
+{"time":"2026-09-25T14:16:49.298Z","run":"script-arc","task":"b3","value":"deleted"}
+{"time":"2026-09-25T14:16:49.671Z","run":"script-arc","task":"b4","value":"Row 777"}
+{"time":"2026-09-25T14:16:50.834Z","run":"script-arc","task":"b5","value":"Date,Apple,Banana,Cherry"}
+{"time":"2026-09-25T14:16:52.137Z","run":"script-arc","task":"b6","value":"opened"}
+{"time":"2026-09-25T14:16:52.927Z","run":"script-arc","task":"b7","value":"function add(a, b) {\n  return a + b;\n}"}
+{"time":"2026-09-25T14:16:53.264Z","run":"script-arc","task":"b8","value":"activated"}
+{"time":"2026-09-25T14:16:56.228Z","run":"script-arc","task":"b9","value":"continued"}
+{"time":"2026-09-25T14:16:56.642Z","run":"script-arc","task":"b10","value":"signed-out"}
+{"time":"2026-09-25T14:16:58.233Z","run":"script-arc","task":"b1","value":"{\"name\":\"Ada Lovelace\",\"email\":\"ada@example.com\",\"country\":\"Portugal\",\"plan\":\"Pro\",\"terms\":true}"}
+{"time":"2026-09-25T14:16:59.445Z","run":"script-arc","task":"b2","value":"ARC-42"}
+{"time":"2026-09-25T14:16:59.765Z","run":"script-arc","task":"b3","value":"deleted"}
+{"time":"2026-09-25T14:17:00.056Z","run":"script-arc","task":"b4","value":"Row 777"}
+{"time":"2026-09-25T14:17:01.208Z","run":"script-arc","task":"b5","value":"Date,Apple,Banana,Cherry"}
+{"time":"2026-09-25T14:17:02.678Z","run":"script-arc","task":"b6","value":"opened"}
+{"time":"2026-09-25T14:17:03.475Z","run":"script-arc","task":"b7","value":"function add(a, b) {\n  return a + b;\n}"}
+{"time":"2026-09-25T14:17:03.860Z","run":"script-arc","task":"b8","value":"activated"}
+{"time":"2026-09-25T14:17:06.759Z","run":"script-arc","task":"b9","value":"continued"}
+{"time":"2026-09-25T14:17:07.156Z","run":"script-arc","task":"b10","value":"signed-out"}
+{"time":"2026-09-25T14:17:11.719Z","run":"script-ego","task":"b1","value":"{\"name\":\"Ada Lovelace\",\"email\":\"ada@example.com\",\"country\":\"Portugal\",\"plan\":\"Pro\",\"terms\":true}"}
+{"time":"2026-09-25T14:17:12.570Z","run":"script-ego","task":"b2","value":"ARC-42"}
+{"time":"2026-09-25T14:17:12.888Z","run":"script-ego","task":"b3","value":"deleted"}
+{"time":"2026-09-25T14:17:13.050Z","run":"script-ego","task":"b4","value":"Row 777"}
+{"time":"2026-09-25T14:17:14.428Z","run":"script-ego","task":"b5","value":"Date,Apple,Banana,Cherry"}
+{"time":"2026-09-25T14:17:14.715Z","run":"script-ego","task":"b6","value":"opened"}
+{"time":"2026-09-25T14:17:16.219Z","run":"script-ego","task":"b7","value":"function add(a, b) {\n  return a + b;\n}"}
+{"time":"2026-09-25T14:17:16.417Z","run":"script-ego","task":"b8","value":"activated"}
+{"time":"2026-09-25T14:17:20.188Z","run":"script-ego","task":"b9","value":"continued"}
+{"time":"2026-09-25T14:17:20.483Z","run":"script-ego","task":"b10","value":"signed-out"}

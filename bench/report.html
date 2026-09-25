@@ -1,0 +1,304 @@
+<title>Browser Agent Benchmark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --surface: #fbfbf9;
+  --panel: #ffffff;
+  --ink: #141414;
+  --ink-2: #57554f;
+  --ink-3: #8a8780;
+  --rule: #e6e4de;
+  --grid: #eeece7;
+  --arc: #2a78d6;
+  --ego: #eb6834;
+  --cic: #1baf7a;
+  --good: #1f7a3d;
+  --font: "Public Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface: #161615;
+    --panel: #1d1d1c;
+    --ink: #f4f3ef;
+    --ink-2: #c3c2b7;
+    --ink-3: #8f8d85;
+    --rule: #2e2d2a;
+    --grid: #262624;
+    --arc: #3987e5;
+    --ego: #d95926;
+    --cic: #199e70;
+    --good: #5cc27f;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface: #161615;
+  --panel: #1d1d1c;
+  --ink: #f4f3ef;
+  --ink-2: #c3c2b7;
+  --ink-3: #8f8d85;
+  --rule: #2e2d2a;
+  --grid: #262624;
+  --arc: #3987e5;
+  --ego: #d95926;
+  --cic: #199e70;
+  --good: #5cc27f;
+}
+body { background: var(--surface); color: var(--ink); font: 15px/1.55 var(--font); }
+.wrap { max-width: 980px; margin: 0 auto; padding-inline: 20px; padding-block: 36px 64px; display: grid; gap: 40px; }
+h1 { font-size: 30px; line-height: 1.15; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+h2 { font-size: 19px; margin: 0 0 4px; text-wrap: balance; }
+.lede { color: var(--ink-2); max-width: 68ch; margin: 10px 0 0; }
+.sub { color: var(--ink-2); margin: 0 0 16px; max-width: 70ch; }
+.eyebrow { font: 600 12px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 10px; }
+.legend { display: flex; flex-wrap: wrap; gap: 18px; margin: 0 0 12px; font-size: 13px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.swatch.hatch { background: repeating-linear-gradient(45deg, var(--cic) 0 2px, transparent 2px 5px); border: 1px solid var(--cic); }
+.board { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 11px 16px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+th { font: 600 12px/1.2 var(--mono); letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-3); }
+td.num { font-family: var(--mono); }
+tr:last-child td { border-bottom: 0; }
+.tool { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+.best { color: var(--good); font-weight: 600; }
+.na { color: var(--ink-3); font-style: italic; }
+.chart { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 16px 12px 8px; }
+svg text { font-family: var(--font); fill: var(--ink-2); font-size: 12px; }
+svg .val { font-family: var(--mono); fill: var(--ink); font-size: 11px; }
+svg .axis { fill: var(--ink-3); font-family: var(--mono); font-size: 11px; }
+.tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--surface); font: 12px/1.4 var(--font); padding: 7px 9px; border-radius: 6px; opacity: 0; transition: opacity .12s; max-width: 260px; }
+.notes { display: grid; gap: 10px; color: var(--ink-2); max-width: 74ch; }
+.notes p { margin: 0; }
+.notes strong { color: var(--ink); }
+code { font-family: var(--mono); font-size: 13px; }
+@media (prefers-reduced-motion: reduce) { .tip { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Benchmark · September 25, 2026 · same model, same tasks</div>
+    <h1>arc-browser vs ego-lite vs Claude for Chrome</h1>
+    <p class="lede">Both measured tools passed all 14 tasks, verified by the benchmark server rather than by the agents. arc-browser finished the agent run 18 s sooner with 14% fewer tokens, and its scripted run was 17% faster overall. ego-lite is faster on single clicks and popups. Claude for Chrome could not run: its extension needs a signed-in Claude account in Chrome.</p>
+  </header>
+
+  <section>
+    <h2>Agent run: 14 tasks, one fresh subagent per tool</h2>
+    <p class="sub">Each subagent received only its tool's skill and the same instructions: 10 local fixtures (forms, cross-origin iframe, confirm dialog, virtual list, drag and drop, popup, code editor, closed shadow DOM, delayed content, hover menu) and 4 real-web lookups.</p>
+    <div class="board">
+      <table id="agent-table">
+        <thead><tr><th>Tool</th><th>Tasks passed</th><th>Total time</th><th>Tokens</th><th>Tool calls</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Scripted speed per task, no model in the loop</h2>
+    <p class="sub">Median of 3 runs per tool, alternating order. Both scripts use the same selectors and approach wherever both APIs allow. Shorter bars are faster.</p>
+    <div class="legend" id="legend"></div>
+    <div class="chart"><svg id="bars" role="img" aria-label="Median milliseconds per task for each tool"></svg></div>
+  </section>
+
+  <section>
+    <h2>Scripted totals</h2>
+    <p class="sub">Sum of the 10 task medians, in seconds.</p>
+    <div class="chart"><svg id="totals" role="img" aria-label="Total scripted seconds per tool"></svg></div>
+  </section>
+
+  <section>
+    <h2>Data</h2>
+    <div class="board">
+      <table id="data-table">
+        <thead><tr><th>Task</th><th>arc-browser ms</th><th>ego-lite ms</th><th>Claude for Chrome ms</th><th>Faster</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>Method and caveats</h2>
+    <p><strong>Verification.</strong> Every fixture page reports success to a local benchmark server, which logs the tool, the task, and the submitted value. All 20 fixture results (10 per tool) are in that log with the expected values. The 4 web answers match the pages (55.845, "Hello World!", "Y Combinator", the MDN return value).</p>
+    <p><strong>Agent timings.</strong> Total time, tokens, and tool calls come from the Claude Code harness. The agents also reported per-task timestamps, but those are not shown as a chart: ego-lite's three web lookups under one second suggest some start timestamps were taken after the page had loaded.</p>
+    <p><strong>Scripted timings.</strong> The scripted runs remove model thinking and measure the tools. The virtual-list task scrolls programmatically in both scripts. The code-editor task uses each tool's native path: arc-browser's editor API, and ego-lite's select-all and paste.</p>
+    <p><strong>Claude for Chrome.</strong> Google Chrome was installed for the run, but the Claude extension must be added from the Chrome Web Store and signed in by the account owner. The chart keeps its column empty and marked, rather than filling it with estimates.</p>
+  </section>
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+const TOOLS = [
+  { key: "arc", name: "arc-browser", color: "var(--arc)" },
+  { key: "ego", name: "ego-lite", color: "var(--ego)" },
+  { key: "cic", name: "Claude for Chrome", color: "var(--cic)" },
+];
+const AGENT = {
+  arc: { passed: 14, seconds: 176.9, tokens: 58080, calls: 37 },
+  ego: { passed: 14, seconds: 195.0, tokens: 67192, calls: 33 },
+  cic: null,
+};
+const TASKS = [
+  ["B1", "Signup form"], ["B2", "Cross-origin iframe"], ["B3", "Confirm dialog"], ["B4", "Virtual list"],
+  ["B5", "HTML5 drag and drop"], ["B6", "Popup window"], ["B7", "Code editor"], ["B8", "Closed shadow DOM"],
+  ["B9", "Delayed content"], ["B10", "Hover menu"],
+];
+const MEDIAN = {
+  arc: { B1: 1464, B2: 1211, B3: 325, B4: 293, B5: 1156, B6: 1580, B7: 542, B8: 343, B9: 2883, B10: 408 },
+  ego: { B1: 3610, B2: 728, B3: 168, B4: 202, B5: 1373, B6: 316, B7: 1453, B8: 201, B9: 3794, B10: 310 },
+  cic: null,
+};
+const NS = "http://www.w3.org/2000/svg";
+const el = (name, attrs = {}, text) => {
+  const node = document.createElementNS(NS, name);
+  for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+  if (text !== undefined) node.textContent = text;
+  return node;
+};
+const tip = document.getElementById("tip");
+const showTip = (event, html) => {
+  tip.innerHTML = html;
+  tip.style.opacity = "1";
+  const x = Math.min(event.clientX + 14, window.innerWidth - tip.offsetWidth - 8);
+  tip.style.left = `${x}px`;
+  tip.style.top = `${event.clientY + 14}px`;
+};
+const hideTip = () => { tip.style.opacity = "0"; };
+const fmt = (n) => n.toLocaleString("en-US");
+
+const agentBody = document.querySelector("#agent-table tbody");
+const bestOf = (field, lower) => {
+  const values = TOOLS.map((tool) => AGENT[tool.key]?.[field]).filter((value) => value !== undefined);
+  return lower ? Math.min(...values) : Math.max(...values);
+};
+for (const tool of TOOLS) {
+  const row = document.createElement("tr");
+  const data = AGENT[tool.key];
+  const cell = (value, field, lower, suffix = "") => {
+    if (!data) return `<td class="na">not measured</td>`;
+    const best = value === bestOf(field, lower);
+    const shown = field === "passed" ? `${value} / 14` : field === "seconds" ? `${value.toFixed(1)}${suffix}` : fmt(value) + suffix;
+    return `<td class="num${best ? " best" : ""}">${shown}</td>`;
+  };
+  row.innerHTML = `<td><span class="tool"><span class="swatch${data ? "" : " hatch"}" style="background:${data ? tool.color : ""}"></span>${tool.name}</span></td>` +
+    cell(data?.passed, "passed", false) + cell(data?.seconds, "seconds", true, " s") + cell(data?.tokens, "tokens", true) + cell(data?.calls, "calls", true);
+  agentBody.appendChild(row);
+}
+
+const legend = document.getElementById("legend");
+for (const tool of TOOLS) {
+  const measured = Boolean(MEDIAN[tool.key]);
+  legend.insertAdjacentHTML("beforeend", `<span><i class="swatch${measured ? "" : " hatch"}" style="background:${measured ? tool.color : ""}"></i>${tool.name}${measured ? "" : " (not measured)"}</span>`);
+}
+
+function drawBars() {
+  const svg = document.getElementById("bars");
+  svg.innerHTML = "";
+  const width = Math.max(svg.parentElement.clientWidth - 24, 320);
+  const narrow = width < 560;
+  const labelWidth = narrow ? 104 : 170;
+  const right = 56;
+  const barHeight = 10;
+  const gap = 2;
+  const groupHeight = TOOLS.length * (barHeight + gap) + 16;
+  const top = 26;
+  const height = top + TASKS.length * groupHeight + 8;
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.setAttribute("width", width);
+  svg.setAttribute("height", height);
+  const max = 4000;
+  const scale = (value) => ((width - labelWidth - right) * value) / max;
+  const defs = el("defs");
+  const pattern = el("pattern", { id: "hatch", width: 5, height: 5, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" });
+  pattern.appendChild(el("rect", { width: 2, height: 5, fill: "var(--cic)" }));
+  defs.appendChild(pattern);
+  svg.appendChild(defs);
+  for (const tick of [0, 1000, 2000, 3000, 4000]) {
+    const x = labelWidth + scale(tick);
+    svg.appendChild(el("line", { x1: x, x2: x, y1: top - 6, y2: height - 6, stroke: "var(--grid)", "stroke-width": 1 }));
+    svg.appendChild(el("text", { x, y: 12, "text-anchor": "middle", class: "axis" }, `${tick / 1000}s`));
+  }
+  TASKS.forEach(([id, label], index) => {
+    const y0 = top + index * groupHeight;
+    svg.appendChild(el("text", { x: 0, y: y0 + groupHeight / 2 - 2, "dominant-baseline": "middle" }, narrow ? id : `${id} · ${label}`));
+    TOOLS.forEach((tool, slot) => {
+      const y = y0 + slot * (barHeight + gap);
+      const value = MEDIAN[tool.key]?.[id];
+      if (value === undefined) {
+        const w = scale(max * 0.18);
+        const rect = el("rect", { x: labelWidth, y, width: w, height: barHeight, rx: 3, fill: "url(#hatch)", stroke: "var(--cic)", "stroke-width": 1, opacity: 0.6 });
+        rect.addEventListener("mousemove", (event) => showTip(event, `<b>${tool.name}</b><br>${id} · ${label}<br>Not measured: extension not signed in`));
+        rect.addEventListener("mouseleave", hideTip);
+        svg.appendChild(rect);
+        svg.appendChild(el("text", { x: labelWidth + w + 6, y: y + barHeight - 1, class: "axis" }, "n/a"));
+        return;
+      }
+      const w = Math.max(scale(value), 3);
+      const rect = el("rect", { x: labelWidth, y, width: w, height: barHeight, rx: 3, fill: tool.color });
+      const other = TOOLS.filter((t) => t.key !== tool.key && MEDIAN[t.key]).map((t) => `${t.name}: ${fmt(MEDIAN[t.key][id])} ms`).join("<br>");
+      rect.addEventListener("mousemove", (event) => showTip(event, `<b>${tool.name}</b> · ${fmt(value)} ms<br>${id} · ${label}<br>${other}`));
+      rect.addEventListener("mouseleave", hideTip);
+      svg.appendChild(rect);
+      svg.appendChild(el("text", { x: labelWidth + w + 6, y: y + barHeight - 1, class: "val" }, fmt(value)));
+    });
+  });
+}
+
+function drawTotals() {
+  const svg = document.getElementById("totals");
+  svg.innerHTML = "";
+  const width = Math.max(svg.parentElement.clientWidth - 24, 320);
+  const labelWidth = 150;
+  const right = 70;
+  const barHeight = 22;
+  const rowGap = 14;
+  const top = 8;
+  const height = top + TOOLS.length * (barHeight + rowGap);
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.setAttribute("width", width);
+  svg.setAttribute("height", height);
+  const totals = Object.fromEntries(TOOLS.map((tool) => [tool.key, MEDIAN[tool.key] ? Object.values(MEDIAN[tool.key]).reduce((a, b) => a + b, 0) / 1000 : null]));
+  const max = 14;
+  const scale = (value) => ((width - labelWidth - right) * value) / max;
+  const defs = el("defs");
+  const pattern = el("pattern", { id: "hatch2", width: 5, height: 5, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" });
+  pattern.appendChild(el("rect", { width: 2, height: 5, fill: "var(--cic)" }));
+  defs.appendChild(pattern);
+  svg.appendChild(defs);
+  TOOLS.forEach((tool, index) => {
+    const y = top + index * (barHeight + rowGap);
+    svg.appendChild(el("text", { x: 0, y: y + barHeight / 2 + 1, "dominant-baseline": "middle" }, tool.name));
+    const value = totals[tool.key];
+    if (value === null) {
+      svg.appendChild(el("rect", { x: labelWidth, y, width: scale(2.5), height: barHeight, rx: 4, fill: "url(#hatch2)", stroke: "var(--cic)", opacity: 0.6 }));
+      svg.appendChild(el("text", { x: labelWidth + scale(2.5) + 8, y: y + barHeight / 2 + 1, "dominant-baseline": "middle", class: "axis" }, "not measured"));
+      return;
+    }
+    const rect = el("rect", { x: labelWidth, y, width: scale(value), height: barHeight, rx: 4, fill: tool.color });
+    rect.addEventListener("mousemove", (event) => showTip(event, `<b>${tool.name}</b><br>${value.toFixed(1)} s for all 10 tasks`));
+    rect.addEventListener("mouseleave", hideTip);
+    svg.appendChild(rect);
+    svg.appendChild(el("text", { x: labelWidth + scale(value) + 8, y: y + barHeight / 2 + 1, "dominant-baseline": "middle", class: "val" }, `${value.toFixed(1)} s`));
+  });
+}
+
+const dataBody = document.querySelector("#data-table tbody");
+for (const [id, label] of TASKS) {
+  const arc = MEDIAN.arc[id];
+  const ego = MEDIAN.ego[id];
+  const faster = arc < ego ? "arc-browser" : "ego-lite";
+  dataBody.insertAdjacentHTML("beforeend", `<tr><td>${id} · ${label}</td><td class="num${arc < ego ? " best" : ""}">${fmt(arc)}</td><td class="num${ego < arc ? " best" : ""}">${fmt(ego)}</td><td class="na">not measured</td><td>${faster}</td></tr>`);
+}
+
+drawBars();
+drawTotals();
+let resizeTimer;
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => { drawBars(); drawTotals(); }, 120);
+});
+</script>
