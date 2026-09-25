@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>OAuth opener</title></head>
+<body>
+<main>
+<h1>Sign in</h1>
+<button id="login">Sign in with Provider</button>
+<pre id="result"></pre>
+</main>
+<script>
+let popup = null;
+document.getElementById("login").addEventListener("click", () => {
+  popup = window.open("http://127.0.0.1:8812/oauth-popup.html", "auth", "width=420,height=520");
+});
+addEventListener("message", (event) => {
+  if (!popup || event.source !== popup) return;
+  document.getElementById("result").textContent = JSON.stringify({ token: event.data.token, origin: event.origin });
+  setTimeout(() => {
+    document.getElementById("result").dataset.closed = String(popup.closed);
+  }, 1500);
+});
+</script>
+</body>
+</html>

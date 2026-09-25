@@ -90,7 +90,10 @@ polling.
   waits, which releases the event.
 - New windows never pop up. In Claude's tabs, `target=_blank` links and
   `window.open` become new background pages, and forms that target a new
-  window load in the same tab.
+  window load in the same tab. For `window.open` popups (OAuth sign-in), the
+  host relays `window.opener.postMessage` and `window.close()` back to the
+  opening page.
+- Downloads land in your Downloads folder; `wait download` prints the path.
 - In Claude's tabs, `alert`, `confirm`, and `prompt` are answered inside the
   page, so no dialog appears on your screen. Confirms and prompts default to
   cancel; Claude arms `accept` before an action when it means to accept.

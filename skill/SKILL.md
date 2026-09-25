@@ -126,8 +126,9 @@ userTab(), adopt(tab), finish({keep})`. `arc-browser help` has signatures.
 - New windows never pop up. In background tabs, `target=_blank` links and
   `window.open` open as a new background page (`popup p2 (link)`), and forms
   that target a new window load in the current tab (`navigated → url`).
-  `window.open` flows that talk back to their opener (some OAuth popups) cannot
-  work this way; try the site's redirect login, or ask the user.
+  Sign-in popups that talk back to their opener (OAuth) work: the popup page
+  gets a relayed `window.opener`, so `postMessage` and `window.close()` reach
+  the original page.
 - `adopt` takes over the tab the user is looking at. Never close, navigate, or
   submit in a user tab unless the user asked for it. `finish` only releases it.
 

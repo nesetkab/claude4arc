@@ -24,6 +24,81 @@ const shimScripts = new Map();
 const debuggee = (tabId, sessionId) => (sessionId ? { tabId, sessionId } : tabId);
 const send = (tabId, sessionId, method, params = {}) => callExtension("debugger.send", [debuggee(tabId, sessionId), method, params]);
 
+const popupLinks = new Map();
+
+const POPUP_SHIM = `(() => {
+  if (Object.prototype.hasOwnProperty.call(window, "__arcOpenerLink")) return;
+  Object.defineProperty(window, "__arcOpenerLink", { value: true });
+  const send = (payload) => {
+    try {
+      window.__arcOpener(JSON.stringify(payload));
+    } catch {}
+  };
+  const opener = {
+    closed: false,
+    focus() {},
+    blur() {},
+    postMessage(data, targetOrigin) {
+      send({ type: "message", data, targetOrigin: String(targetOrigin ?? "*"), origin: location.origin });
+    },
+  };
+  Object.defineProperty(window, "opener", { get: () => opener, set() {}, configurable: true });
+  window.close = function close() {
+    send({ type: "close" });
+  };
+})();`;
+
+const OPENER_CALL = `function (action, id, data, origin) {
+  const shim = globalThis.__arcShim;
+  if (!shim) return false;
+  if (action === "deliver") return shim.deliver(id, data, origin);
+  if (action === "close") return shim.closeStub(id);
+  if (action === "url") return shim.setStubUrl(id, data);
+  return false;
+}`;
+
+async function linkPopup(popupTabId, link) {
+  await attach(popupTabId);
+  popupLinks.set(popupTabId, link);
+  await send(popupTabId, null, "Page.enable").catch(() => {});
+  await send(popupTabId, null, "Runtime.enable").catch(() => {});
+  await send(popupTabId, null, "Runtime.addBinding", { name: "__arcOpener" });
+  await send(popupTabId, null, "Page.addScriptToEvaluateOnNewDocument", { source: POPUP_SHIM, runImmediately: true });
+  return true;
+}
+
+async function callOpener(link, action, data = null, origin = null) {
+  const global = await send(link.tabId, null, "Runtime.evaluate", { expression: "globalThis" }).catch(() => null);
+  const objectId = global?.result?.objectId;
+  if (!objectId) return;
+  await send(link.tabId, null, "Runtime.callFunctionOn", {
+    objectId,
+    functionDeclaration: OPENER_CALL,
+    arguments: [{ value: action }, { value: link.stubId }, { value: data }, { value: origin }],
+    returnByValue: true,
+  }).catch(() => {});
+  await send(link.tabId, null, "Runtime.releaseObject", { objectId }).catch(() => {});
+}
+
+function onPopupEvent(message) {
+  const link = popupLinks.get(message.tabId);
+  if (!link || message.sessionId) return;
+  if (message.method === "Runtime.bindingCalled" && message.params.name === "__arcOpener") {
+    let payload;
+    try {
+      payload = JSON.parse(message.params.payload);
+    } catch {
+      return;
+    }
+    if (payload.type === "message") callOpener(link, "deliver", payload.data, payload.origin);
+    if (payload.type === "close") {
+      callOpener(link, "close");
+      callExtension("tabs.remove", [message.tabId]).catch(() => {});
+    }
+  }
+  if (message.method === "Page.frameNavigated" && !message.params.frame?.parentId) callOpener(link, "url", message.params.frame.url);
+}
+
 async function injectShim(tabId, sessionId) {
   const shim = shims.get(tabId);
   if (!shim) return;
@@ -60,6 +135,7 @@ function forgetTab(tabId) {
   shims.delete(tabId);
   autoAttached.delete(tabId);
   for (const key of shimScripts.keys()) if (key.startsWith(`${tabId}:`)) shimScripts.delete(key);
+  popupLinks.delete(tabId);
 }
 
 function sendToExtension(message) {
@@ -88,7 +164,9 @@ function onExtensionMessage(message) {
     return;
   }
   if (message.type) {
+    if (message.type === "tabRemoved" && popupLinks.has(message.tabId)) callOpener(popupLinks.get(message.tabId), "close");
     if (message.type === "detached" || message.type === "tabRemoved") forgetTab(message.tabId);
+    if (message.type === "event") onPopupEvent(message);
     if (message.method === "Target.attachedToTarget") {
       const info = message.params.targetInfo;
       const tabSessions = sessions.get(message.tabId) ?? new Map();
@@ -180,6 +258,8 @@ async function onClientRequest(client, request) {
         shims.delete(args[0]);
       }
       result = true;
+    } else if (api === "host.linkPopup") {
+      result = await linkPopup(args[0], args[1]);
     } else if (api === "host.sessions") {
       result = [...(sessions.get(args[0])?.values() ?? [])];
     } else if (api === "host.handledDialogs") {

@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Provider sign-in</title></head>
+<body>
+<p>Signing in</p>
+<script>
+window.opener.postMessage({ token: "abc123" }, "*");
+window.close();
+</script>
+</body>
+</html>

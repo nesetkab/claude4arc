@@ -483,6 +483,18 @@ await p.mouse.click(r.x + 60, r.y + 60);`);
     },
   },
   {
+    name: "popup-opener-relay",
+    fixture: "oauth-opener.html",
+    async run(s) {
+      const out = await s.cmd("click", "#login", "--", "wait", "css=#result:not(:empty)", "8000");
+      expect(out.includes("popup"), `output ${show(out)}`);
+      const result = await s.result();
+      expect(result?.token === "abc123" && result.origin.endsWith(String(Number(BASE.split(":").at(-1)) + 1)), `result ${show(result)}`);
+      const pages = await s.pages();
+      expect(pages.length === 1, `popup tab still open: ${pages.map((page) => page.line).join("; ")}`);
+    },
+  },
+  {
     name: "download-wait",
     fixture: "download.html",
     async run(s) {
