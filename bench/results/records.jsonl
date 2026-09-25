@@ -108,3 +108,13 @@
 {"time":"2026-09-25T14:17:20.188Z","run":"script-ego","task":"b9","value":"continued"}
 {"time":"2026-09-25T14:17:20.483Z","run":"script-ego","task":"b10","value":"signed-out"}
 {"time":"2026-09-25T14:51:35.934Z","run":"selftest","task":"b10","value":"signed-out"}
+{"time":"2026-09-25T14:52:18.190Z","run":"arc2","task":"b1","value":"{\"name\":\"Ada Lovelace\",\"email\":\"ada@example.com\",\"country\":\"Portugal\",\"plan\":\"Pro\",\"terms\":true}"}
+{"time":"2026-09-25T14:52:26.788Z","run":"arc2","task":"b2","value":"ARC-42"}
+{"time":"2026-09-25T14:52:48.623Z","run":"arc2","task":"b3","value":"deleted"}
+{"time":"2026-09-25T14:53:00.554Z","run":"arc2","task":"b4","value":"Row 777"}
+{"time":"2026-09-25T14:53:18.878Z","run":"arc2","task":"b5","value":"Date,Apple,Banana,Cherry"}
+{"time":"2026-09-25T14:53:27.393Z","run":"arc2","task":"b6","value":"opened"}
+{"time":"2026-09-25T14:53:38.337Z","run":"arc2","task":"b7","value":"function add(a, b) {\n  return a + b;\n}"}
+{"time":"2026-09-25T14:53:49.908Z","run":"arc2","task":"b8","value":"activated"}
+{"time":"2026-09-25T14:54:00.066Z","run":"arc2","task":"b9","value":"continued"}
+{"time":"2026-09-25T14:54:07.874Z","run":"arc2","task":"b10","value":"signed-out"}
