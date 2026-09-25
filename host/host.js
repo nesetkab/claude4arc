@@ -102,7 +102,10 @@ function onPopupEvent(message) {
 async function injectShim(tabId, sessionId) {
   const shim = shims.get(tabId);
   if (!shim) return;
-  if (!sessionId) await send(tabId, null, "Page.setInterceptFileChooserDialog", { enabled: true }).catch(() => {});
+  if (!sessionId) {
+    await send(tabId, null, "Page.setInterceptFileChooserDialog", { enabled: true }).catch(() => {});
+    await send(tabId, null, "Emulation.setFocusEmulationEnabled", { enabled: true }).catch(() => {});
+  }
   const key = `${tabId}:${sessionId ?? "root"}`;
   const previous = shimScripts.get(key);
   if (previous?.source === shim) return;
