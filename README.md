@@ -67,20 +67,24 @@ Scripts cover loops and extraction: `arc-browser run 7 <<'EOF' ... EOF`, with
 
 ## Speed
 
-Typical latency, including the Node start of the CLI:
+End-to-end latency of one CLI call (including Node start, about 70 ms), in a
+background tab:
 
-| Operation | Time |
+| Command | Time |
 |---|---|
-| `snap`, `find`, `text`, `eval` | 70–130 ms |
-| `click`, `fill`, `check` in a background tab | 150–250 ms |
-| 8-step form chain in one command | about 600 ms |
-| `new <url>` (Arc creates the tab) | 0.6–1.5 s |
+| `snap`, `find`, `text`, `eval`, `table` | about 105 ms |
+| `click` | about 160 ms |
+| `fill` | about 250 ms |
+| `type` (20 characters) | about 120 ms |
+| `shot` | 350–850 ms (page size) |
+| 8-step form chain in one call | about 600 ms |
+| `new <url>` | the page's own load time plus about 100 ms |
 
-Arc does not render hidden tabs, so it holds their input events. The CLI sends
-a 1×1 capture request whenever an input event is not acknowledged within
-20 ms. The capture produces a frame and releases the event. The debugger stays
-attached between commands, and navigation waits use DevTools events instead of
-polling.
+Arc does not render hidden tabs. The CLI requests 1×1 captures while input
+is pending and while it reads or waits, so input is delivered and
+requestAnimationFrame-driven apps keep running. Input events are pipelined in
+one batch per action, the debugger stays attached between commands, and
+navigation waits use DevTools events instead of polling.
 
 ## Behavior in Arc
 
