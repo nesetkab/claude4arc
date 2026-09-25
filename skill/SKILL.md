@@ -141,6 +141,19 @@ userTab(), adopt(tab), finish({keep})`. `arc-browser help` has signatures.
   by asking the user.
 - PDFs: `text` extracts the whole document; `shot` shows a page.
 
+## App notes
+
+- Google Docs/Sheets/Slides draw on a canvas: `text` returns the real content
+  through Google's export (Sheets as CSV). To edit a Doc, click the page
+  (`click css=.kix-page-paginated >> nth=0`) and `type`. In Sheets, jump with
+  the Name Box (`fill css=#t-name-box B2 -- press css=#t-name-box Enter`) and
+  `type` with `\t` between cells and `\n` between rows.
+- Apps that fade their toolbar while you type (Notion) hide those controls
+  from `find`; move the mouse first: `hover 900,20 -- find actions`.
+- In private apps (mail, docs), scope reads to what the task needs:
+  `snap css=[role=dialog]`, `text @12`, exact role selectors. Do not dump
+  inboxes or document lists into the conversation.
+
 ## Safety and hand-off
 
 - Confirm with the user before you send messages, post, buy, delete data, or
