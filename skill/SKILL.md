@@ -27,10 +27,10 @@ arc-browser 7 fill @3 hi -- click @4 -s # chain with "--"; -s appends a diff sna
 | `seek <sel\|words> [container]` | scroll a feed or virtualized list until a match renders; prints its ref |
 | `text [sel] [chars]`, `text all` | readable text of `<main>`, of one element (`text @12`, `text css=article`), or of the whole page; default 8000 chars |
 | `goto <url>`, `back`, `forward`, `reload` | navigate and wait for load |
-| `click <sel>`, `dblclick`, `hover` | trusted pointer input; scrolls into view |
+| `click <sel>`, `dblclick`, `hover` | trusted pointer input; scrolls into view. `click 420,260` clicks screenshot coordinates |
 | `fill <sel> <text>`, `type <text>`, `press [sel] <key>` | text and keys (`Enter`, `Meta+a`); `fill` also sets date, time, range, and color inputs |
 | `select <sel> <value>`, `check <sel>`, `uncheck <sel>` | form controls |
-| `drag <source> <target>` | drag and drop (HTML5 or mouse-based, chosen automatically) |
+| `drag <source> <target>` | drag and drop (HTML5 or mouse-based, chosen automatically); `drag 400,300 600,420` for canvas apps |
 | `upload <sel> <path...>` | set a file input (hidden inputs work; a label or wrapper also works) |
 | `scroll <dy>`, `wait <sel\|ms\|url:part\|gone:sel>` | scroll; wait for a condition |
 | `accept [text]` | accept the next confirm/prompt; put it before the action |
