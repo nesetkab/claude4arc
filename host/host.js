@@ -174,6 +174,7 @@ function onExtensionMessage(message) {
     if (message.method === "Target.attachedToTarget") {
       const info = message.params.targetInfo;
       const tabSessions = sessions.get(message.tabId) ?? new Map();
+      for (const [sessionId, entry] of tabSessions) if (entry.targetId === info.targetId) tabSessions.delete(sessionId);
       tabSessions.set(message.params.sessionId, { sessionId: message.params.sessionId, targetId: info.targetId, type: info.type, url: info.url, parent: message.sessionId ?? null });
       sessions.set(message.tabId, tabSessions);
       if (info.type === "iframe") prepareSession(message.tabId, message.params.sessionId);

@@ -1,0 +1,8 @@
+{"time":"2026-09-25T13:55:23.937Z","run":"selftest","task":"b3","value":"deleted"}
+{"time":"2026-09-25T13:55:29.802Z","run":"selftest","task":"b4","value":"Row 777"}
+{"time":"2026-09-25T13:55:31.140Z","run":"selftest","task":"b6","value":"opened"}
+{"time":"2026-09-25T13:55:32.219Z","run":"selftest","task":"b7","value":"function add(a, b) {\n  return a + b;\n}"}
+{"time":"2026-09-25T13:55:32.654Z","run":"selftest","task":"b8","value":"activated"}
+{"time":"2026-09-25T13:55:35.606Z","run":"selftest","task":"b9","value":"continued"}
+{"time":"2026-09-25T13:55:36.137Z","run":"selftest","task":"b10","value":"signed-out"}
+{"time":"2026-09-25T13:55:54.107Z","run":"selftest","task":"b1","value":"{\"name\":\"Ada Lovelace\",\"email\":\"ada@example.com\",\"country\":\"Portugal\",\"plan\":\"Pro\",\"terms\":true}"}

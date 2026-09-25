@@ -1,0 +1,7 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>B7 Editor</title><style>body{font:16px system-ui;margin:32px;max-width:720px}#editor{border:1px solid #ccc;min-height:160px}</style><script src="/record.js"></script></head><body><main><h1>Snippet editor</h1><div id="editor"></div><button id="save">Save snippet</button><p id="status" role="status"></p></main>
+<script type="module">
+import { basicSetup, EditorView } from "https://esm.sh/codemirror@6.0.1";
+import { javascript } from "https://esm.sh/@codemirror/lang-javascript@6.2.2";
+const view = new EditorView({ doc: "// write here", extensions: [basicSetup, javascript()], parent: document.getElementById("editor") });
+document.getElementById("save").onclick = () => record("b7", view.state.doc.toString());
+</script></body></html>
