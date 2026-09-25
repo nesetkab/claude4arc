@@ -50,7 +50,7 @@ const handlers = {
     version: chrome.runtime.getManifest().version,
     id: chrome.runtime.id,
     userAgent: navigator.userAgent,
-    features: ["sessions", "reload", "guard"],
+    features: ["sessions", "reload", "guard", "downloads"],
   }),
   "guard.enable": async (tabId) => {
     await setAgentTab(tabId, true);
@@ -61,6 +61,8 @@ const handlers = {
     await setAgentTab(tabId, true);
     return messageTab(tabId, { type: "arc-sweep" });
   },
+  "downloads.search": (query) => chrome.downloads.search(query ?? {}),
+  "downloads.erase": (query) => chrome.downloads.erase(query ?? {}),
   "extension.reload": () => {
     setTimeout(() => chrome.runtime.reload(), 50);
     return true;
@@ -127,6 +129,14 @@ chrome.tabs.onCreated.addListener((tab) => {
 chrome.tabs.onRemoved.addListener((tabId) => {
   post({ type: "tabRemoved", tabId });
   setAgentTab(tabId, false).catch(() => {});
+});
+
+chrome.downloads.onCreated.addListener((item) => {
+  post({ type: "download", event: "created", item });
+});
+
+chrome.downloads.onChanged.addListener((delta) => {
+  post({ type: "download", event: "changed", delta });
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

@@ -74,6 +74,12 @@ async function handle(request, response) {
     response.end("ok");
     return;
   }
+  if (url.pathname === "/download") {
+    const name = url.searchParams.get("name") ?? "report.txt";
+    response.writeHead(200, { ...headers, "content-type": "text/plain", "content-disposition": `attachment; filename="${name}"` });
+    response.end(`arc-browser download test ${name}\n`);
+    return;
+  }
   if (url.pathname === "/echo") {
     const fields =
       request.method === "POST"

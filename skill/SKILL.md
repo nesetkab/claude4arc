@@ -31,6 +31,7 @@ arc-browser 7 fill @3 hi -- click @4 -s # chain with "--"; -s appends a diff sna
 | `fill <sel> <text>`, `type <text>`, `press [sel] <key>` | text and keys (`Enter`, `Meta+a`); `fill` also sets date, time, range, and color inputs |
 | `select <sel> <value>`, `check <sel>`, `uncheck <sel>` | form controls |
 | `drag <source> <target>` | drag and drop (HTML5 or mouse-based, chosen automatically); `drag 400,300 600,420` for canvas apps |
+| `wait download [ms] [forget]` | after clicking a download link: wait for the file, print its path; `forget` removes it from Arc's download list |
 | `upload <sel> <path...>` | set a file input (hidden inputs work; a label or wrapper also works) |
 | `scroll <dy>`, `wait <sel\|ms\|url:part\|gone:sel>` | scroll; wait for a condition |
 | `accept [text]` | accept the next confirm/prompt; put it before the action |

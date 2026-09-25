@@ -483,6 +483,20 @@ await p.mouse.click(r.x + 60, r.y + 60);`);
     },
   },
   {
+    name: "download-wait",
+    fixture: "download.html",
+    async run(s) {
+      await s.cmd("click", "#file");
+      const out = await s.cmd("wait", "download", "15000", "forget");
+      const match = /download complete: (.+) \(\d+ bytes\)/.exec(out);
+      expect(match, `output ${show(out)}`);
+      const fs = await import("node:fs/promises");
+      const content = await fs.readFile(match[1], "utf8");
+      expect(content.startsWith("arc-browser download test"), `content ${show(content)}`);
+      await fs.rm(match[1], { force: true });
+    },
+  },
+  {
     name: "dialog-alert",
     fixture: "dialogs.html",
     async run(s) {
