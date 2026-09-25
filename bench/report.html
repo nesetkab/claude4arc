@@ -84,7 +84,7 @@ code { font-family: var(--mono); font-size: 13px; }
   <header>
     <div class="eyebrow">Benchmark · September 25, 2026 · same model, same tasks</div>
     <h1>arc-browser vs ego-lite vs Claude for Chrome</h1>
-    <p class="lede">Both measured tools passed all 14 tasks, verified by the benchmark server rather than by the agents. arc-browser finished the agent run 18 s sooner with 14% fewer tokens, and its scripted run was 17% faster overall. ego-lite is faster on single clicks and popups. Claude for Chrome could not run: its extension needs a signed-in Claude account in Chrome.</p>
+    <p class="lede">Both measured tools passed all 14 tasks, verified by the benchmark server rather than by the agents. arc-browser finished the agent run 18 s sooner with 14% fewer tokens, and its scripted run was 17% faster overall. ego-lite is faster on single clicks and popups. Claude for Chrome could not run: its extension needs a signed-in Claude account in Chrome. Most agent time is the model, not the browser: the scripted run of the same 10 tasks takes about 10 s.</p>
   </header>
 
   <section>
@@ -93,6 +93,17 @@ code { font-family: var(--mono); font-size: 13px; }
     <div class="board">
       <table id="agent-table">
         <thead><tr><th>Tool</th><th>Tasks passed</th><th>Total time</th><th>Tokens</th><th>Tool calls</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Can the agent run get faster?</h2>
+    <p class="sub">After this benchmark, arc-browser gained "speed rules" (open and act in one call, trust receipts, one task per goal) and was rerun with the same instructions, then run again on Sonnet. In-task time is the sum of the agents' own per-task spans; the rest of the total is fixed overhead for every tool (loading the skill, the required timestamp calls, writing the report).</p>
+    <div class="board">
+      <table id="config-table">
+        <thead><tr><th>Configuration</th><th>Passed</th><th>Total time</th><th>In-task time</th><th>Tool calls</th><th>Tokens</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -152,6 +163,12 @@ const MEDIAN = {
   ego: { B1: 3610, B2: 728, B3: 168, B4: 202, B5: 1373, B6: 316, B7: 1453, B8: 201, B9: 3794, B10: 310 },
   cic: null,
 };
+const CONFIGS = [
+  { name: "arc-browser v1", color: "var(--arc)", passed: 14, total: 176.9, inTask: 141.3, calls: 37, tokens: 58080 },
+  { name: "arc-browser v2 (speed rules)", color: "var(--arc)", passed: 14, total: 178.1, inTask: 108.8, calls: 36, tokens: 57656 },
+  { name: "arc-browser v2 on Sonnet", color: "var(--arc)", passed: 14, total: 302.0, inTask: 217.9, calls: 73, tokens: 76530 },
+  { name: "ego-lite", color: "var(--ego)", passed: 14, total: 195.0, inTask: 121.1, calls: 33, tokens: 67192 },
+];
 const NS = "http://www.w3.org/2000/svg";
 const el = (name, attrs = {}, text) => {
   const node = document.createElementNS(NS, name);
@@ -187,6 +204,13 @@ for (const tool of TOOLS) {
   row.innerHTML = `<td><span class="tool"><span class="swatch${data ? "" : " hatch"}" style="background:${data ? tool.color : ""}"></span>${tool.name}</span></td>` +
     cell(data?.passed, "passed", false) + cell(data?.seconds, "seconds", true, " s") + cell(data?.tokens, "tokens", true) + cell(data?.calls, "calls", true);
   agentBody.appendChild(row);
+}
+
+const configBody = document.querySelector("#config-table tbody");
+const maxTotal = Math.max(...CONFIGS.map((config) => config.total));
+for (const config of CONFIGS) {
+  const bar = (value) => `<span style="display:inline-block;vertical-align:middle;height:8px;border-radius:3px;margin-left:10px;width:${Math.round((value / maxTotal) * 120)}px;background:${config.color}"></span>`;
+  configBody.insertAdjacentHTML("beforeend", `<tr><td><span class="tool"><span class="swatch" style="background:${config.color}"></span>${config.name}</span></td><td class="num">${config.passed} / 14</td><td class="num">${config.total.toFixed(1)} s${bar(config.total)}</td><td class="num">${config.inTask.toFixed(1)} s${bar(config.inTask)}</td><td class="num">${config.calls}</td><td class="num">${fmt(config.tokens)}</td></tr>`);
 }
 
 const legend = document.getElementById("legend");
