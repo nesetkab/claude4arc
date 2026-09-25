@@ -23,6 +23,8 @@ arc-browser 7 fill @3 hi -- click @4 -s # chain with "--"; -s appends a diff sna
 |---|---|
 | `snap` / `snap full` / `snap @12` | viewport / whole page / one subtree snapshot |
 | `diff` | only what changed since the last snapshot of this page |
+| `table [sel]` | a table or grid as tab-separated rows (largest visible table by default) |
+| `links [words]` | visible links as `@ref text → full URL`, filtered by words |
 | `find <words>` | matching elements anywhere on the page, with refs |
 | `seek <sel\|words> [container]` | scroll a feed or virtualized list until a match renders; prints its ref |
 | `text [sel] [chars]`, `text all` | readable text of `<main>`, of one element (`text @12`, `text css=article`), or of the whole page; default 8000 chars |
