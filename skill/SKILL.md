@@ -25,7 +25,7 @@ arc-browser 7 fill @3 hi -- click @4 -s # chain with "--"; -s appends a diff sna
 | `diff` | only what changed since the last snapshot of this page |
 | `find <words>` | matching elements anywhere on the page, with refs |
 | `seek <sel\|words> [container]` | scroll a feed or virtualized list until a match renders; prints its ref |
-| `text [chars]` | readable text of `<main>` (default 8000 chars) |
+| `text [sel] [chars]`, `text all` | readable text of `<main>`, of one element (`text @12`, `text css=article`), or of the whole page; default 8000 chars |
 | `goto <url>`, `back`, `forward`, `reload` | navigate and wait for load |
 | `click <sel>`, `dblclick`, `hover` | trusted pointer input; scrolls into view |
 | `fill <sel> <text>`, `type <text>`, `press [sel] <key>` | text and keys (`Enter`, `Meta+a`); `fill` also sets date, time, range, and color inputs |
@@ -61,6 +61,10 @@ including lines that are scrolled out of view.
   wheels the list container step by step until the match renders, then prints
   its ref. Bare words are text; use `css=tag` for a tag name.
 - Use one task per user goal and reuse its pages with `goto`.
+- If `find` says a modal is open, close it (`click @N`) before looking further;
+  the rest of the page is hidden from the snapshot while a modal is open.
+- Each task belongs to the Claude session that created it. Always use the id
+  printed by your own `arc-browser new`.
 
 ## Snapshot format
 
