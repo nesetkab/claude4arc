@@ -94,7 +94,7 @@ stitched into the snapshot. Their refs carry the frame ref: `@24.1` is element
 ## Selectors
 
 `@12`, `text=Sign in` (substring, any case), `text="Sign in"` (exact),
-`role=button[name="Sign in"]`, `role=link[name*="docs"]` (textbox, searchbox,
+`role=button[name="Sign in"]`, `role=link[name*="docs"]` (also `^=` and `$=`; textbox, searchbox,
 and combobox match one another), `loc=href:/pricing`, `xpath=...`,
 `css=.card:has-text("Pro")`, raw CSS (includes open and closed shadow roots
 and same-origin iframes), and a `>> nth=0` suffix. An ambiguous selector fails and
