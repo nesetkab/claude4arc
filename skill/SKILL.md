@@ -12,18 +12,29 @@ and relay its output.
 
 ## Speed rules (each tool call costs seconds of model time; the browser is fast)
 
-- Aim for ONE `arc-browser` call per task. Open and act in the same call:
-  `arc-browser new <url> -- fill @… x -- click text=Submit -s`. Selectors like
-  `text=…`, `role=button[name="…"]`, and `css=#id` work without a snapshot first.
-- If you need to look before acting, use `arc-browser new <url> -s` (or
-  `find <words>`), then do ALL remaining steps in the next single chain.
+- Do not look before you act. Guess selectors from the words in the task:
+  `text=Save`, `role=button[name="Sign in"]`, `role=textbox[name=Email]`,
+  or a field's label (`fill "text=Full name" Ada`, `select text=Country Spain`).
+  Selectors also search cross-origin iframes when the page itself has no match.
+  Only when a guess fails, `find <words>` and retry that one step.
+- Open and act in the same call: `arc-browser new <url> -- fill … -- click … -s`.
+- Batch: when you have several tasks, do ALL of them in ONE Bash call, one
+  chain per line, joined with `;` so one failure does not stop the rest. Put
+  any timestamps or shell steps in the same call. Then fix only what failed.
+
+  ```bash
+  ID=$(arc-browser new about:blank | grep -oE '[0-9]+' | head -1)
+  arc-browser $ID goto https://a.test/form -- fill "text=Name" Ada -- check "text=I agree" -- click "text=Submit" -s
+  arc-browser $ID goto https://b.test -- accept -- click "text=Delete" -s
+  arc-browser $ID goto https://c.test/wiki -- text 'css=tr:has-text("Iron")' 400
+  arc-browser $ID finish
+  ```
+
 - Trust receipts. `ok`, `popup p2`, `confirm "…" accepted`, `navigated → …`,
-  a `-s` diff, or `wait <sel>` succeeding already confirm the step. Do not spend
-  another call re-checking with `eval` or `snap` unless the output is unclear.
-- Reuse one task for the whole goal: `arc-browser 7 goto <url> -- …` instead of
-  `new` for every page. Close it once at the end with `finish`.
-- Put other shell steps (timestamps, file checks) in the same Bash call:
-  `date +%s; arc-browser 7 …; date +%s`.
+  a `-s` diff, or `Recorded`/status text in the diff confirm the step. Do not
+  spend another call re-checking with `eval` or `snap`.
+- Quote selectors that contain `[`, `]`, spaces, or `*` (zsh expands them).
+- Reuse one task for the whole goal (`goto`), and `finish` once at the end.
 
 ## Commands (default: use these)
 
@@ -67,22 +78,15 @@ and indentation stay exact. If the editor ends up with other text, `fill`
 prints what it holds. `text` appends the full content of visible code editors,
 including lines that are scrolled out of view.
 
-## Save tokens and time
+## Save tokens
 
-- Do not snapshot by reflex. To locate one thing, use `find`. After an action,
-  use `-s` (diff) instead of a full `snap`. To read content, use `text`.
-- Chain every step you can already decide: `fill @3 x -- fill @4 y -- click @5 -s`.
-- Use `wait url:/done` or `wait <sel>` instead of fixed delays.
-- Refs (`@12`) stay valid while the element exists. After navigation, refs reset.
-- `find` sees only rendered elements. For infinite feeds and virtualized lists
-  (Gmail, X, large tables), use `seek "Invoice 1234"` or `seek #row-99 #list`: it
-  wheels the list container step by step until the match renders, then prints
-  its ref. Bare words are text; use `css=tag` for a tag name.
-- Use one task per user goal and reuse its pages with `goto`.
-- If `find` says a modal is open, close it (`click @N`) before looking further;
-  the rest of the page is hidden from the snapshot while a modal is open.
-- Each task belongs to the Claude session that created it. Always use the id
-  printed by your own `arc-browser new`.
+- To locate one thing, use `find`. After an action, use `-s` (a diff), not
+  `snap`. To read content, use `text` or `text <sel>`, not a snapshot.
+- Refs (`@12`) stay valid while the element exists; navigation resets them.
+- `find` sees only rendered elements. For feeds and virtualized lists, use
+  `seek "Invoice 1234"`: it scrolls the list until the match renders.
+- If `find` says a modal is open, close it before looking further.
+- Each task belongs to the Claude session that created it. Use your own id.
 
 ## Snapshot format
 
