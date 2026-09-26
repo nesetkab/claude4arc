@@ -1,0 +1,16 @@
+[
+{"task": "B1", "start_ms": 1790392636666, "end_ms": 1790392637851, "success": true, "answer": "", "notes": ""},
+{"task": "B2", "start_ms": 1790392637872, "end_ms": 1790392639096, "success": true, "answer": "", "notes": ""},
+{"task": "B3", "start_ms": 1790392639106, "end_ms": 1790392639670, "success": true, "answer": "", "notes": ""},
+{"task": "B4", "start_ms": 1790392639683, "end_ms": 1790392641080, "success": true, "answer": "", "notes": ""},
+{"task": "B5", "start_ms": 1790392641091, "end_ms": 1790392642325, "success": true, "answer": "", "notes": ""},
+{"task": "B6", "start_ms": 1790392642338, "end_ms": 1790392643046, "success": true, "answer": "Q7-ZEBRA", "notes": ""},
+{"task": "B7", "start_ms": 1790392643061, "end_ms": 1790392643777, "success": true, "answer": "", "notes": ""},
+{"task": "B8", "start_ms": 1790392643790, "end_ms": 1790392644365, "success": true, "answer": "", "notes": ""},
+{"task": "B9", "start_ms": 1790392644375, "end_ms": 1790392647481, "success": true, "answer": "", "notes": ""},
+{"task": "B10", "start_ms": 1790392647498, "end_ms": 1790392648123, "success": true, "answer": "", "notes": ""},
+{"task": "W1", "start_ms": 1790392648132, "end_ms": 1790392649244, "success": true, "answer": "55.845", "notes": ""},
+{"task": "W2", "start_ms": 1790392649259, "end_ms": 1790392651887, "success": true, "answer": "Hello World!", "notes": "css=article selector missed; fell back to main text."},
+{"task": "W3", "start_ms": 1790392651901, "end_ms": 1790392652818, "success": true, "answer": "Y Combinator", "notes": ""},
+{"task": "W4", "start_ms": 1790392652833, "end_ms": 1790392653434, "success": true, "answer": "The element in the array matching the given index. Always returns undefined if index < -array.length or index >= array.length without attempting to access the corresponding property.", "notes": ""}
+]

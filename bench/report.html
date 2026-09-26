@@ -84,7 +84,7 @@ code { font-family: var(--mono); font-size: 13px; }
   <header>
     <div class="eyebrow">Benchmark · September 25, 2026 · same model, same tasks</div>
     <h1>arc-browser vs ego-lite vs Claude for Chrome</h1>
-    <p class="lede">Both measured tools passed all 14 tasks, verified by the benchmark server rather than by the agents. arc-browser finished the agent run 18 s sooner with 14% fewer tokens, and its scripted run was 17% faster overall. ego-lite is faster on single clicks and popups. Claude for Chrome could not run: its extension needs a signed-in Claude account in Chrome. Most agent time is the model, not the browser: the scripted run of the same 10 tasks takes about 10 s.</p>
+    <p class="lede">Both measured tools passed all 14 tasks, verified by the benchmark server rather than by the agents. After ten rounds of changes, arc-browser now finishes the same agent run in about 50 s (49.4 s and 51.7 s in the last two runs), against 195 s for ego-lite, with one browser call instead of 33 tool calls. ego-lite is faster on single clicks and popups in the scripted run. Claude for Chrome could not run: its extension needs a signed-in Claude account in Chrome.</p>
   </header>
 
   <section>
@@ -100,7 +100,7 @@ code { font-family: var(--mono); font-size: 13px; }
 
   <section>
     <h2>Can the agent run get faster?</h2>
-    <p class="sub">After this benchmark, arc-browser gained "speed rules" (open and act in one call, trust receipts, one task per goal) and was rerun with the same instructions, then run again on Sonnet. In-task time is the sum of the agents' own per-task spans; the rest of the total is fixed overhead for every tool (loading the skill, the required timestamp calls, writing the report).</p>
+    <p class="sub">Every row is a fresh subagent with the same instructions. Between runs, arc-browser gained speed rules, selectors that work without looking first (label targets, automatic search in cross-origin frames, exact-text preference), a faster virtual-list seek, a <code>section</code> reader, and a <code>batch</code> command that runs one chain per line with per-line timing and closes the task by itself. v7 exposed a seek bug that v9 fixed. v8 had the first seek fix but still spent a separate call on finish. In-task time is the sum of the agents' own per-task spans; the rest of the total is fixed overhead for every tool (loading the skill, the required timestamp calls, writing the report).</p>
     <div class="board">
       <table id="config-table">
         <thead><tr><th>Configuration</th><th>Passed</th><th>Total time</th><th>In-task time</th><th>Tool calls</th><th>Tokens</th></tr></thead>
@@ -134,7 +134,7 @@ code { font-family: var(--mono); font-size: 13px; }
 
   <section class="notes">
     <h2>Method and caveats</h2>
-    <p><strong>Verification.</strong> Every fixture page reports success to a local benchmark server, which logs the tool, the task, and the submitted value. All 20 fixture results (10 per tool) are in that log with the expected values. The 4 web answers match the pages (55.845, "Hello World!", "Y Combinator", the MDN return value).</p>
+    <p><strong>Verification.</strong> Every fixture page reports success to a local benchmark server, which logs the tool, the task, and the submitted value. All fixture results for every run shown are in that log with the expected values. The 4 web answers match the pages (55.845, "Hello World!", "Y Combinator", the MDN return value).</p>
     <p><strong>Agent timings.</strong> Total time, tokens, and tool calls come from the Claude Code harness. The agents also reported per-task timestamps, but those are not shown as a chart: ego-lite's three web lookups under one second suggest some start timestamps were taken after the page had loaded.</p>
     <p><strong>Scripted timings.</strong> The scripted runs remove model thinking and measure the tools. The virtual-list task scrolls programmatically in both scripts. The code-editor task uses each tool's native path: arc-browser's editor API, and ego-lite's select-all and paste.</p>
     <p><strong>Claude for Chrome.</strong> Google Chrome was installed for the run, but the Claude extension must be added from the Chrome Web Store and signed in by the account owner. The chart keeps its column empty and marked, rather than filling it with estimates.</p>
@@ -149,7 +149,7 @@ const TOOLS = [
   { key: "cic", name: "Claude for Chrome", color: "var(--cic)" },
 ];
 const AGENT = {
-  arc: { passed: 14, seconds: 176.9, tokens: 58080, calls: 37 },
+  arc: { passed: 14, seconds: 51.7, tokens: 54109, calls: 3 },
   ego: { passed: 14, seconds: 195.0, tokens: 67192, calls: 33 },
   cic: null,
 };
@@ -167,6 +167,15 @@ const CONFIGS = [
   { name: "arc-browser v1", color: "var(--arc)", passed: 14, total: 176.9, inTask: 141.3, calls: 37, tokens: 58080 },
   { name: "arc-browser v2 (speed rules)", color: "var(--arc)", passed: 14, total: 178.1, inTask: 108.8, calls: 36, tokens: 57656 },
   { name: "arc-browser v2 on Sonnet", color: "var(--arc)", passed: 14, total: 302.0, inTask: 217.9, calls: 73, tokens: 76530 },
+  { name: "arc-browser v3 (blind selectors, frame search)", color: "var(--arc)", passed: 14, total: 123.5, inTask: 119.6, calls: 14, tokens: 57303 },
+  { name: "arc-browser v4 (batch guidance)", color: "var(--arc)", passed: 14, total: 84.7, inTask: 37.9, calls: 8, tokens: 55148 },
+  { name: "arc-browser v5", color: "var(--arc)", passed: 14, total: 66.9, inTask: 16.6, calls: 6, tokens: 55146 },
+  { name: "arc-browser v6", color: "var(--arc)", passed: 14, total: 59.3, inTask: 18.0, calls: 4, tokens: 54329 },
+  { name: "arc-browser v7 (seek bug found)", color: "var(--arc)", passed: 14, total: 106.5, inTask: 103.0, calls: 5, tokens: 54399 },
+  { name: "arc-browser v8 (seek fix)", color: "var(--arc)", passed: 14, total: 66.7, inTask: 23.0, calls: 4, tokens: 54725 },
+  { name: "arc-browser v9 (faster seek)", color: "var(--arc)", passed: 14, total: 63.4, inTask: 16.6, calls: 4, tokens: 54476 },
+  { name: "arc-browser v10 (batch command)", color: "var(--arc)", passed: 14, total: 49.4, inTask: 17.8, calls: 3, tokens: 53831 },
+  { name: "arc-browser v11 (confirmation)", color: "var(--arc)", passed: 14, total: 51.7, inTask: 17.9, calls: 3, tokens: 54109 },
   { name: "ego-lite", color: "var(--ego)", passed: 14, total: 195.0, inTask: 121.1, calls: 33, tokens: 67192 },
 ];
 const NS = "http://www.w3.org/2000/svg";
