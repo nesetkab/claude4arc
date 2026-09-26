@@ -86,17 +86,6 @@ def main():
     bar_panel(axes[0], "seconds", "Wall-clock time (s)", "(a) Time to finish", lambda value: f"{value:.1f}")
     bar_panel(axes[1], "calls", "Tool calls", "(b) Tool calls", lambda value: f"{value:.0f}", names=False)
     bar_panel(axes[2], "read", "Input tokens read (millions)", "(c) Tokens read", lambda value: f"{value / 1e6:.2f}M", scale=1e6, names=False)
-    figure.text(
-        0.0,
-        -0.12,
-        "Same 14 tasks and model; one fresh agent per run; every run passed 14/14 (verified by the benchmark server).\n"
-        "claude4arc: mean of two runs, whiskers show their range. ego-lite and Claude for Chrome: one run each, stock setup.\n"
-        "claude4arc was tuned on these tasks, so the gap is an upper bound.",
-        fontsize=7.5,
-        ha="left",
-        va="top",
-        color="#333333",
-    )
     for suffix in ("pdf", "png", "svg"):
         figure.savefig(HERE / f"benchmark.{suffix}", dpi=300)
 
