@@ -26,13 +26,22 @@ and relay its output.
 
   ```bash
   ID=$(arc-browser new about:blank | grep -oE '[0-9]+' | head -1)
-  arc-browser $ID goto https://a.test/form -- fill "text=Name" Ada -- check "text=I agree" -- click "text=Submit" -s
+  arc-browser $ID goto https://a.test/form -- fill "text=Name" Ada -- select "text=Country" Spain -- check "text=I agree" -- click "text=Submit" -s
   arc-browser $ID goto https://b.test -- accept -- click "text=Delete" -s
-  arc-browser $ID goto https://c.test/wiki -- text 'css=tr:has-text("Iron")' 400
-  arc-browser $ID goto https://d.test/repo -- text 1500
-  arc-browser $ID goto https://e.test/docs -- text all 200000 | grep -i -m2 -A4 'return value'
+  arc-browser $ID goto https://c.test -- click "text=Open report" -- text
+  arc-browser $ID goto https://d.test -- fill role=textbox $'line 1\n  line 2' -- click "text=Save" -s
+  arc-browser $ID goto https://e.test -- drag "text=Date" "text=Apple" -- click "text=Save" -s
+  arc-browser $ID goto https://f.test -- click "text=Account" -- click "text=Sign out" -s
+  arc-browser $ID goto https://g.test/wiki -- text 'css=tr:has-text("Iron")' 400
+  arc-browser $ID goto https://h.test/repo -- text 1500
+  arc-browser $ID goto https://i.test/docs -- text all 200000 | grep -i -m2 -A4 'return value'
   arc-browser $ID finish
   ```
+
+  Every line above works without looking first: a popup becomes the current
+  page (so `text` reads it), `fill` handles code editors and iframe fields,
+  `drag` handles HTML5 and mouse lists, and menus open on `click`. Put the
+  whole job, `finish` included, in this one call.
 
 - To read, start with plain `text` (the main content, usually short) or
   `text all | grep`. A guessed CSS selector often misses.
