@@ -19,19 +19,27 @@ and relay its output.
   Only when a guess fails, `find <words>` and retry that one step.
 - Open and act in the same call: `arc-browser new <url> -- fill … -- click … -s`.
 - Batch: when you have several tasks, do ALL of them in ONE Bash call, one
-  chain per line, joined with `;` so one failure does not stop the rest. Put
-  any timestamps or shell steps in the same call. Then fix only what failed.
+  chain per line, joined with `;` so one failure does not stop the rest. Start
+  every line with `goto`, use selectors (refs from earlier calls die on
+  navigation), and do not add `-- snap` to look first. Put timestamps and
+  other shell steps in the same call. Then fix only what failed.
 
   ```bash
   ID=$(arc-browser new about:blank | grep -oE '[0-9]+' | head -1)
   arc-browser $ID goto https://a.test/form -- fill "text=Name" Ada -- check "text=I agree" -- click "text=Submit" -s
   arc-browser $ID goto https://b.test -- accept -- click "text=Delete" -s
   arc-browser $ID goto https://c.test/wiki -- text 'css=tr:has-text("Iron")' 400
+  arc-browser $ID goto https://d.test/repo -- text 1500
+  arc-browser $ID goto https://e.test/docs -- text all 200000 | grep -i -m2 -A4 'return value'
   arc-browser $ID finish
   ```
 
+- To read, start with plain `text` (the main content, usually short) or
+  `text all | grep`. A guessed CSS selector often misses.
+- `click` waits up to 5 s for its target, so `click "text=Load" -- click
+  "text=Continue"` works when Continue appears later.
 - Trust receipts. `ok`, `popup p2`, `confirm "…" accepted`, `navigated → …`,
-  a `-s` diff, or `Recorded`/status text in the diff confirm the step. Do not
+  or a `-s` diff that shows the new state confirm the step. Do not
   spend another call re-checking with `eval` or `snap`.
 - Quote selectors that contain `[`, `]`, spaces, or `*` (zsh expands them).
 - Reuse one task for the whole goal (`goto`), and `finish` once at the end.
