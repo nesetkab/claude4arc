@@ -150,6 +150,16 @@ console.log(rows.slice(0, 20).join("\n"));
 EOF
 ```
 
+Do not sleep for a fixed time between actions (`setTimeout`, `waitForTimeout`):
+`click`, `fill`, and `goto` return once the page has reacted, and dialogs are
+handled for you. When you need a result, wait for the condition itself, with a
+short timeout:
+
+```js
+await page.click(button);
+await page.waitForFunction((label) => document.querySelector(`[aria-label="${label}"]`), label, { timeout: 3000 });
+```
+
 With a task id, `t` (task) and `page` (current page) are predefined. Without
 one, use `const t = await task("name")` or `await task(7)`. Page methods:
 `goto, snapshot({scope, root, diff}), find, seek(sel, {container, max, timeout, direction}), text, click, fill, press, check,
