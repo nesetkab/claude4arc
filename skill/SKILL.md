@@ -18,36 +18,36 @@ and relay its output.
   Selectors also search cross-origin iframes when the page itself has no match.
   Only when a guess fails, `find <words>` and retry that one step.
 - Open and act in the same call: `arc-browser new <url> -- fill … -- click … -s`.
-- Batch: when you have several tasks, do ALL of them in ONE Bash call, one
-  chain per line, joined with `;` so one failure does not stop the rest. Start
-  every line with `goto`, use selectors (refs from earlier calls die on
-  navigation), and do not add `-- snap` to look first. Put timestamps and
-  other shell steps in the same call. Then fix only what failed.
+- Batch: when you have several tasks, do ALL of them in ONE `arc-browser
+  batch` call. Each stdin line is one chain, with an optional `label:` prefix.
+  Each line prints `== label ok|FAILED <start ms>-<end ms>` and its output. A
+  failure does not stop later lines, and the task finishes by itself at the
+  end, so you need no `new`, `finish`, ids, or timestamp commands. Do not add
+  `snap` to look first. Then retry only the failed lines with another batch.
 
   ```bash
-  ID=$(arc-browser new about:blank | grep -oE '[0-9]+' | head -1)
-  arc-browser $ID goto https://a.test/form -- fill "text=Name" Ada -- select "text=Country" Spain -- check "text=I agree" -- click "text=Submit" -s
-  arc-browser $ID goto https://b.test -- accept -- click "text=Delete" -s
-  arc-browser $ID goto https://c.test -- click "text=Open report" -- text
-  arc-browser $ID goto https://d.test -- fill role=textbox $'line 1\n  line 2' -- click "text=Save" -s
-  arc-browser $ID goto https://e.test -- drag "text=Date" "css=li >> nth=0" -- click "text=Save" -s
-  arc-browser $ID goto https://f.test -- click "text=Account" -- click "text=Sign out" -s
-  arc-browser $ID goto https://g.test/wiki -- text 'css=tr:has-text("Iron")' 400
-  arc-browser $ID goto https://h.test/repo -- text 1500
-  arc-browser $ID goto https://i.test/docs -- text all 200000 | grep -i -m2 -A4 'return value'
-  arc-browser $ID finish
+  arc-browser batch <<'EOF'
+  A: goto https://a.test/form -- fill "text=Name" Ada -- select "text=Country" Spain -- check "text=I agree" -- click "text=Submit" -s
+  B: goto https://b.test -- accept -- click "text=Delete" -s
+  C: goto https://c.test -- click "text=Open report" -- text
+  D: goto https://d.test -- fill role=textbox $'line 1\n  line 2' -- click "text=Save" -s
+  E: goto https://e.test -- drag "text=Date" "css=li >> nth=0" -- click "text=Save" -s
+  F: goto https://f.test -- click "text=Account" -- click "text=Sign out" -s
+  G: goto https://g.test/list -- seek "Row 500" -- click 'text="Row 500"' -s
+  H: goto https://h.test/wiki -- text 'css=tr:has-text("Iron")' 400
+  I: goto https://i.test/docs -- section "Return value"
+  J: goto https://j.test/repo -- text 1500
+  EOF
   ```
 
   Every line above works without looking first: a popup becomes the current
   page (so `text` reads it), `fill` handles code editors and iframe fields,
   `drag` handles HTML5 and mouse lists (drop on the first item to move to the
-  top), menus open on `click`, and `seek` scrolls virtual lists. End the
-  batch with `finish`; do not wait to read the results first. If a line
-  failed, retry just that line in a fresh task: `arc-browser new <url> -- … --
-  finish`.
-
-- To read, start with plain `text` (the main content, usually short) or
-  `text all | grep`. A guessed CSS selector often misses.
+  top), menus open on `click`, and `seek` scrolls virtual lists. Quoting
+  follows the shell: `"…"`, `'…'`, and `$'…\n…'`.
+- To read, use `section <heading>` for one part of a document, plain `text`
+  for the main content (usually short), or `text 'css=tr:has-text("x")'` for
+  one table row. A guessed CSS selector often misses.
 - `click` waits up to 5 s for its target, so `click "text=Load" -- click
   "text=Continue"` works when Continue appears later.
 - Trust receipts. `ok`, `popup p2`, `confirm "…" accepted`, `navigated → …`,
@@ -63,6 +63,7 @@ arc-browser new <url> [-- <cmd> ...] [-s] # new task, optionally act right away
 arc-browser 7 <cmd> [args]              # run on the task's current page
 arc-browser 7:p2 <cmd> [args]           # run on page p2 (and make it current)
 arc-browser 7 fill @3 hi -- click @4 -s # chain with "--"; -s appends a diff snapshot
+arc-browser batch [7] [--keep] <<'EOF'  # one chain per line (see Speed rules)
 ```
 
 | Command | Does |
@@ -73,6 +74,7 @@ arc-browser 7 fill @3 hi -- click @4 -s # chain with "--"; -s appends a diff sna
 | `links [words]` | visible links as `@ref text → full URL`, filtered by words |
 | `find <words>` | matching elements anywhere on the page, with refs |
 | `seek <sel\|words> [container]` | scroll a feed or virtualized list until a match renders; prints its ref |
+| `section <heading> [chars]` | the text under a heading, up to the next heading of the same level |
 | `text [sel] [chars]`, `text all` | readable text of `<main>`, of one element (`text @12`, `text css=article`), or of the whole page; default 8000 chars |
 | `goto <url>`, `back`, `forward`, `reload` | navigate and wait for load |
 | `click <sel>`, `dblclick`, `hover` | trusted pointer input; scrolls into view. `click 420,260` clicks screenshot coordinates |

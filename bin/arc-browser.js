@@ -8,7 +8,7 @@ import { Console } from "node:console";
 globalThis.console = new Console({ stdout: process.stdout, stderr: process.stderr, colorMode: false });
 import { Bridge } from "../lib/client.js";
 import { Task, listTasks } from "../lib/task.js";
-import { runCommands, createTask, COMMAND_NAMES } from "../lib/commands.js";
+import { runCommands, createTask, runBatch, COMMAND_NAMES } from "../lib/commands.js";
 import {
   ROOT,
   STATE_DIR,
@@ -29,6 +29,8 @@ Usage:
   arc-browser new [url] [name] [-s]          Create a task (page p1), -s prints a snapshot
   arc-browser <id>[:page] <cmd> [args] [-- <cmd> ...] [-s]
                                              Run one or more commands; -s appends a diff snapshot
+  arc-browser batch [id] [--keep]            Run one command chain per stdin line ("B1: goto … -- click …");
+                                             prints each line's start/end ms; finishes the task unless --keep or an id
   arc-browser run [id] [-e <code>]           Run a script (stdin when -e is absent); with id, t and page are set
   arc-browser status            Show bridge, extension, and task state
   arc-browser tabs              List open Arc tabs
@@ -271,6 +273,14 @@ async function main() {
     case "new":
       console.log(await withBridge((bridge) => createTask(bridge, rest)));
       break;
+    case "batch": {
+      const taskId = rest.find((arg) => /^\d+$/.test(arg));
+      const keep = rest.includes("--keep") || Boolean(taskId);
+      const script = await readStdin();
+      const failures = await withBridge((bridge) => runBatch(bridge, script, { taskId, keep, write: (text) => console.log(text) }));
+      if (failures) process.exitCode = 1;
+      break;
+    }
     case "run":
     case "nodejs": {
       const taskId = /^\d+$/.test(rest[0] ?? "") ? rest.shift() : undefined;
