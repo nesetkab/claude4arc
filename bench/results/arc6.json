@@ -1,0 +1,16 @@
+[
+{"task": "B1", "start_ms": 1790392002000, "end_ms": 1790392003000, "success": true, "answer": "", "notes": "macOS date lacks %3N; timestamps are second precision (x1000)."},
+{"task": "B2", "start_ms": 1790392003000, "end_ms": 1790392004000, "success": true, "answer": "", "notes": ""},
+{"task": "B3", "start_ms": 1790392004000, "end_ms": 1790392005000, "success": true, "answer": "", "notes": ""},
+{"task": "B4", "start_ms": 1790392005000, "end_ms": 1790392009000, "success": true, "answer": "", "notes": ""},
+{"task": "B5", "start_ms": 1790392009000, "end_ms": 1790392010000, "success": true, "answer": "", "notes": ""},
+{"task": "B6", "start_ms": 1790392010000, "end_ms": 1790392010000, "success": true, "answer": "Q7-ZEBRA", "notes": ""},
+{"task": "B7", "start_ms": 1790392010000, "end_ms": 1790392011000, "success": true, "answer": "", "notes": ""},
+{"task": "B8", "start_ms": 1790392011000, "end_ms": 1790392012000, "success": true, "answer": "", "notes": ""},
+{"task": "B9", "start_ms": 1790392012000, "end_ms": 1790392015000, "success": true, "answer": "", "notes": ""},
+{"task": "B10", "start_ms": 1790392015000, "end_ms": 1790392016000, "success": true, "answer": "", "notes": ""},
+{"task": "W1", "start_ms": 1790392016000, "end_ms": 1790392017000, "success": true, "answer": "55.845", "notes": ""},
+{"task": "W2", "start_ms": 1790392017000, "end_ms": 1790392018000, "success": true, "answer": "Hello World!", "notes": ""},
+{"task": "W3", "start_ms": 1790392018000, "end_ms": 1790392019000, "success": true, "answer": "Y Combinator", "notes": ""},
+{"task": "W4", "start_ms": 1790392019000, "end_ms": 1790392020000, "success": true, "answer": "The element in the array matching the given index. Always returns undefined if index < -array.length or index >= array.length without attempting to access the corresponding property.", "notes": ""}
+]

@@ -1,0 +1,16 @@
+[
+{"task": "B1", "start_ms": 1790391636000, "end_ms": 1790391638000, "success": true, "answer": "", "notes": "macOS date lacks %3N; B1-B4,B9,B10 times are second precision x1000"},
+{"task": "B2", "start_ms": 1790391638000, "end_ms": 1790391639000, "success": true, "answer": "", "notes": "Second-precision timestamps"},
+{"task": "B3", "start_ms": 1790391639000, "end_ms": 1790391640000, "success": true, "answer": "", "notes": "Second-precision timestamps"},
+{"task": "B4", "start_ms": 1790391640000, "end_ms": 1790391643000, "success": true, "answer": "", "notes": "Used seek then click; second-precision timestamps"},
+{"task": "B5", "start_ms": 1790391656707, "end_ms": 1790391658112, "success": true, "answer": "", "notes": "Earlier look-only snap preceded this timed run"},
+{"task": "B6", "start_ms": 1790391658129, "end_ms": 1790391660074, "success": true, "answer": "Q7-ZEBRA", "notes": "Report opened as popup page"},
+{"task": "B7", "start_ms": 1790391660081, "end_ms": 1790391665956, "success": true, "answer": "", "notes": "First try used stale ref @3; retried with role=textbox"},
+{"task": "B8", "start_ms": 1790391660460, "end_ms": 1790391660979, "success": true, "answer": "", "notes": ""},
+{"task": "B9", "start_ms": 1790391645000, "end_ms": 1790391648000, "success": true, "answer": "", "notes": "Second-precision timestamps"},
+{"task": "B10", "start_ms": 1790391648000, "end_ms": 1790391648000, "success": true, "answer": "", "notes": "Second-precision timestamps"},
+{"task": "W1", "start_ms": 1790391671558, "end_ms": 1790391673288, "success": true, "answer": "55.845", "notes": ""},
+{"task": "W2", "start_ms": 1790391673297, "end_ms": 1790391688345, "success": true, "answer": "Hello World!", "notes": "css=article selector missed; retried with text all | grep"},
+{"task": "W3", "start_ms": 1790391680509, "end_ms": 1790391681304, "success": true, "answer": "Y Combinator", "notes": ""},
+{"task": "W4", "start_ms": 1790391681313, "end_ms": 1790391681941, "success": true, "answer": "The element in the array matching the given index. Always returns undefined if index < -array.length or index >= array.length without attempting to access the corresponding property.", "notes": ""}
+]

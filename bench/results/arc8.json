@@ -1,0 +1,16 @@
+[
+{"task": "B1", "start_ms": 1790392303000, "end_ms": 1790392305000, "success": true, "answer": "", "notes": "macOS date lacks %3N; timestamps are seconds x1000. All tasks batched in one call."},
+{"task": "B2", "start_ms": 1790392305000, "end_ms": 1790392307000, "success": true, "answer": "", "notes": "Cross-origin iframe field filled directly."},
+{"task": "B3", "start_ms": 1790392307000, "end_ms": 1790392308000, "success": true, "answer": "", "notes": "Confirm dialog accepted."},
+{"task": "B4", "start_ms": 1790392308000, "end_ms": 1790392312000, "success": true, "answer": "", "notes": "Virtual list; seek then click."},
+{"task": "B5", "start_ms": 1790392312000, "end_ms": 1790392313000, "success": true, "answer": "", "notes": "Recorded Date,Apple,Banana,Cherry."},
+{"task": "B6", "start_ms": 1790392313000, "end_ms": 1790392314000, "success": true, "answer": "Q7-ZEBRA", "notes": "Report opened as popup."},
+{"task": "B7", "start_ms": 1790392314000, "end_ms": 1790392315000, "success": true, "answer": "", "notes": "Editor value exact with newlines and indent."},
+{"task": "B8", "start_ms": 1790392315000, "end_ms": 1790392316000, "success": true, "answer": "", "notes": "Recorded activated."},
+{"task": "B9", "start_ms": 1790392316000, "end_ms": 1790392319000, "success": true, "answer": "", "notes": "Recorded continued."},
+{"task": "B10", "start_ms": 1790392319000, "end_ms": 1790392320000, "success": true, "answer": "", "notes": "Recorded signed-out."},
+{"task": "W1", "start_ms": 1790392320000, "end_ms": 1790392321000, "success": true, "answer": "55.845", "notes": ""},
+{"task": "W2", "start_ms": 1790392321000, "end_ms": 1790392325000, "success": true, "answer": "Hello World!", "notes": "css=article missed; main text fallback worked."},
+{"task": "W3", "start_ms": 1790392325000, "end_ms": 1790392326000, "success": true, "answer": "Y Combinator", "notes": ""},
+{"task": "W4", "start_ms": 1790392326000, "end_ms": 1790392326000, "success": true, "answer": "The element in the array matching the given index. Always returns undefined if index < -array.length or index >= array.length without attempting to access the corresponding property.", "notes": "Sub-second; second-resolution timestamps."}
+]

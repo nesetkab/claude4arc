@@ -41,8 +41,10 @@ and relay its output.
   Every line above works without looking first: a popup becomes the current
   page (so `text` reads it), `fill` handles code editors and iframe fields,
   `drag` handles HTML5 and mouse lists (drop on the first item to move to the
-  top), menus open on `click`, and `seek` scrolls virtual lists. Put the
-  whole job, `finish` included, in this one call.
+  top), menus open on `click`, and `seek` scrolls virtual lists. End the
+  batch with `finish`; do not wait to read the results first. If a line
+  failed, retry just that line in a fresh task: `arc-browser new <url> -- … --
+  finish`.
 
 - To read, start with plain `text` (the main content, usually short) or
   `text all | grep`. A guessed CSS selector often misses.

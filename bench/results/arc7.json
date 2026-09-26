@@ -1,0 +1,16 @@
+[
+{"task": "B1", "start_ms": 1790392073000, "end_ms": 1790392076000, "success": true, "answer": "", "notes": "macOS date lacks %3N; B1-W4 timestamps have one-second resolution only."},
+{"task": "B2", "start_ms": 1790392076000, "end_ms": 1790392078000, "success": true, "answer": "", "notes": "Seconds resolution. Cross-origin iframe field filled directly."},
+{"task": "B3", "start_ms": 1790392078000, "end_ms": 1790392079000, "success": true, "answer": "", "notes": "Seconds resolution. Confirm dialog accepted."},
+{"task": "B4", "start_ms": 1790392079000, "end_ms": 1790392146005, "success": true, "answer": "", "notes": "Default seek stopped after 65 steps; a retry script with max 300 found the row."},
+{"task": "B5", "start_ms": 1790392100000, "end_ms": 1790392104000, "success": true, "answer": "", "notes": "Seconds resolution."},
+{"task": "B6", "start_ms": 1790392104000, "end_ms": 1790392107000, "success": true, "answer": "Q7-ZEBRA", "notes": "Report opened as a popup page."},
+{"task": "B7", "start_ms": 1790392107000, "end_ms": 1790392109000, "success": true, "answer": "", "notes": "Seconds resolution."},
+{"task": "B8", "start_ms": 1790392109000, "end_ms": 1790392115000, "success": true, "answer": "", "notes": "Seconds resolution."},
+{"task": "B9", "start_ms": 1790392115000, "end_ms": 1790392119000, "success": true, "answer": "", "notes": "Seconds resolution."},
+{"task": "B10", "start_ms": 1790392119000, "end_ms": 1790392120000, "success": true, "answer": "", "notes": "Seconds resolution."},
+{"task": "W1", "start_ms": 1790392120000, "end_ms": 1790392122000, "success": true, "answer": "55.845", "notes": "Seconds resolution."},
+{"task": "W2", "start_ms": 1790392122000, "end_ms": 1790392128000, "success": true, "answer": "Hello World!", "notes": "css=article matched nothing; the main text fallback worked."},
+{"task": "W3", "start_ms": 1790392128000, "end_ms": 1790392129000, "success": true, "answer": "Y Combinator", "notes": "Seconds resolution."},
+{"task": "W4", "start_ms": 1790392129000, "end_ms": 1790392130000, "success": true, "answer": "The element in the array matching the given index. Always returns undefined if index < -array.length or index >= array.length without attempting to access the corresponding property.", "notes": "Seconds resolution."}
+]

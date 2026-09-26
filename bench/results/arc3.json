@@ -1,0 +1,16 @@
+[
+{"task": "B1", "start_ms": 1790390706000, "end_ms": 1790390708000, "success": true, "answer": "", "notes": "macOS date lacks %3N, so B1-B4 times are second precision."},
+{"task": "B2", "start_ms": 1790390708000, "end_ms": 1790390710000, "success": true, "answer": "", "notes": "Cross-origin iframe field filled directly. Times are second precision."},
+{"task": "B3", "start_ms": 1790390710000, "end_ms": 1790390710999, "success": true, "answer": "", "notes": "Confirm dialog accepted. Times are second precision."},
+{"task": "B4", "start_ms": 1790390710000, "end_ms": 1790390715000, "success": true, "answer": "", "notes": "Used seek for the virtualized list. Times are second precision."},
+{"task": "B5", "start_ms": 1790390715000, "end_ms": 1790390737528, "success": true, "answer": "", "notes": "First drag ran on the wrong page because of my chaining mistake. The retry worked."},
+{"task": "B6", "start_ms": 1790390715000, "end_ms": 1790390729393, "success": true, "answer": "Q7-ZEBRA", "notes": "The first selector was ambiguous. The report opened as a popup."},
+{"task": "B7", "start_ms": 1790390737537, "end_ms": 1790390752408, "success": true, "answer": "", "notes": "Stale ref after goto. Retried with a CSS selector. The editor shows three lines."},
+{"task": "B8", "start_ms": 1790390738194, "end_ms": 1790390744393, "success": true, "answer": "", "notes": ""},
+{"task": "B9", "start_ms": 1790390744972, "end_ms": 1790390757815, "success": true, "answer": "", "notes": "Waited for the async results before continuing."},
+{"task": "B10", "start_ms": 1790390745326, "end_ms": 1790390751391, "success": true, "answer": "", "notes": ""},
+{"task": "W1", "start_ms": 1790390764696, "end_ms": 1790390766226, "success": true, "answer": "55.845", "notes": ""},
+{"task": "W2", "start_ms": 1790390766238, "end_ms": 1790390795923, "success": true, "answer": "Hello World!", "notes": "The article and #readme selectors failed. Found the text with text all."},
+{"task": "W3", "start_ms": 1790390772928, "end_ms": 1790390773724, "success": true, "answer": "Y Combinator", "notes": ""},
+{"task": "W4", "start_ms": 1790390773735, "end_ms": 1790390774398, "success": true, "answer": "The element in the array matching the given index. Always returns undefined if index < -array.length or index >= array.length without attempting to access the corresponding property.", "notes": ""}
+]

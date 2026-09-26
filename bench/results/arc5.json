@@ -1,0 +1,16 @@
+[
+{"task":"B1","start_ms":1790391822000,"end_ms":1790391823000,"success":true,"answer":"","notes":"macOS date lacks %3N; first-batch times are second precision x1000."},
+{"task":"B2","start_ms":1790391823000,"end_ms":1790391824000,"success":true,"answer":"","notes":"Second-precision timestamps."},
+{"task":"B3","start_ms":1790391824000,"end_ms":1790391825000,"success":true,"answer":"","notes":"Second-precision timestamps."},
+{"task":"B4","start_ms":1790391825000,"end_ms":1790391829000,"success":true,"answer":"","notes":"Second-precision timestamps."},
+{"task":"B5","start_ms":1790391846658,"end_ms":1790391847848,"success":true,"answer":"","notes":"First pass only looked at the page; did the drag in a second call."},
+{"task":"B6","start_ms":1790391829000,"end_ms":1790391829000,"success":true,"answer":"Q7-ZEBRA","notes":"Second-precision timestamps; popup read automatically."},
+{"task":"B7","start_ms":1790391852823,"end_ms":1790391853278,"success":true,"answer":"","notes":"Redone after an accidental page reload; saved text keeps its newlines."},
+{"task":"B8","start_ms":1790391830000,"end_ms":1790391831000,"success":true,"answer":"","notes":"Second-precision timestamps."},
+{"task":"B9","start_ms":1790391831000,"end_ms":1790391834000,"success":true,"answer":"","notes":"Second-precision timestamps."},
+{"task":"B10","start_ms":1790391834000,"end_ms":1790391834000,"success":true,"answer":"","notes":"Second-precision timestamps."},
+{"task":"W1","start_ms":1790391834000,"end_ms":1790391836000,"success":true,"answer":"55.845","notes":"Second-precision timestamps."},
+{"task":"W2","start_ms":1790391836000,"end_ms":1790391837000,"success":true,"answer":"Hello World!","notes":"Second-precision timestamps."},
+{"task":"W3","start_ms":1790391837000,"end_ms":1790391838000,"success":true,"answer":"Y Combinator","notes":"Second-precision timestamps."},
+{"task":"W4","start_ms":1790391838000,"end_ms":1790391838000,"success":true,"answer":"The element in the array matching the given index. Always returns undefined if index < -array.length or index >= array.length without attempting to access the corresponding property.","notes":"Second-precision timestamps."}
+]
