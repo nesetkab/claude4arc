@@ -1,0 +1,16 @@
+[
+{"task": "B1", "start_ms": 1790393585000, "end_ms": 1790393611083, "success": true, "answer": "", "notes": "macOS date lacks %3N, so start is second-precision. Ref-based clicks failed silently; coordinate clicks worked."},
+{"task": "B2", "start_ms": 1790393614942, "end_ms": 1790393651098, "success": true, "answer": "", "notes": "Clicks inside the cross-origin iframe did not register. Tab key focus plus typing and Enter worked."},
+{"task": "B3", "start_ms": 1790393655119, "end_ms": 1790393672072, "success": true, "answer": "", "notes": "Native confirm() would block the tool. Overrode window.confirm to return true through JS, then clicked."},
+{"task": "B4", "start_ms": 1790393675931, "end_ms": 1790393696894, "success": true, "answer": "", "notes": "Virtualized list. find failed, so set scrollTop through JS and then clicked."},
+{"task": "B5", "start_ms": 1790393700765, "end_ms": 1790393715740, "success": true, "answer": "", "notes": ""},
+{"task": "B6", "start_ms": 1790393719745, "end_ms": 1790393743569, "success": true, "answer": "Q7-ZEBRA", "notes": "window.open popup is outside the tab group and invisible to the tool. Opened the report URL in a group tab."},
+{"task": "B7", "start_ms": 1790393748659, "end_ms": 1790393779965, "success": true, "answer": "", "notes": "Editor auto-indent and auto-close corrupted the first attempt. Retyped so the editor supplied the indent and closing brace."},
+{"task": "B8", "start_ms": 1790393784008, "end_ms": 1790393792115, "success": true, "answer": "", "notes": "read_page interactive returned nothing; screenshot plus coordinate click worked."},
+{"task": "B9", "start_ms": 1790393796643, "end_ms": 1790393815458, "success": true, "answer": "", "notes": "Needed a wait for the async results."},
+{"task": "B10", "start_ms": 1790393819605, "end_ms": 1790393830996, "success": true, "answer": "", "notes": ""},
+{"task": "W1", "start_ms": 1790393836541, "end_ms": 1790393841221, "success": true, "answer": "55.845", "notes": ""},
+{"task": "W2", "start_ms": 1790393845409, "end_ms": 1790393855685, "success": true, "answer": "Hello World!", "notes": "README is plain text, not article.markdown-body. Found it in a pre element."},
+{"task": "W3", "start_ms": 1790393860007, "end_ms": 1790393865424, "success": true, "answer": "Y Combinator", "notes": "Link domain shown is ycombinator.com."},
+{"task": "W4", "start_ms": 1790393870048, "end_ms": 1790393876097, "success": true, "answer": "The element in the array matching the given index. Always returns undefined if index < -array.length or index >= array.length without attempting to access the corresponding property.", "notes": ""}
+]
