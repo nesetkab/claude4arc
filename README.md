@@ -148,6 +148,24 @@ passwords, 2FA, and CAPTCHAs.
 To remove access, run `claude4arc uninstall` and remove the extension in
 `arc://extensions`.
 
+## Blocklist
+
+Keep Claude away from sites such as your bank or your email:
+
+```bash
+claude4arc block chase.com mail.google.com   # a domain also covers its subdomains
+claude4arc block github.com/settings         # or only a path on a site
+claude4arc blocked                           # list
+claude4arc unblock chase.com
+```
+
+Claude cannot open a blocked site, act on a page after it reaches one, or
+adopt one of your tabs that shows one. If a page Claude opened navigates to a
+blocked site by itself (a link, a redirect, a script), the host sends that tab
+to `about:blank`. The list is in `~/.arc-bridge/config.json`. It is a
+guardrail for mistakes, not a sandbox: a process that runs as you can still
+edit the file.
+
 ## Troubleshooting
 
 `claude4arc doctor` names the failing part. Common fixes:

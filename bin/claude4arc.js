@@ -10,6 +10,7 @@ import { Bridge } from "../lib/client.js";
 import { Task, listTasks } from "../lib/task.js";
 import { runCommands, createTask, runBatch, COMMAND_NAMES } from "../lib/commands.js";
 import { pruneScreenshots, pruneTempFiles } from "../lib/housekeeping.js";
+import { normalizePattern, readBlocklist, writeBlocklist, CONFIG_PATH } from "../lib/blocklist.js";
 import {
   ROOT,
   STATE_DIR,
@@ -36,6 +37,9 @@ Usage:
   claude4arc run [id] [-e <code>]           Run a script (stdin when -e is absent); with id, t and page are set
   claude4arc status            Show bridge, extension, and task state
   claude4arc clean [--all]     Delete screenshots older than a day (or all) and stale temp files
+  claude4arc block <site...>   Never let Claude open or act on these sites (chase.com, mail.google.com/mail)
+  claude4arc unblock <site...> Remove sites from the blocklist
+  claude4arc blocked           List blocked sites
   claude4arc tabs              List open Arc tabs
   claude4arc doctor            Diagnose installation problems
   claude4arc reload-extension  Reload the Arc extension after changing extension/
@@ -301,6 +305,21 @@ async function main() {
     case "status":
       await status();
       break;
+    case "block":
+    case "unblock": {
+      if (!rest.length) throw new Error(`Usage: claude4arc ${command} <site> [site...], for example: claude4arc ${command} chase.com mail.google.com`);
+      const patterns = rest.map(normalizePattern);
+      const current = new Set(readBlocklist());
+      for (const pattern of patterns) command === "block" ? current.add(pattern) : current.delete(pattern);
+      const list = writeBlocklist([...current]);
+      console.log(list.length ? `Blocked sites (${CONFIG_PATH}):\n  ${list.join("\n  ")}` : "The blocklist is empty.");
+      break;
+    }
+    case "blocked": {
+      const list = readBlocklist();
+      console.log(list.length ? `Blocked sites (${CONFIG_PATH}):\n  ${list.join("\n  ")}` : "The blocklist is empty. Add sites with: claude4arc block <site>");
+      break;
+    }
     case "clean": {
       const all = rest.includes("--all");
       const screenshots = await pruneScreenshots({ all });

@@ -209,6 +209,9 @@ userTab(), adopt(tab), finish({keep})`. `claude4arc help` has signatures.
 
 - Confirm with the user before you send messages, post, buy, delete data, or
   change account settings.
+- Sites on the user's blocklist are off limits. Commands there fail with
+  "is on the claude4arc blocklist": stop and tell the user. Never run
+  `claude4arc block` or `unblock` unless the user asks.
 - Hand over to the user for their passwords, 2FA, CAPTCHAs, and permission
   prompts. Tell them what to do in Arc, then continue with the same task id.
 - When done, run `finish` once. Keep a page only when the user must see the

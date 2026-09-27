@@ -2,6 +2,7 @@ import net from "node:net";
 import fs from "node:fs";
 import { SOCKET_PATH, STATE_DIR, LOG_PATH } from "../lib/paths.js";
 import { rotateLog, pruneScreenshots, pruneTempFiles } from "../lib/housekeeping.js";
+import { blockedBy, readBlocklist } from "../lib/blocklist.js";
 
 fs.mkdirSync(STATE_DIR, { recursive: true, mode: 0o700 });
 await rotateLog().catch(() => {});
@@ -175,6 +176,13 @@ function onExtensionMessage(message) {
     if (message.type === "tabRemoved" && popupLinks.has(message.tabId)) callOpener(popupLinks.get(message.tabId), "close");
     if (message.type === "detached" || message.type === "tabRemoved") forgetTab(message.tabId);
     if (message.type === "event") onPopupEvent(message);
+    if (message.method === "Page.frameNavigated" && !message.sessionId && !message.params.frame?.parentId && autoDialogTabs.has(message.tabId)) {
+      const pattern = blockedBy(message.params.frame.url, readBlocklist());
+      if (pattern) {
+        log("blocked", message.tabId, pattern);
+        send(message.tabId, null, "Page.navigate", { url: "about:blank" }).catch(() => {});
+      }
+    }
     if (message.method === "Target.attachedToTarget") {
       const info = message.params.targetInfo;
       const tabSessions = sessions.get(message.tabId) ?? new Map();
