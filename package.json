@@ -6,6 +6,11 @@
   "bin": {
     "claude4arc": "bin/claude4arc.js"
   },
+  "scripts": {
+    "test": "node --test \"tests/unit/*.test.js\"",
+    "test:e2e": "node tests/run.js",
+    "check": "for f in bin/*.js lib/*.js host/*.js extension/*.js tests/*.js tests/unit/*.js bench/*.js; do node --check \"$f\" || exit 1; done"
+  },
   "files": [
     "bin",
     "lib",

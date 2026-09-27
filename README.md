@@ -216,11 +216,19 @@ removes the old `~/.claude/skills/arc-browser` link.
 
 ## Tests
 
-The tests drive real Arc tabs against local fixture pages:
+Unit tests need no browser and run in CI on every push:
 
 ```bash
-node tests/run.js              # all scenarios, fixtures on 127.0.0.1:8811-8812
-node tests/run.js iframe -v    # filter by name, print each command and its time
+npm test          # unit tests
+npm run check     # syntax check of every script
+```
+
+The end-to-end tests drive real browser tabs against local fixture pages:
+
+```bash
+npm run test:e2e                            # all scenarios in Arc, fixtures on 127.0.0.1:8811-8812
+node tests/run.js iframe -v                 # filter by name, print each command and its time
+CLAUDE4ARC_BROWSER=chromium npm run test:e2e   # run them in another browser
 ```
 
 ## Uninstall
