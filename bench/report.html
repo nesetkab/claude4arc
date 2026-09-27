@@ -84,11 +84,26 @@ code { font-family: var(--mono); font-size: 13px; }
   <header>
     <div class="eyebrow">Benchmark · September 25, 2026 · same model, same tasks</div>
     <h1>claude4arc vs ego-lite vs Claude for Chrome</h1>
-    <p class="lede">All three tools passed all 14 tasks, verified by the benchmark server rather than by the agents. claude4arc finishes the agent run in about 50 s (49.4 s and 51.7 s in its last two runs) with one browser call and 191k tokens read. ego-lite takes 195 s, 33 tool calls, and 1.93M tokens. Claude for Chrome takes 320 s, 84 tool calls, and 4.95M tokens, and needed workarounds for the confirm dialog, the popup, and the cross-origin iframe. ego-lite and Claude for Chrome each ran once with their stock setup, while claude4arc was tuned against these same tasks, so treat the gap as an upper bound. In the scripted run without a model, ego-lite is faster on single clicks and popups.</p>
+    <p class="lede">On 14 held-out tasks that claude4arc was never tuned on, with three runs per tool, a Claude Code agent finished in 117 s with claude4arc, 200 s with ego-lite, and 241 s with Claude for Chrome, with 8, 36, and 70 tool calls and 0.48M, 2.19M, and 3.83M tokens read. All 126 task runs passed, verified by the benchmark server. The sections below the held-out table cover the original 14 tasks, which claude4arc was tuned on over eleven runs, so treat those gaps as an upper bound.</p>
   </header>
 
   <section>
-    <h2>Agent run: 14 tasks, one fresh subagent per tool</h2>
+    <h2>Held-out tasks: three runs per tool</h2>
+    <p class="sub">Ten new fixture pages (a wizard, an autocomplete, a scrolling modal, a sortable table, tabs with a switch, a contenteditable note, a paginated list, a file upload, a web component in an iframe, and a slider with Enter-to-search) and four new web lookups. Mean of three runs, with the range.</p>
+    <div class="board">
+      <table>
+        <thead><tr><th>Tool</th><th>Tasks passed</th><th>Total time</th><th>Tool calls</th><th>Tokens read</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tool"><span class="swatch" style="background:var(--arc)"></span>claude4arc</span></td><td class="num best">42 / 42</td><td class="num best">117.1 s (107.9–128.8)</td><td class="num best">8.0 (7–9)</td><td class="num best">0.48M (0.41–0.54)</td></tr>
+          <tr><td><span class="tool"><span class="swatch" style="background:var(--ego)"></span>ego-lite</span></td><td class="num best">42 / 42</td><td class="num">199.5 s (177.6–215.1)</td><td class="num">36.0 (34–39)</td><td class="num">2.19M (2.05–2.41)</td></tr>
+          <tr><td><span class="tool"><span class="swatch" style="background:var(--cic)"></span>Claude for Chrome</span></td><td class="num best">42 / 42</td><td class="num">241.0 s (224.8–266.8)</td><td class="num">69.7 (65–76)</td><td class="num">3.83M (3.26–4.74)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Original tasks (claude4arc tuned on these): one fresh subagent per tool</h2>
     <p class="sub">Each subagent received only its tool's skill and the same instructions: 10 local fixtures (forms, cross-origin iframe, confirm dialog, virtual list, drag and drop, popup, code editor, closed shadow DOM, delayed content, hover menu) and 4 real-web lookups.</p>
     <div class="board">
       <table id="agent-table">
