@@ -1,6 +1,8 @@
 import net from "node:net";
 import fs from "node:fs";
-import { SOCKET_PATH, STATE_DIR, LOG_PATH } from "../lib/paths.js";
+import { execFileSync } from "node:child_process";
+import { STATE_DIR, LOG_PATH } from "../lib/paths.js";
+import { browserForExecutable, socketPath, LEGACY_SOCKET } from "../lib/browsers.js";
 import { rotateLog, pruneScreenshots, pruneTempFiles } from "../lib/housekeeping.js";
 import { blockedBy, readBlocklist } from "../lib/blocklist.js";
 
@@ -266,7 +268,7 @@ async function onClientRequest(client, request) {
   try {
     let result;
     if (api === "host.status") {
-      result = { host: { pid: process.pid, node: process.version }, extension: extensionInfo, attached: [...attached] };
+      result = { host: { pid: process.pid, node: process.version, browser: BROWSER }, extension: extensionInfo, attached: [...attached] };
     } else if (api === "host.dialog") {
       result = dialogs.get(args[0]) ?? null;
     } else if (api === "host.autoDialogs") {
@@ -304,8 +306,24 @@ function onClientClose(client) {
   clients.delete(client);
 }
 
+function launchingBrowser() {
+  if (process.env.CLAUDE4ARC_HOST_BROWSER) return process.env.CLAUDE4ARC_HOST_BROWSER;
+  try {
+    const executable = execFileSync("ps", ["-o", "comm=", "-p", String(process.ppid)], { encoding: "utf8" }).trim();
+    return browserForExecutable(executable)?.key ?? "browser";
+  } catch {
+    return "browser";
+  }
+}
+
+const BROWSER = launchingBrowser();
+const SOCKET_PATH = socketPath(BROWSER);
+
 try {
   fs.unlinkSync(SOCKET_PATH);
+} catch {}
+try {
+  if (BROWSER === "arc" && fs.lstatSync(LEGACY_SOCKET).isSocket()) fs.unlinkSync(LEGACY_SOCKET);
 } catch {}
 
 const server = net.createServer((client) => {
@@ -335,7 +353,7 @@ let socketInode = null;
 server.listen(SOCKET_PATH, () => {
   fs.chmodSync(SOCKET_PATH, 0o600);
   socketInode = fs.statSync(SOCKET_PATH).ino;
-  log("host listening", process.pid);
+  log("host listening", process.pid, BROWSER);
 });
 
 function shutdown() {

@@ -7,26 +7,20 @@ import { Console } from "node:console";
 
 globalThis.console = new Console({ stdout: process.stdout, stderr: process.stderr, colorMode: false });
 import { Bridge } from "../lib/client.js";
-import { Task, listTasks } from "../lib/task.js";
+import { Task, listTasks, browserOfTask } from "../lib/task.js";
 import { runCommands, createTask, runBatch, COMMAND_NAMES } from "../lib/commands.js";
 import { pruneScreenshots, pruneTempFiles } from "../lib/housekeeping.js";
 import { normalizePattern, readBlocklist, writeBlocklist, CONFIG_PATH } from "../lib/blocklist.js";
-import {
-  ROOT,
-  STATE_DIR,
-  SOCKET_PATH,
-  LOG_PATH,
-  HOST_NAME,
-  EXTENSION_ID,
-  NATIVE_HOSTS_DIR,
-} from "../lib/paths.js";
+import { ROOT, STATE_DIR, LOG_PATH, HOST_NAME, EXTENSION_ID } from "../lib/paths.js";
+import { BROWSERS, installedBrowsers, hostManifestDirs, socketCandidates, browserOfSocket } from "../lib/browsers.js";
 
-const MANIFEST_PATH = path.join(NATIVE_HOSTS_DIR, `${HOST_NAME}.json`);
+const manifestPathIn = (dir) => path.join(dir, `${HOST_NAME}.json`);
+const manifestDirsFor = (browsers) => [...new Set(browsers.flatMap(hostManifestDirs))];
 const LAUNCHER_PATH = path.join(STATE_DIR, "host-launcher.sh");
 const SKILL_LINK = path.join(os.homedir(), ".claude", "skills", "claude4arc");
 const LEGACY_SKILL_LINK = path.join(os.homedir(), ".claude", "skills", "arc-browser");
 
-const USAGE = `claude4arc: let Claude Code drive Arc
+const USAGE = `claude4arc: let Claude Code drive Arc (or Dia, Chrome, Brave, Edge, Chromium)
 
 Usage:
   claude4arc new [url] [name] [-s]          Create a task (page p1), -s prints a snapshot
@@ -104,8 +98,9 @@ async function readStdin() {
   return Buffer.concat(chunks).toString("utf8");
 }
 
-async function withBridge(work) {
-  const bridge = await Bridge.connect();
+async function withBridge(work, { taskId, browser: requested } = {}) {
+  const browser = requested ?? process.env.CLAUDE4ARC_BROWSER ?? (taskId ? await browserOfTask(taskId) : null) ?? undefined;
+  const bridge = await Bridge.connect({ browser });
   try {
     return await work(bridge);
   } finally {
@@ -115,7 +110,7 @@ async function withBridge(work) {
 
 async function runScript(code, taskId) {
   if (!code.trim()) throw new Error("No script given. Pipe code on stdin or pass -e '<code>'.");
-  const bridge = await Bridge.connect();
+  const bridge = await Bridge.connect({ browser: process.env.CLAUDE4ARC_BROWSER ?? (taskId ? await browserOfTask(taskId) : null) ?? undefined });
   const tasks = [];
   const openTask = async (nameOrId, options) => {
     const task = await Task.open(bridge, nameOrId, options);
@@ -145,17 +140,20 @@ async function runScript(code, taskId) {
 
 async function status() {
   const tasks = await listTasks();
-  try {
-    await withBridge(async (bridge) => {
-      const host = await bridge.call("host.status");
-      const extension = await bridge.call("extension.info");
-      const tabs = await bridge.call("tabs.query", {});
-      console.log(JSON.stringify({ connected: true, host: host.host, extension, tabCount: tabs.length, tasks }, null, 2));
-    });
-  } catch (error) {
-    console.log(JSON.stringify({ connected: false, error: error.message, tasks }, null, 2));
-    process.exitCode = 1;
+  const bridges = await liveBridges();
+  const browsers = [];
+  for (const bridge of bridges.filter((entry) => !entry.error)) {
+    await withBridge(
+      async (connection) => {
+        const host = await connection.call("host.status");
+        const tabs = await connection.call("tabs.query", {});
+        browsers.push({ browser: bridge.browser, host: host.host, extension: bridge.info, tabCount: tabs.length });
+      },
+      { browser: bridge.browser },
+    );
   }
+  console.log(JSON.stringify({ connected: browsers.length > 0, browsers, tasks }, null, 2));
+  if (!browsers.length) process.exitCode = 1;
 }
 
 async function tabs() {
@@ -188,7 +186,8 @@ async function install() {
   const hostScript = path.join(ROOT, "host", "host.js");
   await fs.writeFile(LAUNCHER_PATH, `#!/bin/sh\nexec "${node}" "${hostScript}" "$@"\n`, { mode: 0o755 });
   await fs.chmod(LAUNCHER_PATH, 0o755);
-  await fs.mkdir(path.dirname(MANIFEST_PATH), { recursive: true });
+  const browsers = installedBrowsers();
+  if (!browsers.length) throw new Error(`No supported browser found in /Applications. Supported: ${BROWSERS.map((browser) => browser.name).join(", ")}.`);
   const manifest = {
     name: HOST_NAME,
     description: "claude4arc native bridge",
@@ -196,7 +195,12 @@ async function install() {
     type: "stdio",
     allowed_origins: [`chrome-extension://${EXTENSION_ID}/`],
   };
-  await fs.writeFile(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + "\n");
+  const written = [];
+  for (const dir of manifestDirsFor(browsers)) {
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(manifestPathIn(dir), JSON.stringify(manifest, null, 2) + "\n");
+    written.push(manifestPathIn(dir));
+  }
   await fs.mkdir(path.dirname(SKILL_LINK), { recursive: true });
   let linked = "linked";
   try {
@@ -206,66 +210,81 @@ async function install() {
     if (error.code === "ENOENT") await fs.symlink(path.join(ROOT, "skill"), SKILL_LINK);
     else linked = `left alone (${SKILL_LINK} exists and is not a symlink)`;
   }
-  console.log(`Native host registered:  ${MANIFEST_PATH}
+  const pages = browsers.map((browser) => `${browser.extensionsPage} (${browser.name})`).join(", ");
+  console.log(`Browsers found:          ${browsers.map((browser) => browser.name).join(", ")}
+Native host registered:  ${written.join("\n                         ")}
 Host launcher:           ${LAUNCHER_PATH} (node: ${node})
 Claude skill:            ${SKILL_LINK} ${linked}
 
-Last step, once, in Arc:
-  1. Open arc://extensions
-  2. Turn on "Developer mode" (top right)
+Last step, once in each browser you want Claude to use:
+  1. Open the extensions page: ${pages}
+  2. Turn on "Developer mode"
   3. Click "Load unpacked" and choose: ${path.join(ROOT, "extension")}
-  4. Run: claude4arc status`);
+  4. Run: claude4arc doctor`);
 }
 
 async function uninstall() {
-  await fs.rm(MANIFEST_PATH, { force: true });
+  for (const dir of manifestDirsFor(BROWSERS)) await fs.rm(manifestPathIn(dir), { force: true });
   await fs.rm(LAUNCHER_PATH, { force: true });
   await removeOwnLink(SKILL_LINK);
   await removeOwnLink(LEGACY_SKILL_LINK);
-  console.log("Removed the native host registration and the skill link. Remove the extension in arc://extensions.");
+  console.log("Removed the native host registration and the skill link. Remove the extension from each browser's extensions page.");
+}
+
+async function liveBridges() {
+  const found = [];
+  for (const file of [...new Set(socketCandidates())]) {
+    let isSocket = false;
+    try {
+      isSocket = (await fs.stat(file)).isSocket();
+    } catch {}
+    if (!isSocket) continue;
+    const browser = browserOfSocket(file);
+    if (found.some((entry) => entry.browser === browser)) continue;
+    try {
+      const info = await withBridge((bridge) => bridge.call("extension.info"), { browser });
+      found.push({ browser, file, info });
+    } catch (error) {
+      found.push({ browser, file, error: error.message });
+    }
+  }
+  return found;
 }
 
 async function doctor() {
   const checks = [];
   const check = (name, ok, detail) => checks.push(`${ok ? "ok  " : "FAIL"} ${name}${detail ? ` — ${detail}` : ""}`);
-  let arcRunning = false;
-  try {
-    execFileSync("pgrep", ["-x", "Arc"]);
-    arcRunning = true;
-  } catch {}
-  check("Arc is running", arcRunning);
-  let manifest = null;
-  try {
-    manifest = JSON.parse(await fs.readFile(MANIFEST_PATH, "utf8"));
-  } catch {}
-  check("native host manifest", Boolean(manifest), manifest ? MANIFEST_PATH : "run `claude4arc install`");
-  if (manifest) {
-    check("manifest allows extension", manifest.allowed_origins?.includes(`chrome-extension://${EXTENSION_ID}/`));
-    let launcherOk = false;
+  const browsers = installedBrowsers();
+  check("supported browser installed", browsers.length > 0, browsers.map((browser) => browser.name).join(", ") || BROWSERS.map((browser) => browser.name).join(", "));
+  const running = browsers.filter((browser) => {
     try {
-      await fs.access(manifest.path, fs.constants.X_OK);
-      launcherOk = true;
-    } catch {}
-    check("host launcher is executable", launcherOk, manifest.path);
-  }
-  let socket = false;
-  try {
-    socket = (await fs.stat(SOCKET_PATH)).isSocket();
-  } catch {}
-  check(
-    "bridge socket",
-    socket,
-    socket ? SOCKET_PATH : `missing. Load the extension from ${path.join(ROOT, "extension")} in arc://extensions, or reload it there`,
-  );
-  if (socket) {
-    try {
-      await withBridge(async (bridge) => {
-        const info = await bridge.call("extension.info");
-        check("extension responds", true, `v${info.version} (${info.id})`);
-      });
-    } catch (error) {
-      check("extension responds", false, error.message);
+      execFileSync("pgrep", ["-x", browser.process]);
+      return true;
+    } catch {
+      return false;
     }
+  });
+  check("browser running", running.length > 0, running.map((browser) => browser.name).join(", ") || "open Arc or another supported browser");
+  for (const dir of manifestDirsFor(browsers)) {
+    let manifest = null;
+    try {
+      manifest = JSON.parse(await fs.readFile(manifestPathIn(dir), "utf8"));
+    } catch {}
+    const ok = Boolean(manifest?.allowed_origins?.includes(`chrome-extension://${EXTENSION_ID}/`));
+    check("native host manifest", ok, ok ? manifestPathIn(dir) : `${manifestPathIn(dir)} missing, run \`claude4arc install\``);
+  }
+  let launcherOk = false;
+  try {
+    await fs.access(LAUNCHER_PATH, fs.constants.X_OK);
+    launcherOk = true;
+  } catch {}
+  check("host launcher is executable", launcherOk, LAUNCHER_PATH);
+  const bridges = await liveBridges();
+  for (const bridge of bridges) {
+    check(`extension responds in ${bridge.browser}`, !bridge.error, bridge.error ?? `v${bridge.info.version} (${bridge.info.id})`);
+  }
+  if (!bridges.length) {
+    check("bridge socket", false, `none. Load the extension from ${path.join(ROOT, "extension")} on your browser's extensions page, or reload it there`);
   }
   try {
     const log = (await fs.readFile(LOG_PATH, "utf8")).trim().split("\n").slice(-3).join("\n      ");
@@ -279,7 +298,7 @@ async function main() {
   const [command = "help", ...rest] = process.argv.slice(2);
   if (/^\d+(:[\w-]+)?$/.test(command)) {
     if (!rest.length) throw new Error(`Give a command after the task id. Commands: ${COMMAND_NAMES.join(", ")}`);
-    console.log(await withBridge((bridge) => runCommands(bridge, command, rest)));
+    console.log(await withBridge((bridge) => runCommands(bridge, command, rest), { taskId: command.split(":")[0] }));
     return;
   }
   switch (command) {
@@ -290,7 +309,7 @@ async function main() {
       const taskId = rest.find((arg) => /^\d+$/.test(arg));
       const keep = rest.includes("--keep") || Boolean(taskId);
       const script = await readStdin();
-      const failures = await withBridge((bridge) => runBatch(bridge, script, { taskId, keep, write: (text) => console.log(text) }));
+      const failures = await withBridge((bridge) => runBatch(bridge, script, { taskId, keep, write: (text) => console.log(text) }), { taskId });
       if (failures) process.exitCode = 1;
       break;
     }

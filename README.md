@@ -2,7 +2,8 @@
 
 Let [Claude Code](https://docs.claude.com/en/docs/claude-code) use your real
 [Arc](https://arc.net) browser: your tabs, your logged-in sessions, your
-cookies. Claude works in background tabs, so it does not take over your
+cookies. It also works in other Chromium browsers: Dia, Google Chrome, Brave,
+Microsoft Edge, and Chromium. Claude works in background tabs, so it does not take over your
 screen, steal focus, or show dialogs.
 
 ![claude4arc compared with ego-lite and Claude for Chrome](bench/figures/benchmark.png)
@@ -16,7 +17,8 @@ the method and its limits.
 ## Requirements
 
 - macOS
-- [Arc](https://arc.net)
+- [Arc](https://arc.net), or another Chromium browser: Dia, Google Chrome,
+  Brave, Microsoft Edge, or Chromium
 - [Node.js](https://nodejs.org) 22 or later
 - [Claude Code](https://docs.claude.com/en/docs/claude-code)
 
@@ -34,14 +36,18 @@ claude4arc install
 `claude4arc install` does three things:
 
 1. It writes a small launcher to `~/.arc-bridge/host-launcher.sh`.
-2. It registers the native messaging host `com.arcforclaude.bridge` in
-   `~/Library/Application Support/Google/Chrome/NativeMessagingHosts/`. Arc
-   reads native hosts from Chrome's folder, not from its own.
+2. It registers the native messaging host `com.arcforclaude.bridge` for every
+   supported browser it finds in `/Applications`. Arc reads native hosts from
+   Google Chrome's folder
+   (`~/Library/Application Support/Google/Chrome/NativeMessagingHosts/`), not
+   from its own.
 3. It links the Claude skill to `~/.claude/skills/claude4arc`.
 
-Then load the extension in Arc once:
+Then load the extension once in each browser you want Claude to use:
 
-1. Open `arc://extensions`.
+1. Open the extensions page: `arc://extensions` in Arc, `brave://extensions`
+   in Brave, `edge://extensions` in Edge, and `chrome://extensions` in Dia,
+   Chrome, and Chromium.
 2. Turn on **Developer mode** (top right).
 3. Click **Load unpacked** and select the `extension/` folder of this repo.
 
@@ -84,6 +90,20 @@ EOF
 extraction. `claude4arc help` prints the full API, and
 [skill/SKILL.md](skill/SKILL.md) is what Claude reads.
 
+## Several browsers
+
+Each browser runs its own bridge. Claude uses Arc when Arc is running, then
+Dia, Chrome, Brave, Edge, and Chromium, in that order. To choose a browser,
+set `CLAUDE4ARC_BROWSER`:
+
+```bash
+CLAUDE4ARC_BROWSER=chrome claude4arc new https://example.com
+```
+
+A task stays in the browser where it started. `claude4arc status` lists the
+connected browsers. The test suite passes in Arc and Chromium. Dia, Chrome,
+Brave, and Edge use the same extension APIs, but have not been tested yet.
+
 ## How it works
 
 ```
@@ -96,7 +116,7 @@ Claude Code ─bash─▶ claude4arc CLI ─unix socket─▶ native host ─nat
   the extension ID to `bfbcdjkeonepklbmjjghoddpahhhnimp`, which the native
   host manifest allows.
 - **Native host** (`host/host.js`): Arc starts it when the extension connects.
-  It relays requests between the socket `~/.arc-bridge/bridge.sock` (mode
+  It relays requests between a socket such as `~/.arc-bridge/arc.sock` (mode
   0600) and the extension, and keeps per-tab state such as dialogs and frame
   sessions.
 - **CLI** (`bin/claude4arc.js`, `lib/`): a Page API with compact snapshots and
@@ -107,8 +127,8 @@ Claude Code ─bash─▶ claude4arc CLI ─unix socket─▶ native host ─nat
 
 Two internal names come from the first version and stay the same so that
 existing installs keep working: the native host `com.arcforclaude.bridge` and
-the state folder `~/.arc-bridge` (socket, host log, task records,
-screenshots).
+the state folder `~/.arc-bridge` (one socket per browser, the host log, task
+records, the blocklist, and screenshots).
 
 ## Behavior in Arc
 
