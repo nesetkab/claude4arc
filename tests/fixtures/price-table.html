@@ -1,0 +1,3 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Price table</title></head><body><table><tbody>
+<tr><td>Stapler</td><td><button>Add</button></td></tr><tr><td>Paper clips</td><td><button>Add</button></td></tr><tr><td>Tape</td><td><button>Add</button></td></tr>
+</tbody></table><pre id="result">none</pre><script>for(const b of document.querySelectorAll("button"))b.onclick=()=>document.getElementById("result").textContent=b.closest("tr").cells[0].textContent</script></body></html>
