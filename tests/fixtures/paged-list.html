@@ -1,0 +1,5 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Paged list</title></head><body><h1>Invoices</h1><ul id="list"></ul><nav aria-label="Pagination"><button id="prev">Previous</button> <span id="pos"></span> <button id="next">Next</button></nav><pre id="result">none</pre><script>
+let page=0;const per=10,pages=5;
+function draw(){const list=document.getElementById("list");list.innerHTML="";for(let i=page*per;i<page*per+per;i++){const li=document.createElement("li");const b=document.createElement("button");b.textContent="Invoice "+(1000+i);b.onclick=()=>document.getElementById("result").textContent=b.textContent;li.append(b);list.append(li)}document.getElementById("pos").textContent="Page "+(page+1)+" of "+pages;document.getElementById("prev").disabled=page===0;document.getElementById("next").disabled=page===pages-1}
+document.getElementById("prev").onclick=()=>{page--;draw()};document.getElementById("next").onclick=()=>{page++;draw()};draw();
+</script></body></html>

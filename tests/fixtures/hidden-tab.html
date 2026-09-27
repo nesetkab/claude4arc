@@ -1,0 +1,5 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Hidden tab</title></head><body>
+<div role="tablist"><button role="tab" aria-selected="true" aria-controls="a" id="ta">General</button><button role="tab" aria-selected="false" aria-controls="b" id="tb">Security</button></div>
+<div role="tabpanel" id="a" aria-labelledby="ta"><p>General settings</p></div>
+<div role="tabpanel" id="b" aria-labelledby="tb" hidden><button id="rotate">Rotate keys</button></div>
+<pre id="result">none</pre><script>for(const t of document.querySelectorAll("[role=tab]"))t.onclick=()=>{for(const o of document.querySelectorAll("[role=tab]")){o.setAttribute("aria-selected",String(o===t));document.getElementById(o.getAttribute("aria-controls")).hidden=o!==t}};document.getElementById("rotate").onclick=()=>document.getElementById("result").textContent="rotated"</script></body></html>

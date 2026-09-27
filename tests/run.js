@@ -626,6 +626,43 @@ await p.waitForFunction(() => document.getElementById("result").textContent !== 
     },
   },
   {
+    name: "modal-scroll-check",
+    fixture: "modal-scroll.html",
+    async run(s) {
+      await s.cmd("check", "text=Share usage data", "--", "click", "text=Save");
+      const result = await s.result();
+      expect(result === "checked", `result ${show(result)}`);
+    },
+  },
+  {
+    name: "hidden-tab-hint",
+    fixture: "hidden-tab.html",
+    async run(s) {
+      const attempt = await s.attempt("click", "text=Rotate keys");
+      expect(!attempt.ok && /hidden tab panel: open the tab first \(@\d+ tab "Security"\)/.test(attempt.error), `error ${show(attempt.error)}`);
+    },
+  },
+  {
+    name: "seek-pages",
+    fixture: "paged-list.html",
+    async run(s) {
+      const found = await s.cmd("seek", "Invoice 1034");
+      expect(/Invoice 1034.*\(page 4\)/.test(found), `seek ${show(found)}`);
+      await s.cmd("click", 'text="Invoice 1034"');
+      const result = await s.result();
+      expect(result === "Invoice 1034", `result ${show(result)}`);
+    },
+  },
+  {
+    name: "css-has-text-descendant",
+    fixture: "price-table.html",
+    async run(s) {
+      await s.cmd("click", 'css=tr:has-text("Paper clips") button');
+      const result = await s.result();
+      expect(result === "Paper clips", `result ${show(result)}`);
+    },
+  },
+  {
     name: "sticky-header",
     fixture: "sticky-header.html",
     async run(s) {
