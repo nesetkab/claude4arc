@@ -1,6 +1,6 @@
 {
   "name": "claude4arc",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Let Claude Code drive your real Arc browser through a local extension bridge.",
   "type": "module",
   "bin": {

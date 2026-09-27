@@ -33,6 +33,14 @@
 - A click target under a fixed header is scrolled clear before the click.
 - `fill "text=…"` that matches plain text falls back to the textbox labelled
   with those words.
+- A target clipped inside a scrolling container, such as a modal body, is
+  scrolled into view before a click or check.
+- `:has-text()` and `:text-is()` work anywhere in a CSS selector, for example
+  `css=tr:has-text("Paper clips") button`.
+- A selector that matches only hidden elements names the tab or section to
+  open first.
+- `seek` pages through paginated lists (Next buttons in a pager) when there is
+  nothing to scroll.
 
 ## 0.4.0 (2026-09-26)
 

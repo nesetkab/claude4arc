@@ -40,7 +40,9 @@ its output.
   All of these work blind: a popup becomes the current page, `fill` handles
   code editors and iframe fields, `drag` handles HTML5 and mouse lists (drop on
   the first item to move to the top), menus open on `click`, `seek` scrolls
-  virtual lists, and `click` waits up to 5 s for late content.
+  virtual lists and pages through paginated ones, and `click` waits up to 5 s
+  for late content. If a target is in a hidden tab or wizard step, the error
+  names the tab or step to open first.
 - One task: open and act in one call, `claude4arc new <url> -- fill … -- click … -s`,
   then reuse it with `claude4arc 7 goto …` and `finish` once at the end.
 - Read with `section <heading>`, plain `text` (main content), or `text <sel>`.
