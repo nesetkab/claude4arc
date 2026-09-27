@@ -9,7 +9,8 @@
   "scripts": {
     "test": "node --test \"tests/unit/*.test.js\"",
     "test:e2e": "node tests/run.js",
-    "check": "for f in bin/*.js lib/*.js host/*.js extension/*.js tests/*.js tests/unit/*.js bench/*.js; do node --check \"$f\" || exit 1; done"
+    "check": "for f in bin/*.js lib/*.js host/*.js extension/*.js tests/*.js tests/unit/*.js bench/*.js scripts/*.js; do node --check \"$f\" || exit 1; done",
+    "package:extension": "node scripts/package-extension.js"
   },
   "files": [
     "bin",

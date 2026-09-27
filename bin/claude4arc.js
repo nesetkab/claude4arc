@@ -11,6 +11,7 @@ import { Task, listTasks, browserOfTask } from "../lib/task.js";
 import { runCommands, createTask, runBatch, COMMAND_NAMES } from "../lib/commands.js";
 import { pruneScreenshots, pruneTempFiles } from "../lib/housekeeping.js";
 import { normalizePattern, readBlocklist, writeBlocklist, CONFIG_PATH } from "../lib/blocklist.js";
+import { readConfig, updateConfig } from "../lib/config.js";
 import { ROOT, STATE_DIR, LOG_PATH, HOST_NAME, EXTENSION_ID } from "../lib/paths.js";
 import { BROWSERS, installedBrowsers, hostManifestDirs, socketCandidates, browserOfSocket } from "../lib/browsers.js";
 
@@ -37,7 +38,8 @@ Usage:
   claude4arc tabs              List open Arc tabs
   claude4arc doctor            Diagnose installation problems
   claude4arc reload-extension  Reload the Arc extension after changing extension/
-  claude4arc install           Register the native host and link the Claude skill
+  claude4arc install [--no-skill] [--extension-id <id>]
+                               Register the native host and link the Claude skill
   claude4arc uninstall         Remove the native host registration and skill link
   claude4arc help [topic]      Print API help (topics: api, selectors, keys)`;
 
@@ -179,7 +181,35 @@ async function removeOwnLink(link) {
   } catch {}
 }
 
-async function install() {
+async function linkSkillFolder() {
+  await fs.mkdir(path.dirname(SKILL_LINK), { recursive: true });
+  try {
+    const current = await fs.readlink(SKILL_LINK);
+    return current === path.join(ROOT, "skill") ? "linked" : `left alone (points to ${current})`;
+  } catch (error) {
+    if (error.code !== "ENOENT") return `left alone (${SKILL_LINK} exists and is not a symlink)`;
+    await fs.symlink(path.join(ROOT, "skill"), SKILL_LINK);
+    return "linked";
+  }
+}
+
+function allowedExtensionIds(extra = []) {
+  const saved = readConfig().extensionIds;
+  return [...new Set([EXTENSION_ID, ...(Array.isArray(saved) ? saved : []), ...extra])];
+}
+
+async function install(args = []) {
+  const extra = [];
+  for (let index = 0; index < args.length; index++) {
+    if (args[index] === "--extension-id") {
+      const id = args[++index] ?? "";
+      if (!/^[a-p]{32}$/.test(id)) throw new Error(`Not an extension ID: "${id}". It is 32 letters from a to p, shown on the extensions page.`);
+      extra.push(id);
+    }
+  }
+  const linkSkill = !args.includes("--no-skill");
+  const extensionIds = allowedExtensionIds(extra);
+  if (extra.length) updateConfig({ extensionIds: extensionIds.filter((id) => id !== EXTENSION_ID) });
   await fs.mkdir(STATE_DIR, { recursive: true, mode: 0o700 });
   await removeOwnLink(LEGACY_SKILL_LINK);
   const node = resolveNode();
@@ -193,7 +223,7 @@ async function install() {
     description: "claude4arc native bridge",
     path: LAUNCHER_PATH,
     type: "stdio",
-    allowed_origins: [`chrome-extension://${EXTENSION_ID}/`],
+    allowed_origins: extensionIds.map((id) => `chrome-extension://${id}/`),
   };
   const written = [];
   for (const dir of manifestDirsFor(browsers)) {
@@ -201,15 +231,7 @@ async function install() {
     await fs.writeFile(manifestPathIn(dir), JSON.stringify(manifest, null, 2) + "\n");
     written.push(manifestPathIn(dir));
   }
-  await fs.mkdir(path.dirname(SKILL_LINK), { recursive: true });
-  let linked = "linked";
-  try {
-    const current = await fs.readlink(SKILL_LINK);
-    if (current !== path.join(ROOT, "skill")) linked = `left alone (points to ${current})`;
-  } catch (error) {
-    if (error.code === "ENOENT") await fs.symlink(path.join(ROOT, "skill"), SKILL_LINK);
-    else linked = `left alone (${SKILL_LINK} exists and is not a symlink)`;
-  }
+  const linked = linkSkill ? await linkSkillFolder() : (await removeOwnLink(SKILL_LINK), "not linked (--no-skill; use the Claude Code plugin instead)");
   const pages = browsers.map((browser) => `${browser.extensionsPage} (${browser.name})`).join(", ");
   console.log(`Browsers found:          ${browsers.map((browser) => browser.name).join(", ")}
 Native host registered:  ${written.join("\n                         ")}
@@ -357,7 +379,7 @@ async function main() {
       await doctor();
       break;
     case "install":
-      await install();
+      await install(rest);
       break;
     case "uninstall":
       await uninstall();

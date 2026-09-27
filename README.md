@@ -26,10 +26,13 @@ No npm dependencies.
 
 ## Install
 
+There are three parts: the command-line tool with its native host, a browser
+extension, and a Claude skill.
+
+### 1. The command-line tool
+
 ```bash
-git clone https://github.com/nesetkab/claude4arc.git
-cd claude4arc
-npm link
+npm install -g github:nesetkab/claude4arc
 claude4arc install
 ```
 
@@ -41,17 +44,32 @@ claude4arc install
    Google Chrome's folder
    (`~/Library/Application Support/Google/Chrome/NativeMessagingHosts/`), not
    from its own.
-3. It links the Claude skill to `~/.claude/skills/claude4arc`.
+3. It links the Claude skill to `~/.claude/skills/claude4arc`. Pass
+   `--no-skill` if you install the skill as a plugin (below).
 
-Then load the extension once in each browser you want Claude to use:
+### 2. The extension
+
+Load it once in each browser you want Claude to use:
 
 1. Open the extensions page: `arc://extensions` in Arc, `brave://extensions`
    in Brave, `edge://extensions` in Edge, and `chrome://extensions` in Dia,
    Chrome, and Chromium.
 2. Turn on **Developer mode** (top right).
-3. Click **Load unpacked** and select the `extension/` folder of this repo.
+3. Click **Load unpacked** and select the `extension` folder that
+   `claude4arc install` prints.
 
-Check that everything works:
+### 3. The skill
+
+`claude4arc install` already linked it. To get it as a Claude Code plugin
+instead, which updates with `claude plugin update`:
+
+```bash
+claude plugin marketplace add nesetkab/claude4arc
+claude plugin install claude4arc@claude4arc
+claude4arc install --no-skill
+```
+
+### Check
 
 ```bash
 claude4arc doctor
@@ -59,6 +77,17 @@ claude4arc doctor
 
 Every line should start with `ok`. Start a new Claude Code session so that it
 loads the skill.
+
+### From a clone
+
+For development, install from a clone so that your edits take effect at once:
+
+```bash
+git clone https://github.com/nesetkab/claude4arc.git
+cd claude4arc
+npm link
+claude4arc install
+```
 
 ## Use
 
@@ -201,14 +230,12 @@ edit the file.
 ## Update
 
 ```bash
-git pull
-npm link
+npm install -g github:nesetkab/claude4arc   # or: git pull, in a clone
 claude4arc install
 claude4arc reload-extension
 ```
 
-`npm link` and `install` are only needed when the command or the skill
-changed, but they are safe to run every time.
+With the plugin, also run `claude plugin update claude4arc@claude4arc`.
 
 The project was first called `arc-browser`. If you installed it under that
 name, run `npm rm -g arc-browser` once, then the steps above. `install`
@@ -235,7 +262,7 @@ CLAUDE4ARC_BROWSER=chromium npm run test:e2e   # run them in another browser
 
 ```bash
 claude4arc uninstall
-npm unlink -g claude4arc
+npm uninstall -g claude4arc
 ```
 
 Then remove the claude4arc extension in `arc://extensions`. To also delete

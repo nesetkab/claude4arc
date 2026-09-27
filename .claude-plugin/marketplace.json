@@ -1,0 +1,15 @@
+{
+  "name": "claude4arc",
+  "description": "The claude4arc browser skill for Claude Code.",
+  "owner": {
+    "name": "nesetkab",
+    "url": "https://github.com/nesetkab"
+  },
+  "plugins": [
+    {
+      "name": "claude4arc",
+      "source": "./",
+      "description": "Let Claude Code use your real Arc browser in background tabs."
+    }
+  ]
+}
