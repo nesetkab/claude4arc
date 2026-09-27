@@ -8,7 +8,7 @@ during the early runs; the results use the current name.
 
 | Tool | Tasks passed | Time | Tool calls | Input tokens read |
 |---|---|---|---|---|
-| claude4arc | 14 / 14 | 50.5 s (mean of 49.4 and 51.7) | 3 | 0.19 M |
+| claude4arc | 14 / 14 | 50.6 s (mean of 49.4 and 51.7) | 3 | 0.19 M |
 | ego-lite | 14 / 14 | 195.0 s | 33 | 1.93 M |
 | Claude for Chrome | 14 / 14 | 319.8 s | 84 | 4.95 M |
 
@@ -21,9 +21,11 @@ during the early runs; the results use the current name.
   editor, a closed shadow root, delayed content, and a hover menu) and 4
   lookups on real sites (Wikipedia, GitHub, Hacker News, MDN).
 - Each fixture page reports its result to the benchmark server, which appends
-  it to `results/records.jsonl`. A task counts as passed only when the server
+  it to a log. The published runs are in `results/records.jsonl`. A task counts as passed only when the server
   recorded the expected value, not when the agent says so.
-- Time, tool calls, and context size come from the Claude Code harness.
+- Time, tool calls, and context size come from the Claude Code harness. Its
+  tool-call count includes loading the skill and the agent's final report, so
+  claude4arc's 3 calls are the skill, one browser call, and the report.
   "Input tokens read" is the sum of the input tokens of every model turn, from
   the agent transcripts. Each turn reads the whole conversation again, so this
   number follows cost.
@@ -38,6 +40,10 @@ during the early runs; the results use the current name.
 - Claude for Chrome passed every task, but its agent used workarounds: it
   replaced `window.confirm` in JavaScript, opened the popup's URL in a new tab,
   and used the Tab key inside the cross-origin iframe.
+- The published runs used `date +%s%3N` for per-task timestamps. macOS `date`
+  has no `%N`, so some of those timestamps have one-second precision. Total
+  times come from the harness and are not affected. INSTRUCTIONS.md now uses
+  a command that works on macOS.
 
 ## Run it yourself
 
@@ -48,11 +54,13 @@ node bench/server.js
 ```
 
 Then give a fresh Claude Code agent the instructions in
-[INSTRUCTIONS.md](INSTRUCTIONS.md), with a unique run id and one tool. Check
-the results:
+[INSTRUCTIONS.md](INSTRUCTIONS.md), with a unique run id and one tool. New
+results go to `results/records.local.jsonl`, which git ignores, so the
+published `records.jsonl` stays unchanged. Set `BENCH_RECORDS=<path>` to write
+somewhere else. Check the results:
 
 ```bash
-grep '"run":"<run id>"' bench/results/records.jsonl
+grep '"run":"<run id>"' bench/results/records.local.jsonl
 ```
 
 The scripted runs measure the tools without a model in the loop:
@@ -77,8 +85,8 @@ python3 bench/figures/make_figure.py
 | `pages/` | the fixture pages |
 | `server.js` | the fixture server and result recorder |
 | `results/*.json` | each agent's own report, with per-task timestamps |
-| `results/*.meta.json` | harness figures for each run |
-| `results/records.jsonl` | results recorded by the fixture pages |
+| `results/*.meta.json` | harness figures for each run, and the tokens read |
+| `results/records.jsonl` | results recorded by the fixture pages in the published runs |
 | `results/scripted*.json*` | scripted runs without a model |
 | `report.html` | an interactive report of all runs |
 | `figures/` | the figure above and the script that draws it |

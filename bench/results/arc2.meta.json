@@ -1,1 +1,1 @@
-{"tool":"claude4arc v2","run":"arc2","tokens":57656,"tool_uses":36,"duration_ms":178089}
+{"tool": "claude4arc v2", "run": "arc2", "tokens": 57656, "tool_uses": 36, "duration_ms": 178089, "tokens_read": 1881384}

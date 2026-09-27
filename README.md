@@ -9,7 +9,8 @@ screen, steal focus, or show dialogs.
 
 On the same 14 browser tasks with the same model, a Claude Code agent finished
 in about 50 s with claude4arc, 195 s with ego-lite, and 320 s with Claude for
-Chrome, and read about 10 times fewer tokens. See [bench/](bench/README.md) for
+Chrome. It read about 10 times fewer tokens than with ego-lite and 26 times
+fewer than with Claude for Chrome. See [bench/](bench/README.md) for
 the method and its limits.
 
 ## Requirements
@@ -104,6 +105,11 @@ Claude Code ─bash─▶ claude4arc CLI ─unix socket─▶ native host ─nat
 - **Skill** (`skill/SKILL.md`): teaches Claude the commands and how to use
   them with few tool calls.
 
+Two internal names come from the first version and stay the same so that
+existing installs keep working: the native host `com.arcforclaude.bridge` and
+the state folder `~/.arc-bridge` (socket, host log, task records,
+screenshots).
+
 ## Behavior in Arc
 
 - Claude opens its own background tabs in your current space. Input,
@@ -125,7 +131,8 @@ Claude Code ─bash─▶ claude4arc CLI ─unix socket─▶ native host ─nat
 - `finish` closes only the tabs that Claude opened. Tabs you hand over with
   `adopt` are released, never closed.
 - Each task belongs to the Claude Code session that created it, so parallel
-  sessions do not interfere with each other.
+  sessions do not interfere with each other. Set `CLAUDE4ARC_ANY_TASK=1` to
+  use a task from another session.
 
 ## Security
 
@@ -157,8 +164,17 @@ To remove access, run `claude4arc uninstall` and remove the extension in
 
 ```bash
 git pull
+npm link
+claude4arc install
 claude4arc reload-extension
 ```
+
+`npm link` and `install` are only needed when the command or the skill
+changed, but they are safe to run every time.
+
+The project was first called `arc-browser`. If you installed it under that
+name, run `npm rm -g arc-browser` once, then the steps above. `install`
+removes the old `~/.claude/skills/arc-browser` link.
 
 ## Tests
 
@@ -176,7 +192,8 @@ claude4arc uninstall
 npm unlink -g claude4arc
 ```
 
-Then remove the claude4arc extension in `arc://extensions`.
+Then remove the claude4arc extension in `arc://extensions`. To also delete
+the task records, logs, and screenshots, run `rm -rf ~/.arc-bridge`.
 
 ## License
 

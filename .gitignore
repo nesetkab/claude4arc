@@ -3,3 +3,4 @@ node_modules/
 .claude/
 .venv/
 __pycache__/
+bench/results/records.local.jsonl

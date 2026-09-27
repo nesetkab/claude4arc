@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PAGES = path.join(HERE, "pages");
-const RECORDS = path.join(HERE, "results", "records.jsonl");
+const RECORDS = process.env.BENCH_RECORDS ?? path.join(HERE, "results", "records.local.jsonl");
 const BASE = Number(process.env.BENCH_PORT ?? 8900);
 const PORTS = [BASE, BASE + 1];
 

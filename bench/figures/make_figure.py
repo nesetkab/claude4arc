@@ -10,17 +10,14 @@ COLORS = {"arc": "#0072B2", "ego": "#D55E00", "cic": "#009E73"}
 HATCHES = {"arc": "", "ego": "//", "cic": ".."}
 NAMES = {"arc": "claude4arc", "ego": "ego-lite", "cic": "Claude for Chrome"}
 
-ARC_RUNS = {"arc10": {"seconds": 49.4, "calls": 3, "read": 190792}, "arc11": {"seconds": 51.7, "calls": 3, "read": 191147}}
-SINGLE = {
-    "ego": {"seconds": 195.0, "calls": 33, "read": 1933604},
-    "cic": {"seconds": 319.8, "calls": 84, "read": 4950131},
-}
-def check_results():
-    for run, values in ARC_RUNS.items():
-        meta = json.loads((RESULTS / f"{run}.meta.json").read_text())
-        assert abs(meta["duration_ms"] / 1000 - values["seconds"]) < 0.1, run
-    cic = json.loads((RESULTS / "cic.meta.json").read_text())
-    assert abs(cic["duration_ms"] / 1000 - SINGLE["cic"]["seconds"]) < 0.1
+
+def load(run):
+    meta = json.loads((RESULTS / f"{run}.meta.json").read_text())
+    return {"seconds": meta["duration_ms"] / 1000, "calls": meta["tool_uses"], "read": meta["tokens_read"]}
+
+
+ARC_RUNS = {run: load(run) for run in ("arc10", "arc11")}
+SINGLE = {"ego": load("ego"), "cic": load("cic")}
 
 
 def summary(metric):
@@ -80,7 +77,6 @@ def bar_panel(axis, metric, xlabel, title, formatter, scale=1.0, names=True):
 
 
 def main():
-    check_results()
     style()
     figure, axes = plt.subplots(1, 3, figsize=(7.2, 2.1), gridspec_kw={"wspace": 0.12})
     bar_panel(axes[0], "seconds", "Wall-clock time (s)", "(a) Time to finish", lambda value: f"{value:.1f}")

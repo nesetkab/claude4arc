@@ -22,6 +22,7 @@ import {
 const MANIFEST_PATH = path.join(NATIVE_HOSTS_DIR, `${HOST_NAME}.json`);
 const LAUNCHER_PATH = path.join(STATE_DIR, "host-launcher.sh");
 const SKILL_LINK = path.join(os.homedir(), ".claude", "skills", "claude4arc");
+const LEGACY_SKILL_LINK = path.join(os.homedir(), ".claude", "skills", "arc-browser");
 
 const USAGE = `claude4arc: let Claude Code drive Arc
 
@@ -168,8 +169,15 @@ function resolveNode() {
   return process.execPath;
 }
 
+async function removeOwnLink(link) {
+  try {
+    if ((await fs.readlink(link)) === path.join(ROOT, "skill")) await fs.rm(link);
+  } catch {}
+}
+
 async function install() {
   await fs.mkdir(STATE_DIR, { recursive: true, mode: 0o700 });
+  await removeOwnLink(LEGACY_SKILL_LINK);
   const node = resolveNode();
   const hostScript = path.join(ROOT, "host", "host.js");
   await fs.writeFile(LAUNCHER_PATH, `#!/bin/sh\nexec "${node}" "${hostScript}" "$@"\n`, { mode: 0o755 });
@@ -206,9 +214,8 @@ Last step, once, in Arc:
 async function uninstall() {
   await fs.rm(MANIFEST_PATH, { force: true });
   await fs.rm(LAUNCHER_PATH, { force: true });
-  try {
-    if ((await fs.readlink(SKILL_LINK)) === path.join(ROOT, "skill")) await fs.rm(SKILL_LINK);
-  } catch {}
+  await removeOwnLink(SKILL_LINK);
+  await removeOwnLink(LEGACY_SKILL_LINK);
   console.log("Removed the native host registration and the skill link. Remove the extension in arc://extensions.");
 }
 

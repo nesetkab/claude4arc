@@ -8,7 +8,8 @@ touch the user's own tabs.
 
 ## Timing
 
-For every task, run `date +%s%3N` in Bash immediately before your first
+For every task, run `perl -MTime::HiRes=time -e 'printf "%d\n", time*1000'`
+(milliseconds; macOS `date` has no `%N`) in Bash immediately before your first
 action for the task and again immediately after you have finished and
 verified it. Report both numbers. Give each task at most 4 minutes; if you are
 stuck, stop, mark it failed, and move on. Do the tasks in order.
