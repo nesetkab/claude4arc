@@ -1,13 +1,13 @@
 ---
-name: arc-browser
-description: Control the user's real Arc browser (their logged-in sessions, cookies, and open tabs) through the arc-browser CLI. Use when the user mentions Arc, asks you to do something "in my browser", or needs a site where they are already signed in. Opens and operates websites, fills forms, clicks, types, takes screenshots, extracts page data, and works with the user's existing tabs.
+name: claude4arc
+description: Control the user's real Arc browser (their logged-in sessions, cookies, and open tabs) through the claude4arc CLI. Use when the user mentions Arc, asks you to do something "in my browser", or needs a site where they are already signed in. Opens and operates websites, fills forms, clicks, types, takes screenshots, extracts page data, and works with the user's existing tabs.
 ---
 
-# arc-browser
+# claude4arc
 
 Drives the user's own Arc (real profile, trusted input events) through a local
 extension. Work happens in background tabs, so the user is not interrupted.
-If a command fails with "Arc bridge is not running", run `arc-browser doctor`
+If a command fails with "Arc bridge is not running", run `claude4arc doctor`
 and relay its output.
 
 ## Speed rules (each tool call costs seconds of model time; the browser is fast)
@@ -17,8 +17,8 @@ and relay its output.
   or a field's label (`fill "text=Full name" Ada`, `select text=Country Spain`).
   Selectors also search cross-origin iframes when the page itself has no match.
   Only when a guess fails, `find <words>` and retry that one step.
-- Open and act in the same call: `arc-browser new <url> -- fill … -- click … -s`.
-- Batch: when you have several tasks, do ALL of them in ONE `arc-browser
+- Open and act in the same call: `claude4arc new <url> -- fill … -- click … -s`.
+- Batch: when you have several tasks, do ALL of them in ONE `claude4arc
   batch` call. Each stdin line is one chain, with an optional `label:` prefix.
   Each line prints `== label ok|FAILED <start ms>-<end ms>` and its output. A
   failure does not stop later lines, and the task finishes by itself at the
@@ -26,7 +26,7 @@ and relay its output.
   `snap` to look first. Then retry only the failed lines with another batch.
 
   ```bash
-  arc-browser batch <<'EOF'
+  claude4arc batch <<'EOF'
   A: goto https://a.test/form -- fill "text=Name" Ada -- select "text=Country" Spain -- check "text=I agree" -- click "text=Submit" -s
   B: goto https://b.test -- accept -- click "text=Delete" -s
   C: goto https://c.test -- click "text=Open report" -- text
@@ -59,11 +59,11 @@ and relay its output.
 ## Commands (default: use these)
 
 ```bash
-arc-browser new <url> [-- <cmd> ...] [-s] # new task, optionally act right away
-arc-browser 7 <cmd> [args]              # run on the task's current page
-arc-browser 7:p2 <cmd> [args]           # run on page p2 (and make it current)
-arc-browser 7 fill @3 hi -- click @4 -s # chain with "--"; -s appends a diff snapshot
-arc-browser batch [7] [--keep] <<'EOF'  # one chain per line (see Speed rules)
+claude4arc new <url> [-- <cmd> ...] [-s] # new task, optionally act right away
+claude4arc 7 <cmd> [args]              # run on the task's current page
+claude4arc 7:p2 <cmd> [args]           # run on page p2 (and make it current)
+claude4arc 7 fill @3 hi -- click @4 -s # chain with "--"; -s appends a diff snapshot
+claude4arc batch [7] [--keep] <<'EOF'  # one chain per line (see Speed rules)
 ```
 
 | Command | Does |
@@ -144,7 +144,7 @@ lists the candidates with refs.
 ## Scripts (loops, extraction, complex logic)
 
 ```bash
-arc-browser run 7 <<'EOF'
+claude4arc run 7 <<'EOF'
 const rows = await page.evaluate(() => [...document.querySelectorAll("tr")].map((r) => r.innerText));
 console.log(rows.slice(0, 20).join("\n"));
 EOF
@@ -167,7 +167,7 @@ selectOption, setInputFiles, hover, dragAndDrop, scroll, waitForURL,
 waitForSelector, waitForFunction, evaluate(fn, arg), fetch(url, {saveAs}),
 screenshot, bringToFront, acceptDialog, dismissDialog, mouse.*, keyboard.*,
 cdp(method, params)`. Task methods: `page(label), newPage({url}), tabs(),
-userTab(), adopt(tab), finish({keep})`. `arc-browser help` has signatures.
+userTab(), adopt(tab), finish({keep})`. `claude4arc help` has signatures.
 
 ## Arc behavior
 

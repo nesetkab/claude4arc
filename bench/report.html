@@ -83,8 +83,8 @@ code { font-family: var(--mono); font-size: 13px; }
 <div class="wrap">
   <header>
     <div class="eyebrow">Benchmark · September 25, 2026 · same model, same tasks</div>
-    <h1>arc-browser vs ego-lite vs Claude for Chrome</h1>
-    <p class="lede">All three tools passed all 14 tasks, verified by the benchmark server rather than by the agents. arc-browser finishes the agent run in about 50 s (49.4 s and 51.7 s in its last two runs) with one browser call and 191k tokens read. ego-lite takes 195 s, 33 tool calls, and 1.93M tokens. Claude for Chrome takes 320 s, 84 tool calls, and 4.95M tokens, and needed workarounds for the confirm dialog, the popup, and the cross-origin iframe. ego-lite and Claude for Chrome each ran once with their stock setup, while arc-browser was tuned against these same tasks, so treat the gap as an upper bound. In the scripted run without a model, ego-lite is faster on single clicks and popups.</p>
+    <h1>claude4arc vs ego-lite vs Claude for Chrome</h1>
+    <p class="lede">All three tools passed all 14 tasks, verified by the benchmark server rather than by the agents. claude4arc finishes the agent run in about 50 s (49.4 s and 51.7 s in its last two runs) with one browser call and 191k tokens read. ego-lite takes 195 s, 33 tool calls, and 1.93M tokens. Claude for Chrome takes 320 s, 84 tool calls, and 4.95M tokens, and needed workarounds for the confirm dialog, the popup, and the cross-origin iframe. ego-lite and Claude for Chrome each ran once with their stock setup, while claude4arc was tuned against these same tasks, so treat the gap as an upper bound. In the scripted run without a model, ego-lite is faster on single clicks and popups.</p>
   </header>
 
   <section>
@@ -100,7 +100,7 @@ code { font-family: var(--mono); font-size: 13px; }
 
   <section>
     <h2>Can the agent run get faster?</h2>
-    <p class="sub">Every row is a fresh subagent with the same instructions. Between runs, arc-browser gained speed rules, selectors that work without looking first (label targets, automatic search in cross-origin frames, exact-text preference), a faster virtual-list seek, a <code>section</code> reader, and a <code>batch</code> command that runs one chain per line with per-line timing and closes the task by itself. v7 exposed a seek bug that v9 fixed. v8 had the first seek fix but still spent a separate call on finish. In-task time is the sum of the agents' own per-task spans; the rest of the total is fixed overhead for every tool (loading the skill, the required timestamp calls, writing the report).</p>
+    <p class="sub">Every row is a fresh subagent with the same instructions. Between runs, claude4arc gained speed rules, selectors that work without looking first (label targets, automatic search in cross-origin frames, exact-text preference), a faster virtual-list seek, a <code>section</code> reader, and a <code>batch</code> command that runs one chain per line with per-line timing and closes the task by itself. v7 exposed a seek bug that v9 fixed. v8 had the first seek fix but still spent a separate call on finish. In-task time is the sum of the agents' own per-task spans; the rest of the total is fixed overhead for every tool (loading the skill, the required timestamp calls, writing the report).</p>
     <div class="board">
       <table id="config-table">
         <thead><tr><th>Configuration</th><th>Passed</th><th>Total time</th><th>In-task time</th><th>Tool calls</th><th>Context tokens</th><th>Tokens read</th></tr></thead>
@@ -126,7 +126,7 @@ code { font-family: var(--mono); font-size: 13px; }
     <h2>Data</h2>
     <div class="board">
       <table id="data-table">
-        <thead><tr><th>Task</th><th>arc-browser ms</th><th>ego-lite ms</th><th>Claude for Chrome ms</th><th>Faster</th></tr></thead>
+        <thead><tr><th>Task</th><th>claude4arc ms</th><th>ego-lite ms</th><th>Claude for Chrome ms</th><th>Faster</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -137,7 +137,7 @@ code { font-family: var(--mono); font-size: 13px; }
     <p><strong>Verification.</strong> Every fixture page reports success to a local benchmark server, which logs the tool, the task, and the submitted value. All fixture results for every run shown are in that log with the expected values. The 4 web answers match the pages (55.845, "Hello World!", "Y Combinator", the MDN return value).</p>
     <p><strong>Tokens.</strong> "Tokens read" is the sum of input tokens over every model turn, from the agents' transcripts; each turn re-reads the conversation, so it tracks cost. "Context tokens" is the harness figure: the size of the agent's context at the end, mostly the fixed system prompt, skill, and instructions.</p>
     <p><strong>Agent timings.</strong> Total time, tokens, and tool calls come from the Claude Code harness. The agents also reported per-task timestamps, but those are not shown as a chart: ego-lite's three web lookups under one second suggest some start timestamps were taken after the page had loaded.</p>
-    <p><strong>Scripted timings.</strong> The scripted runs remove model thinking and measure the tools. The virtual-list task scrolls programmatically in both scripts. The code-editor task uses each tool's native path: arc-browser's editor API, and ego-lite's select-all and paste.</p>
+    <p><strong>Scripted timings.</strong> The scripted runs remove model thinking and measure the tools. The virtual-list task scrolls programmatically in both scripts. The code-editor task uses each tool's native path: claude4arc's editor API, and ego-lite's select-all and paste.</p>
     <p><strong>Claude for Chrome.</strong> The official extension ran in Google Chrome, signed in by the account owner, through its MCP tools. It passed every task, but with workarounds its agent chose: it replaced <code>window.confirm</code> through JavaScript because a native dialog blocks the tool, it opened the popup's URL in a new tab because the popup window was outside its tab group, and it used the Tab key inside the cross-origin iframe because clicks there did not register. It has no scripted API, so the scripted charts leave its column empty.</p>
   </section>
 </div>
@@ -145,7 +145,7 @@ code { font-family: var(--mono); font-size: 13px; }
 
 <script>
 const TOOLS = [
-  { key: "arc", name: "arc-browser", color: "var(--arc)" },
+  { key: "arc", name: "claude4arc", color: "var(--arc)" },
   { key: "ego", name: "ego-lite", color: "var(--ego)" },
   { key: "cic", name: "Claude for Chrome", color: "var(--cic)" },
 ];
@@ -165,18 +165,18 @@ const MEDIAN = {
   cic: null,
 };
 const CONFIGS = [
-  { name: "arc-browser v1", color: "var(--arc)", passed: 14, total: 176.9, inTask: 141.3, calls: 37, tokens: 58080 , read: 1937364 },
-  { name: "arc-browser v2 (speed rules)", color: "var(--arc)", passed: 14, total: 178.1, inTask: 108.8, calls: 36, tokens: 57656 , read: 1881384 },
-  { name: "arc-browser v2 on Sonnet", color: "var(--arc)", passed: 14, total: 302.0, inTask: 217.9, calls: 73, tokens: 76530 , read: 4458245 },
-  { name: "arc-browser v3 (blind selectors, frame search)", color: "var(--arc)", passed: 14, total: 123.5, inTask: 119.6, calls: 14, tokens: 57303 , read: 772478 },
-  { name: "arc-browser v4 (batch guidance)", color: "var(--arc)", passed: 14, total: 84.7, inTask: 37.9, calls: 8, tokens: 55148 , read: 451928 },
-  { name: "arc-browser v5", color: "var(--arc)", passed: 14, total: 66.9, inTask: 16.6, calls: 6, tokens: 55146 , read: 350828 },
-  { name: "arc-browser v6", color: "var(--arc)", passed: 14, total: 59.3, inTask: 18.0, calls: 4, tokens: 54329 , read: 244604 },
-  { name: "arc-browser v7 (seek bug found)", color: "var(--arc)", passed: 14, total: 106.5, inTask: 103.0, calls: 5, tokens: 54399 , read: 296157 },
-  { name: "arc-browser v8 (seek fix)", color: "var(--arc)", passed: 14, total: 66.7, inTask: 23.0, calls: 4, tokens: 54725 , read: 244113 },
-  { name: "arc-browser v9 (faster seek)", color: "var(--arc)", passed: 14, total: 63.4, inTask: 16.6, calls: 4, tokens: 54476 , read: 245495 },
-  { name: "arc-browser v10 (batch command)", color: "var(--arc)", passed: 14, total: 49.4, inTask: 17.8, calls: 3, tokens: 53831 , read: 190792 },
-  { name: "arc-browser v11 (confirmation)", color: "var(--arc)", passed: 14, total: 51.7, inTask: 17.9, calls: 3, tokens: 54109 , read: 191147 },
+  { name: "claude4arc v1", color: "var(--arc)", passed: 14, total: 176.9, inTask: 141.3, calls: 37, tokens: 58080 , read: 1937364 },
+  { name: "claude4arc v2 (speed rules)", color: "var(--arc)", passed: 14, total: 178.1, inTask: 108.8, calls: 36, tokens: 57656 , read: 1881384 },
+  { name: "claude4arc v2 on Sonnet", color: "var(--arc)", passed: 14, total: 302.0, inTask: 217.9, calls: 73, tokens: 76530 , read: 4458245 },
+  { name: "claude4arc v3 (blind selectors, frame search)", color: "var(--arc)", passed: 14, total: 123.5, inTask: 119.6, calls: 14, tokens: 57303 , read: 772478 },
+  { name: "claude4arc v4 (batch guidance)", color: "var(--arc)", passed: 14, total: 84.7, inTask: 37.9, calls: 8, tokens: 55148 , read: 451928 },
+  { name: "claude4arc v5", color: "var(--arc)", passed: 14, total: 66.9, inTask: 16.6, calls: 6, tokens: 55146 , read: 350828 },
+  { name: "claude4arc v6", color: "var(--arc)", passed: 14, total: 59.3, inTask: 18.0, calls: 4, tokens: 54329 , read: 244604 },
+  { name: "claude4arc v7 (seek bug found)", color: "var(--arc)", passed: 14, total: 106.5, inTask: 103.0, calls: 5, tokens: 54399 , read: 296157 },
+  { name: "claude4arc v8 (seek fix)", color: "var(--arc)", passed: 14, total: 66.7, inTask: 23.0, calls: 4, tokens: 54725 , read: 244113 },
+  { name: "claude4arc v9 (faster seek)", color: "var(--arc)", passed: 14, total: 63.4, inTask: 16.6, calls: 4, tokens: 54476 , read: 245495 },
+  { name: "claude4arc v10 (batch command)", color: "var(--arc)", passed: 14, total: 49.4, inTask: 17.8, calls: 3, tokens: 53831 , read: 190792 },
+  { name: "claude4arc v11 (confirmation)", color: "var(--arc)", passed: 14, total: 51.7, inTask: 17.9, calls: 3, tokens: 54109 , read: 191147 },
   { name: "Claude for Chrome", color: "var(--cic)", passed: 14, total: 319.8, inTask: 235.0, calls: 84, tokens: 97762, read: 4950131 },
   { name: "ego-lite", color: "var(--ego)", passed: 14, total: 195.0, inTask: 121.1, calls: 33, tokens: 67192 , read: 1933604 },
 ];
@@ -325,7 +325,7 @@ const dataBody = document.querySelector("#data-table tbody");
 for (const [id, label] of TASKS) {
   const arc = MEDIAN.arc[id];
   const ego = MEDIAN.ego[id];
-  const faster = arc < ego ? "arc-browser" : "ego-lite";
+  const faster = arc < ego ? "claude4arc" : "ego-lite";
   dataBody.insertAdjacentHTML("beforeend", `<tr><td>${id} · ${label}</td><td class="num${arc < ego ? " best" : ""}">${fmt(arc)}</td><td class="num${ego < arc ? " best" : ""}">${fmt(ego)}</td><td class="na">not measured</td><td>${faster}</td></tr>`);
 }
 

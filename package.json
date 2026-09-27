@@ -1,13 +1,37 @@
 {
-  "name": "arc-browser",
-  "version": "0.1.0",
-  "description": "Let Claude Code drive the Arc browser through a local extension bridge.",
+  "name": "claude4arc",
+  "version": "0.4.0",
+  "description": "Let Claude Code drive your real Arc browser through a local extension bridge.",
   "type": "module",
   "bin": {
-    "arc-browser": "bin/arc-browser.js"
+    "claude4arc": "bin/claude4arc.js"
   },
+  "files": [
+    "bin",
+    "lib",
+    "host",
+    "extension",
+    "skill"
+  ],
   "engines": {
     "node": ">=22"
   },
+  "os": [
+    "darwin"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nesetkab/claude4arc.git"
+  },
+  "homepage": "https://github.com/nesetkab/claude4arc#readme",
+  "keywords": [
+    "claude",
+    "claude-code",
+    "arc",
+    "browser",
+    "automation",
+    "cdp",
+    "skill"
+  ],
   "license": "MIT"
 }

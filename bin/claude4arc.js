@@ -21,26 +21,26 @@ import {
 
 const MANIFEST_PATH = path.join(NATIVE_HOSTS_DIR, `${HOST_NAME}.json`);
 const LAUNCHER_PATH = path.join(STATE_DIR, "host-launcher.sh");
-const SKILL_LINK = path.join(os.homedir(), ".claude", "skills", "arc-browser");
+const SKILL_LINK = path.join(os.homedir(), ".claude", "skills", "claude4arc");
 
-const USAGE = `arc-browser: let Claude Code drive Arc
+const USAGE = `claude4arc: let Claude Code drive Arc
 
 Usage:
-  arc-browser new [url] [name] [-s]          Create a task (page p1), -s prints a snapshot
-  arc-browser <id>[:page] <cmd> [args] [-- <cmd> ...] [-s]
+  claude4arc new [url] [name] [-s]          Create a task (page p1), -s prints a snapshot
+  claude4arc <id>[:page] <cmd> [args] [-- <cmd> ...] [-s]
                                              Run one or more commands; -s appends a diff snapshot
-  arc-browser batch [id] [--keep]            Run one command chain per stdin line ("B1: goto … -- click …");
+  claude4arc batch [id] [--keep]            Run one command chain per stdin line ("B1: goto … -- click …");
                                              prints each line's start/end ms; finishes the task unless --keep or an id
-  arc-browser run [id] [-e <code>]           Run a script (stdin when -e is absent); with id, t and page are set
-  arc-browser status            Show bridge, extension, and task state
-  arc-browser tabs              List open Arc tabs
-  arc-browser doctor            Diagnose installation problems
-  arc-browser reload-extension  Reload the Arc extension after changing extension/
-  arc-browser install           Register the native host and link the Claude skill
-  arc-browser uninstall         Remove the native host registration and skill link
-  arc-browser help [topic]      Print API help (topics: api, selectors, keys)`;
+  claude4arc run [id] [-e <code>]           Run a script (stdin when -e is absent); with id, t and page are set
+  claude4arc status            Show bridge, extension, and task state
+  claude4arc tabs              List open Arc tabs
+  claude4arc doctor            Diagnose installation problems
+  claude4arc reload-extension  Reload the Arc extension after changing extension/
+  claude4arc install           Register the native host and link the Claude skill
+  claude4arc uninstall         Remove the native host registration and skill link
+  claude4arc help [topic]      Print API help (topics: api, selectors, keys)`;
 
-const API_HELP = `Globals inside \`arc-browser run\`:
+const API_HELP = `Globals inside \`claude4arc run\`:
   await task(name, { active })   create a task; opens page p1 (background tab unless active: true)
   await task(id)                 resume an existing task by numeric id
   await listTasks()              list tasks saved on disk
@@ -177,7 +177,7 @@ async function install() {
   await fs.mkdir(path.dirname(MANIFEST_PATH), { recursive: true });
   const manifest = {
     name: HOST_NAME,
-    description: "Arc for Claude native bridge",
+    description: "claude4arc native bridge",
     path: LAUNCHER_PATH,
     type: "stdio",
     allowed_origins: [`chrome-extension://${EXTENSION_ID}/`],
@@ -200,7 +200,7 @@ Last step, once, in Arc:
   1. Open arc://extensions
   2. Turn on "Developer mode" (top right)
   3. Click "Load unpacked" and choose: ${path.join(ROOT, "extension")}
-  4. Run: arc-browser status`);
+  4. Run: claude4arc status`);
 }
 
 async function uninstall() {
@@ -225,7 +225,7 @@ async function doctor() {
   try {
     manifest = JSON.parse(await fs.readFile(MANIFEST_PATH, "utf8"));
   } catch {}
-  check("native host manifest", Boolean(manifest), manifest ? MANIFEST_PATH : "run `arc-browser install`");
+  check("native host manifest", Boolean(manifest), manifest ? MANIFEST_PATH : "run `claude4arc install`");
   if (manifest) {
     check("manifest allows extension", manifest.allowed_origins?.includes(`chrome-extension://${EXTENSION_ID}/`));
     let launcherOk = false;
@@ -294,7 +294,7 @@ async function main() {
       break;
     case "reload-extension":
       await withBridge((bridge) => bridge.call("extension.reload"));
-      console.log("Extension reloading. Run `arc-browser status` in a few seconds.");
+      console.log("Extension reloading. Run `claude4arc status` in a few seconds.");
       break;
     case "tabs":
       await tabs();

@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { startServer, PORTS } from "./serve.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const BIN = path.join(HERE, "..", "bin", "arc-browser.js");
+const BIN = path.join(HERE, "..", "bin", "claude4arc.js");
 const FIXTURES = path.join(HERE, "fixtures");
 const BASE = `http://127.0.0.1:${PORTS[0]}`;
 const CALL_TIMEOUT = 60_000;
@@ -39,7 +39,7 @@ async function cli(argv) {
     result = await execCli(argv);
   }
   const ms = Math.round(performance.now() - started);
-  if (verbose) console.log(`    ${String(ms).padStart(6)}ms  arc-browser ${argv.join(" ")}`.slice(0, 160));
+  if (verbose) console.log(`    ${String(ms).padStart(6)}ms  claude4arc ${argv.join(" ")}`.slice(0, 160));
   if (result.code !== 0) {
     const message = result.killed ? `timed out after ${CALL_TIMEOUT}ms` : result.stderr.replace(/^Error: /, "") || `exit ${result.code}`;
     throw new CliError(message, result.stdout);
@@ -520,7 +520,7 @@ await p.mouse.click(r.x + 60, r.y + 60);`);
       expect(match, `output ${show(out)}`);
       const fs = await import("node:fs/promises");
       const content = await fs.readFile(match[1], "utf8");
-      expect(content.startsWith("arc-browser download test"), `content ${show(content)}`);
+      expect(content.startsWith("claude4arc download test"), `content ${show(content)}`);
       await fs.rm(match[1], { force: true });
     },
   },
@@ -600,7 +600,7 @@ await p.mouse.click(r.x + 60, r.y + 60);`);
       const result = await s.result();
       const names = result?.files?.map((file) => file.name).join(",");
       expect(names === "upload-a.txt,upload-b.txt", `result ${show(result)}`);
-      expect(result.files[0].text.startsWith("hello from arc-browser"), "file content not readable");
+      expect(result.files[0].text.startsWith("hello from claude4arc"), "file content not readable");
     },
   },
   {
@@ -726,7 +726,7 @@ async function main() {
   const rows = [];
   const started = performance.now();
   try {
-    const created = await cli(["new", `${BASE}/index.html`, "arc-browser tests"]);
+    const created = await cli(["new", `${BASE}/index.html`, "claude4arc tests"]);
     taskId = Number(/task (\d+)/.exec(created.out)?.[1]);
     if (!taskId) throw new Error(`Could not parse the task id from: ${created.out}`);
     console.log(`task ${taskId}: ${selected.length} scenarios${server ? " (started fixture server)" : ""}`);
