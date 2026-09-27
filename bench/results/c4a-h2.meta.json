@@ -1,0 +1,1 @@
+{"tool": "claude4arc c4a-h2", "run": "c4a-h2", "tool_uses": 7, "duration_ms": 107859, "tokens_read": 414625, "commit": "b9cc78f"}

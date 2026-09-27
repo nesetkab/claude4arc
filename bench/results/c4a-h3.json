@@ -1,0 +1,16 @@
+[
+{"task": "H1", "start_ms": 1790470840776, "end_ms": 1790470921760, "success": true, "answer": "", "notes": "Three-step wizard with a card plan picker. Needed three batch attempts. The span includes time on other tasks."},
+{"task": "H2", "start_ms": 1790470846360, "end_ms": 1790470895354, "success": true, "answer": "", "notes": "The field is labelled Destination, not To. Second attempt picked the LIS option. Page recorded LIS."},
+{"task": "H3", "start_ms": 1790470851653, "end_ms": 1790470934891, "success": true, "answer": "", "notes": "check failed on a hidden, scrollable dialog checkbox. Fixed with scrollIntoView through eval, then a click."},
+{"task": "H4", "start_ms": 1790470852653, "end_ms": 1790470912266, "success": true, "answer": "Paper clips", "notes": "The css :has-text selector was invalid. Used nth=5 on the Add to cart buttons. Cheapest price is $1.25."},
+{"task": "H5", "start_ms": 1790470852996, "end_ms": 1790470922450, "success": true, "answer": "", "notes": "The switch sits in a hidden Billing tab. The check command rejected the span, so clicking role=switch worked."},
+{"task": "H6", "start_ms": 1790470858837, "end_ms": 1790470859505, "success": true, "answer": "", "notes": ""},
+{"task": "H7", "start_ms": 1790470859505, "end_ms": 1790470902192, "success": true, "answer": "Shipped", "notes": "Paginated list, so seek failed. Went to page 6 and opened Order #4521 (customer Ada)."},
+{"task": "H8", "start_ms": 1790470859798, "end_ms": 1790470860330, "success": true, "answer": "", "notes": ""},
+{"task": "H9", "start_ms": 1790470860331, "end_ms": 1790470860967, "success": true, "answer": "", "notes": ""},
+{"task": "H10", "start_ms": 1790470860967, "end_ms": 1790470861598, "success": true, "answer": "3", "notes": ""},
+{"task": "W5", "start_ms": 1790470861598, "end_ms": 1790470862785, "success": true, "answer": "Guido van Rossum", "notes": ""},
+{"task": "W6", "start_ms": 1790470862785, "end_ms": 1790470863421, "success": true, "answer": "I'm a teapot", "notes": ""},
+{"task": "W7", "start_ms": 1790470863421, "end_ms": 1790470884314, "success": true, "answer": "MIT license", "notes": "The .Layout-sidebar selector missed. Confirmed with section About on the second pass."},
+{"task": "W8", "start_ms": 1790470866491, "end_ms": 1790470867473, "success": true, "answer": "My YC app: Dropbox - Throw away your USB drive", "notes": ""}
+]

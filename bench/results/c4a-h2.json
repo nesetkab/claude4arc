@@ -1,0 +1,16 @@
+[
+{"task": "H1", "start_ms": 1790470736458, "end_ms": 1790470801582, "success": true, "answer": "", "notes": "Three-step wizard with plan cards, not a select. Took three retries in later batches."},
+{"task": "H2", "start_ms": 1790470742015, "end_ms": 1790470743096, "success": true, "answer": "", "notes": ""},
+{"task": "H3", "start_ms": 1790470743096, "end_ms": 1790470802809, "success": true, "answer": "", "notes": "Checkbox was hidden in a scrolling dialog body. Clicking the label failed. Fixed by scrolling, then checking #pub."},
+{"task": "H4", "start_ms": 1790470743732, "end_ms": 1790470803332, "success": true, "answer": "Paper clips", "notes": "A css :has-text row selector was invalid. An xpath selector worked."},
+{"task": "H5", "start_ms": 1790470743964, "end_ms": 1790470803984, "success": true, "answer": "", "notes": "The switch was on a hidden Billing tab. Needed a tab click and role=switch."},
+{"task": "H6", "start_ms": 1790470749183, "end_ms": 1790470750025, "success": true, "answer": "", "notes": ""},
+{"task": "H7", "start_ms": 1790470750025, "end_ms": 1790470784148, "success": true, "answer": "Shipped", "notes": "Paginated list, so seek failed. Opened page 6 after one snapshot."},
+{"task": "H8", "start_ms": 1790470750235, "end_ms": 1790470750748, "success": true, "answer": "", "notes": ""},
+{"task": "H9", "start_ms": 1790470750748, "end_ms": 1790470751382, "success": true, "answer": "", "notes": ""},
+{"task": "H10", "start_ms": 1790470751382, "end_ms": 1790470751932, "success": true, "answer": "3", "notes": ""},
+{"task": "W5", "start_ms": 1790470751932, "end_ms": 1790470753192, "success": true, "answer": "Guido van Rossum", "notes": ""},
+{"task": "W6", "start_ms": 1790470753192, "end_ms": 1790470753638, "success": true, "answer": "I'm a teapot", "notes": "Went straight to the MDN URL; no site search."},
+{"task": "W7", "start_ms": 1790470753638, "end_ms": 1790470755647, "success": true, "answer": "MIT license", "notes": ""},
+{"task": "W8", "start_ms": 1790470755648, "end_ms": 1790470756561, "success": true, "answer": "My YC app: Dropbox - Throw away your USB drive", "notes": ""}
+]

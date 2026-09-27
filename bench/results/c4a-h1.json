@@ -1,0 +1,16 @@
+[
+{"task": "H1", "start_ms": 1790470604080, "end_ms": 1790470666278, "success": true, "answer": "", "notes": "Three-step wizard, plan is a card; needed three batch rounds. Times span retries, overlap other tasks."},
+{"task": "H2", "start_ms": 1790470610250, "end_ms": 1790470611111, "success": true, "answer": "", "notes": "First try; times from batch line."},
+{"task": "H3", "start_ms": 1790470611111, "end_ms": 1790470673032, "success": true, "answer": "", "notes": "Checkbox clipped in scrolling dialog body; check failed until scroll on .body. Times span retries."},
+{"task": "H4", "start_ms": 1790470611699, "end_ms": 1790470649149, "success": true, "answer": "Paper clips", "notes": "css :has-text with descendant invalid; xpath row button worked. Times span retries."},
+{"task": "H5", "start_ms": 1790470611920, "end_ms": 1790470658254, "success": true, "answer": "", "notes": "Switch hidden in Billing tab; opened tab, then toggled. Times span retries."},
+{"task": "H6", "start_ms": 1790470617142, "end_ms": 1790470617806, "success": true, "answer": "", "notes": "First try; times from batch line."},
+{"task": "H7", "start_ms": 1790470617807, "end_ms": 1790470649981, "success": true, "answer": "Shipped", "notes": "Paginated, not scrollable; seek failed. Clicked page 6. Times span retries."},
+{"task": "H8", "start_ms": 1790470618013, "end_ms": 1790470618531, "success": true, "answer": "", "notes": "First try; times from batch line."},
+{"task": "H9", "start_ms": 1790470618532, "end_ms": 1790470619155, "success": true, "answer": "", "notes": "First try; iframe handled transparently."},
+{"task": "H10", "start_ms": 1790470619155, "end_ms": 1790470619697, "success": true, "answer": "3", "notes": "First try; results: Kiwi, Golden kiwi, Kiwiberry."},
+{"task": "W5", "start_ms": 1790470619697, "end_ms": 1790470620738, "success": true, "answer": "Guido van Rossum", "notes": ""},
+{"task": "W6", "start_ms": 1790470620738, "end_ms": 1790470621274, "success": true, "answer": "418 I'm a teapot", "notes": ""},
+{"task": "W7", "start_ms": 1790470621274, "end_ms": 1790470623683, "success": true, "answer": "MIT license", "notes": ""},
+{"task": "W8", "start_ms": 1790470623683, "end_ms": 1790470624727, "success": true, "answer": "My YC app: Dropbox - Throw away your USB drive", "notes": ""}
+]
