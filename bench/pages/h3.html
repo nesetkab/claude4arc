@@ -1,0 +1,7 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><style>body{font:16px system-ui;margin:32px;max-width:760px}label{display:block;margin:10px 0}button{margin:6px 4px 6px 0}</style><script src="/record.js"></script><title>H3 Profile</title><style>#backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center}#backdrop.on{display:flex}[role=dialog]{background:#fff;border-radius:10px;width:420px;padding:20px}.body{max-height:260px;overflow:auto;border:1px solid #eee;padding:10px}.spacer{height:420px;color:#777}</style></head><body><main><h1>Your profile</h1><p>Grace Hopper</p><p id="bioView">No bio yet.</p><button id="open">Edit profile</button><p id="status" role="status"></p></main>
+<div id="backdrop"><div role="dialog" aria-modal="true" aria-labelledby="dt"><h2 id="dt">Edit profile</h2><div class="body"><label>Bio <textarea id="bio" rows="3"></textarea></label><div class="spacer">Profile visibility settings are below.</div><label><input type="checkbox" id="pub"> Make profile public</label></div><button id="cancel">Cancel</button><button id="save">Save changes</button></div></div>
+<script>
+const $=(id)=>document.getElementById(id);
+$("open").onclick=()=>$("backdrop").classList.add("on");$("cancel").onclick=()=>$("backdrop").classList.remove("on");
+$("save").onclick=()=>{$("bioView").textContent=$("bio").value;$("backdrop").classList.remove("on");record("h3",{bio:$("bio").value.trim(),public:$("pub").checked})};
+</script></body></html>

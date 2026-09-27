@@ -1,0 +1,4 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><script src="/record.js"></script><style>body{font:15px system-ui;margin:12px}</style></head><body><settings-panel></settings-panel><script>
+customElements.define("settings-panel",class extends HTMLElement{connectedCallback(){const r=this.attachShadow({mode:"open"});r.innerHTML='<style>label{display:block;margin:8px 0}</style><h3>Appearance</h3><label><input type="checkbox" id="compact"> Compact layout</label><label><input type="checkbox" id="dark"> Dark mode</label><button id="apply">Apply</button><p id="msg"></p>';
+r.getElementById("apply").onclick=()=>{const v=r.getElementById("dark").checked?"dark":"light";r.getElementById("msg").textContent="Applied: "+v;record("h9",v)}}});
+</script></body></html>

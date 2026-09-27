@@ -1,0 +1,10 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><style>body{font:16px system-ui;margin:32px;max-width:760px}label{display:block;margin:10px 0}button{margin:6px 4px 6px 0}</style><script src="/record.js"></script><title>H5 Settings</title><style>[role=tablist]{display:flex;gap:4px;border-bottom:1px solid #ccc}[role=tab]{border:0;background:none;padding:8px 12px;cursor:pointer}[role=tab][aria-selected=true]{border-bottom:3px solid #1f5fbf}[role=tabpanel]{padding:16px 0}[role=switch]{width:44px;height:24px;border-radius:12px;border:1px solid #888;background:#ddd;position:relative;vertical-align:middle}[role=switch][aria-checked=true]{background:#1f5fbf}</style></head><body><main><h1>Account settings</h1>
+<div role="tablist"><button role="tab" id="t1" aria-selected="true" aria-controls="p1">General</button><button role="tab" id="t2" aria-selected="false" aria-controls="p2">Billing</button><button role="tab" id="t3" aria-selected="false" aria-controls="p3">Notifications</button></div>
+<div role="tabpanel" id="p1" aria-labelledby="t1"><label>Display name <input value="Grace"></label></div>
+<div role="tabpanel" id="p2" aria-labelledby="t2" hidden><p>Invoices are emailed each month.</p><span id="pl">Paperless billing</span> <button role="switch" id="sw" aria-checked="false" aria-labelledby="pl"></button><div><button id="save">Save billing settings</button></div></div>
+<div role="tabpanel" id="p3" aria-labelledby="t3" hidden><span id="nl">Email notifications</span> <button role="switch" id="sw2" aria-checked="true" aria-labelledby="nl"></button></div>
+<p id="status" role="status"></p></main><script>
+for(const t of document.querySelectorAll("[role=tab]"))t.onclick=()=>{for(const o of document.querySelectorAll("[role=tab]")){o.setAttribute("aria-selected",String(o===t));document.getElementById(o.getAttribute("aria-controls")).hidden=o!==t}};
+for(const s of document.querySelectorAll("[role=switch]"))s.onclick=()=>s.setAttribute("aria-checked",String(s.getAttribute("aria-checked")!=="true"));
+save.onclick=()=>record("h5","paperless:"+(sw.getAttribute("aria-checked")==="true"?"on":"off"));
+</script></body></html>

@@ -1,0 +1,14 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><style>body{font:16px system-ui;margin:32px;max-width:760px}label{display:block;margin:10px 0}button{margin:6px 4px 6px 0}</style><script src="/record.js"></script><title>H1 Booking</title><style>.card{display:inline-block;border:2px solid #ccc;border-radius:8px;padding:14px 18px;margin:6px;cursor:pointer}.card input{position:absolute;opacity:0;pointer-events:none}.card:has(input:checked){border-color:#1f5fbf;background:#eef4ff}.step{display:none}.step.on{display:block}</style></head><body><main><h1>Book a workspace</h1>
+<section class="step on" id="s1"><h2>Step 1 of 3: Details</h2><label>Full name <input id="name"></label><label>Start date <input id="date" type="date"></label><button id="n1">Next</button><p id="e1" role="alert"></p></section>
+<section class="step" id="s2"><h2>Step 2 of 3: Plan</h2><label class="card"><input type="radio" name="plan" value="Solo">Solo<br><small>1 desk</small></label><label class="card"><input type="radio" name="plan" value="Team">Team<br><small>up to 8 desks</small></label><label class="card"><input type="radio" name="plan" value="Office">Office<br><small>private room</small></label><div><button id="b2">Back</button><button id="n2">Next</button></div><p id="e2" role="alert"></p></section>
+<section class="step" id="s3"><h2>Step 3 of 3: Review</h2><p id="summary"></p><button id="b3">Back</button><button id="confirm">Confirm booking</button></section>
+<p id="status" role="status"></p></main><script>
+const $=(id)=>document.getElementById(id);
+const show=(id)=>{for(const s of document.querySelectorAll(".step"))s.classList.toggle("on",s.id===id)};
+const plan=()=>document.querySelector("input[name=plan]:checked")?.value;
+$("n1").onclick=()=>{if(!$("name").value.trim()||!$("date").value){$("e1").textContent="Enter your name and a start date.";return}$("e1").textContent="";show("s2")};
+$("b2").onclick=()=>show("s1");
+$("n2").onclick=()=>{if(!plan()){$("e2").textContent="Choose a plan.";return}$("e2").textContent="";$("summary").textContent=$("name").value+", "+plan()+" plan, from "+$("date").value;show("s3")};
+$("b3").onclick=()=>show("s2");
+$("confirm").onclick=()=>record("h1",{name:$("name").value.trim(),date:$("date").value,plan:plan()});
+</script></body></html>

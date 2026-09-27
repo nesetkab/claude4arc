@@ -1,0 +1,12 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><style>body{font:16px system-ui;margin:32px;max-width:760px}label{display:block;margin:10px 0}button{margin:6px 4px 6px 0}</style><script src="/record.js"></script><title>H2 Flights</title><style>.combo{position:relative;width:320px}#list{position:absolute;left:0;right:0;top:100%;margin:0;padding:0;list-style:none;background:#fff;border:1px solid #bbb;max-height:220px;overflow:auto}#list[hidden]{display:none}#list li{padding:8px 10px;cursor:pointer}#list li[aria-selected=true]{background:#eef4ff}</style></head><body><main><h1>Find flights</h1>
+<label for="to">Destination</label><div class="combo"><input id="to" role="combobox" aria-expanded="false" aria-controls="list" aria-autocomplete="list" autocomplete="off" placeholder="City or airport"><ul id="list" role="listbox" hidden></ul></div>
+<button id="search">Search flights</button><p id="err" role="alert"></p><p id="status" role="status"></p></main><script>
+const cities=[["Lima","LIM"],["Lisbon","LIS"],["Lille","LIL"],["Linz","LNZ"],["London","LHR"],["Los Angeles","LAX"],["Madrid","MAD"],["Milan","MXP"],["Paris","CDG"],["Porto","OPO"]];
+let chosen=null;
+function render(){const q=to.value.trim().toLowerCase();list.innerHTML="";if(!q){list.hidden=true;to.setAttribute("aria-expanded","false");return}
+for(const [city,code] of cities.filter(([c])=>c.toLowerCase().startsWith(q))){const li=document.createElement("li");li.setAttribute("role","option");li.id="opt-"+code;li.textContent=city+" ("+code+")";li.onmousedown=(e)=>{e.preventDefault();chosen=code;to.value=li.textContent;list.hidden=true;to.setAttribute("aria-expanded","false")};list.append(li)}
+list.hidden=!list.children.length;to.setAttribute("aria-expanded",String(!list.hidden))}
+to.addEventListener("input",()=>{chosen=null;setTimeout(render,150)});
+to.addEventListener("blur",()=>setTimeout(()=>{list.hidden=true},100));
+search.onclick=()=>{if(!chosen){err.textContent="Choose a destination from the list.";return}err.textContent="";record("h2",chosen)};
+</script></body></html>

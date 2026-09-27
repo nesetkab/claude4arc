@@ -1,0 +1,8 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><style>body{font:16px system-ui;margin:32px;max-width:760px}label{display:block;margin:10px 0}button{margin:6px 4px 6px 0}</style><script src="/record.js"></script><title>H7 Orders</title><style>li{padding:4px 0}nav button[aria-current=page]{font-weight:700}#detail{border:1px solid #ccc;padding:12px;margin-top:12px}</style></head><body><main><h1>Orders</h1><ul id="list"></ul><nav aria-label="Pages"><button id="prev">Previous</button><span id="nums"></span><button id="next">Next</button></nav><section id="detail" hidden aria-live="polite"></section><p id="status" role="status"></p></main><script>
+const statuses=["Processing","Shipped","Delivered","Cancelled"];
+const orders=Array.from({length:80},(_,i)=>{const id=4471+i;return{id,customer:["Ada","Grace","Alan","Edsger","Barbara"][i%5],status:id===4521?"Shipped":statuses[(i*7)%4]}});
+let page=0;const per=10,pages=8;
+function draw(){list.innerHTML="";for(const o of orders.slice(page*per,page*per+per)){const li=document.createElement("li");const a=document.createElement("a");a.href="#";a.textContent="Order #"+o.id;a.onclick=(e)=>{e.preventDefault();detail.hidden=false;detail.innerHTML="<h2>Order #"+o.id+"</h2><p>Customer: "+o.customer+"</p><p>Status: <strong>"+o.status+"</strong></p>";record("h7",String(o.id))};li.append(a," — "+o.customer);list.append(li)}
+nums.innerHTML="";for(let p=0;p<pages;p++){const b=document.createElement("button");b.textContent=String(p+1);if(p===page)b.setAttribute("aria-current","page");b.onclick=()=>{page=p;draw()};nums.append(b)}prev.disabled=page===0;next.disabled=page===pages-1}
+prev.onclick=()=>{page--;draw()};next.onclick=()=>{page++;draw()};draw();
+</script></body></html>

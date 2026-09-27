@@ -1,0 +1,5 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><style>body{font:16px system-ui;margin:32px;max-width:760px}label{display:block;margin:10px 0}button{margin:6px 4px 6px 0}</style><script src="/record.js"></script><title>H10 Catalog</title></head><body><main><h1>Fruit catalog</h1><label>Volume <input type="range" id="vol" min="0" max="100" value="20"> <output id="vo">20</output></label><label>Search the catalog <input type="search" id="q" placeholder="Type and press Enter"></label><p id="count" aria-live="polite"></p><ul id="res"></ul><p id="status" role="status"></p></main><script>
+const fruits=["Apple","Banana","Kiwi","Golden kiwi","Kiwiberry","Mango","Orange","Pear","Plum","Cherry"];
+vol.oninput=()=>vo.textContent=vol.value;
+q.addEventListener("keydown",(e)=>{if(e.key!=="Enter")return;const t=q.value.trim().toLowerCase();const hits=fruits.filter(f=>f.toLowerCase().includes(t));count.textContent=hits.length+" results for "+q.value.trim();res.innerHTML=hits.map(h=>"<li>"+h+"</li>").join("");record("h10",{volume:Number(vol.value),query:t,results:hits.length})});
+</script></body></html>
