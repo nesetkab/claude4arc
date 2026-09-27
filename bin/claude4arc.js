@@ -9,6 +9,7 @@ globalThis.console = new Console({ stdout: process.stdout, stderr: process.stder
 import { Bridge } from "../lib/client.js";
 import { Task, listTasks } from "../lib/task.js";
 import { runCommands, createTask, runBatch, COMMAND_NAMES } from "../lib/commands.js";
+import { pruneScreenshots, pruneTempFiles } from "../lib/housekeeping.js";
 import {
   ROOT,
   STATE_DIR,
@@ -34,6 +35,7 @@ Usage:
                                              prints each line's start/end ms; finishes the task unless --keep or an id
   claude4arc run [id] [-e <code>]           Run a script (stdin when -e is absent); with id, t and page are set
   claude4arc status            Show bridge, extension, and task state
+  claude4arc clean [--all]     Delete screenshots older than a day (or all) and stale temp files
   claude4arc tabs              List open Arc tabs
   claude4arc doctor            Diagnose installation problems
   claude4arc reload-extension  Reload the Arc extension after changing extension/
@@ -299,6 +301,13 @@ async function main() {
     case "status":
       await status();
       break;
+    case "clean": {
+      const all = rest.includes("--all");
+      const screenshots = await pruneScreenshots({ all });
+      const temp = await pruneTempFiles();
+      console.log(`Removed ${screenshots} screenshot${screenshots === 1 ? "" : "s"} and ${temp} temporary file${temp === 1 ? "" : "s"}.`);
+      break;
+    }
     case "reload-extension":
       await withBridge((bridge) => bridge.call("extension.reload"));
       console.log("Extension reloading. Run `claude4arc status` in a few seconds.");

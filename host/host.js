@@ -1,8 +1,12 @@
 import net from "node:net";
 import fs from "node:fs";
 import { SOCKET_PATH, STATE_DIR, LOG_PATH } from "../lib/paths.js";
+import { rotateLog, pruneScreenshots, pruneTempFiles } from "../lib/housekeeping.js";
 
 fs.mkdirSync(STATE_DIR, { recursive: true, mode: 0o700 });
+await rotateLog().catch(() => {});
+pruneScreenshots().catch(() => {});
+pruneTempFiles().catch(() => {});
 
 function log(...parts) {
   fs.appendFileSync(LOG_PATH, `${new Date().toISOString()} ${parts.join(" ")}\n`);
