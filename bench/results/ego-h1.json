@@ -1,0 +1,16 @@
+[
+{"task": "H1", "start_ms": 1790471300806, "end_ms": 1790471319321, "success": true, "answer": "", "notes": "Date input filled directly with ISO string; recorded Team plan."},
+{"task": "H2", "start_ms": 1790471323128, "end_ms": 1790471337119, "success": true, "answer": "", "notes": "Typed 'Lis' by keyboard, picked suggestion option; recorded LIS."},
+{"task": "H3", "start_ms": 1790471340800, "end_ms": 1790471355582, "success": true, "answer": "", "notes": ""},
+{"task": "H4", "start_ms": 1790471359122, "end_ms": 1790471365651, "success": true, "answer": "Paper clips", "notes": "Cheapest at $1.25."},
+{"task": "H5", "start_ms": 1790471369670, "end_ms": 1790471383871, "success": true, "answer": "", "notes": ""},
+{"task": "H6", "start_ms": 1790471387533, "end_ms": 1790471397372, "success": true, "answer": "", "notes": "fill() worked on contenteditable note."},
+{"task": "H7", "start_ms": 1790471401316, "end_ms": 1790471410264, "success": true, "answer": "Shipped", "notes": "Order was on pagination page 6."},
+{"task": "H8", "start_ms": 1790471410272, "end_ms": 1790471419603, "success": true, "answer": "", "notes": "setInputFiles on hidden file input worked."},
+{"task": "H9", "start_ms": 1790471423558, "end_ms": 1790471428996, "success": true, "answer": "", "notes": "Iframe refs worked directly from main snapshot."},
+{"task": "H10", "start_ms": 1790471433020, "end_ms": 1790471443616, "success": true, "answer": "3", "notes": "fill() set range input to 75."},
+{"task": "W5", "start_ms": 1790471448110, "end_ms": 1790471448790, "success": true, "answer": "Guido van Rossum", "notes": ""},
+{"task": "W6", "start_ms": 1790471453748, "end_ms": 1790471454174, "success": true, "answer": "I'm a teapot", "notes": "Navigated directly to known MDN URL."},
+{"task": "W7", "start_ms": 1790471459113, "end_ms": 1790471479806, "success": true, "answer": "MIT license", "notes": "Guessed sidebar CSS selector failed and waited 15s; link scan found it."},
+{"task": "W8", "start_ms": 1790471484025, "end_ms": 1790471484962, "success": true, "answer": "My YC app: Dropbox - Throw away your USB drive", "notes": "Site domain shown: getdropbox.com. Session finished afterwards."}
+]

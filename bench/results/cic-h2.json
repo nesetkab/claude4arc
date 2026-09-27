@@ -1,0 +1,16 @@
+[
+{"task": "H1", "start_ms": 1790471543594, "end_ms": 1790471560968, "success": true, "answer": "", "notes": "Date set with form_input; page recorded Grace Hopper, 2026-10-15, Team."},
+{"task": "H2", "start_ms": 1790471561015, "end_ms": 1790471585621, "success": true, "answer": "", "notes": "First ref-click typing did not land; coordinate click worked. Suggestions appeared after delay."},
+{"task": "H3", "start_ms": 1790471585680, "end_ms": 1790471607490, "success": true, "answer": "", "notes": "Checkbox inside scrolled dialog; clicked by coordinate after scroll_to."},
+{"task": "H4", "start_ms": 1790471607534, "end_ms": 1790471616268, "success": true, "answer": "Paper clips", "notes": ""},
+{"task": "H5", "start_ms": 1790471616315, "end_ms": 1790471630918, "success": true, "answer": "", "notes": ""},
+{"task": "H6", "start_ms": 1790471630967, "end_ms": 1790471644259, "success": true, "answer": "", "notes": "Contenteditable note; select-all then typed."},
+{"task": "H7", "start_ms": 1790471644305, "end_ms": 1790471671815, "success": true, "answer": "Shipped", "notes": "Ref click on page 6 button did nothing; coordinate click worked."},
+{"task": "H8", "start_ms": 1790471671864, "end_ms": 1790471684391, "success": true, "answer": "", "notes": ""},
+{"task": "H9", "start_ms": 1790471684439, "end_ms": 1790471699677, "success": true, "answer": "", "notes": "Iframe not in accessibility tree; used screenshot coordinates."},
+{"task": "H10", "start_ms": 1790471699730, "end_ms": 1790471711486, "success": true, "answer": "3", "notes": ""},
+{"task": "W5", "start_ms": 1790471711533, "end_ms": 1790471717287, "success": true, "answer": "Guido van Rossum", "notes": ""},
+{"task": "W6", "start_ms": 1790471717332, "end_ms": 1790471722339, "success": true, "answer": "I'm a teapot", "notes": ""},
+{"task": "W7", "start_ms": 1790471722383, "end_ms": 1790471737362, "success": true, "answer": "MIT", "notes": ""},
+{"task": "W8", "start_ms": 1790471737411, "end_ms": 1790471742119, "success": true, "answer": "My YC app: Dropbox - Throw away your USB drive", "notes": ""}
+]

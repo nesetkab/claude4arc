@@ -1,0 +1,16 @@
+[
+{"task": "H1", "start_ms": 1790472712357, "end_ms": 1790472730885, "success": true, "answer": "", "notes": "fill on date input worked directly"},
+{"task": "H2", "start_ms": 1790472735045, "end_ms": 1790472745826, "success": true, "answer": "", "notes": "typed Lis, clicked option; recorded LIS"},
+{"task": "H3", "start_ms": 1790472749443, "end_ms": 1790472760930, "success": true, "answer": "", "notes": ""},
+{"task": "H4", "start_ms": 1790472764827, "end_ms": 1790472769743, "success": true, "answer": "Paper clips", "notes": "$1.25"},
+{"task": "H5", "start_ms": 1790472773618, "end_ms": 1790472783103, "success": true, "answer": "", "notes": ""},
+{"task": "H6", "start_ms": 1790472786744, "end_ms": 1790472797022, "success": true, "answer": "", "notes": "contenteditable: select-all plus keyboard.type"},
+{"task": "H7", "start_ms": 1790472800635, "end_ms": 1790472810107, "success": true, "answer": "Shipped", "notes": "order on pagination page 6"},
+{"task": "H8", "start_ms": 1790472810115, "end_ms": 1790472820110, "success": true, "answer": "", "notes": ""},
+{"task": "H9", "start_ms": 1790472823873, "end_ms": 1790472829628, "success": true, "answer": "", "notes": "iframe refs worked from top snapshot"},
+{"task": "H10", "start_ms": 1790472833485, "end_ms": 1790472844306, "success": true, "answer": "3", "notes": "fill on range input set 75"},
+{"task": "W5", "start_ms": 1790472844315, "end_ms": 1790472844908, "success": true, "answer": "Guido van Rossum", "notes": ""},
+{"task": "W6", "start_ms": 1790472849725, "end_ms": 1790472850456, "success": true, "answer": "I'm a teapot", "notes": "navigated to known MDN reference URL directly"},
+{"task": "W7", "start_ms": 1790472855039, "end_ms": 1790472861469, "success": true, "answer": "MIT license", "notes": "first CSS extraction guess returned null; retried"},
+{"task": "W8", "start_ms": 1790472865690, "end_ms": 1790472866562, "success": true, "answer": "My YC app: Dropbox - Throw away your USB drive", "notes": "end includes session finish"}
+]

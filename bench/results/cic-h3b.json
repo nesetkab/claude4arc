@@ -1,0 +1,16 @@
+[
+{"task": "H1", "start_ms": 1790472712477, "end_ms": 1790472735869, "success": true, "answer": "", "notes": "Typing into name after ref click did not register; used form_input instead."},
+{"task": "H2", "start_ms": 1790472735920, "end_ms": 1790472761796, "success": true, "answer": "", "notes": "Ref click did not focus combobox; coordinate click then typing showed suggestions."},
+{"task": "H3", "start_ms": 1790472761805, "end_ms": 1790472789491, "success": true, "answer": "", "notes": "Ref click on Edit profile failed; checkbox hidden in scrollable dialog area."},
+{"task": "H4", "start_ms": 1790472789498, "end_ms": 1790472811849, "success": true, "answer": "Paper clips", "notes": "Ref click on Add to cart did nothing; coordinate click worked."},
+{"task": "H5", "start_ms": 1790472811855, "end_ms": 1790472830145, "success": true, "answer": "", "notes": ""},
+{"task": "H6", "start_ms": 1790472830154, "end_ms": 1790472844839, "success": true, "answer": "", "notes": ""},
+{"task": "H7", "start_ms": 1790472844846, "end_ms": 1790472866844, "success": true, "answer": "Shipped", "notes": "Order on page 6 of pagination."},
+{"task": "H8", "start_ms": 1790472866852, "end_ms": 1790472883485, "success": true, "answer": "", "notes": ""},
+{"task": "H9", "start_ms": 1790472883493, "end_ms": 1790472897911, "success": true, "answer": "", "notes": "Iframe contents absent from read_page; used screenshot coordinates."},
+{"task": "H10", "start_ms": 1790472897919, "end_ms": 1790472910470, "success": true, "answer": "3", "notes": ""},
+{"task": "W5", "start_ms": 1790472910477, "end_ms": 1790472919030, "success": true, "answer": "Guido van Rossum", "notes": ""},
+{"task": "W6", "start_ms": 1790472919039, "end_ms": 1790472926623, "success": true, "answer": "I'm a teapot", "notes": ""},
+{"task": "W7", "start_ms": 1790472926631, "end_ms": 1790472940092, "success": true, "answer": "MIT", "notes": ""},
+{"task": "W8", "start_ms": 1790472940099, "end_ms": 1790472948675, "success": true, "answer": "My YC app: Dropbox - Throw away your USB drive", "notes": ""}
+]

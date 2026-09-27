@@ -1,0 +1,16 @@
+[
+{"task": "H1", "start_ms": 1790471303638, "end_ms": 1790471333570, "success": true, "answer": "", "notes": "First click and type by ref did not fill the name field; redid it with coordinate clicks."},
+{"task": "H2", "start_ms": 1790471333570, "end_ms": 1790471351078, "success": true, "answer": "", "notes": ""},
+{"task": "H3", "start_ms": 1790471351078, "end_ms": 1790471380112, "success": true, "answer": "", "notes": "Checkbox hidden in scrollable dialog area; used scroll_to. A JS check failed on a wrong selector."},
+{"task": "H4", "start_ms": 1790471380112, "end_ms": 1790471388651, "success": true, "answer": "Paper clips", "notes": "$1.25"},
+{"task": "H5", "start_ms": 1790471388651, "end_ms": 1790471403140, "success": true, "answer": "", "notes": ""},
+{"task": "H6", "start_ms": 1790471403140, "end_ms": 1790471416139, "success": true, "answer": "", "notes": ""},
+{"task": "H7", "start_ms": 1790471416139, "end_ms": 1790471432290, "success": true, "answer": "Shipped", "notes": "Order was on page 6 of the pagination."},
+{"task": "H8", "start_ms": 1790471432290, "end_ms": 1790471444248, "success": true, "answer": "", "notes": ""},
+{"task": "H9", "start_ms": 1790471444248, "end_ms": 1790471456373, "success": true, "answer": "", "notes": "get_page_text cannot read iframe; verified with screenshot."},
+{"task": "H10", "start_ms": 1790471456373, "end_ms": 1790471466186, "success": true, "answer": "3", "notes": ""},
+{"task": "W5", "start_ms": 1790471466186, "end_ms": 1790471478960, "success": true, "answer": "Guido van Rossum", "notes": "find wrongly claimed there was no Designed by row; checked the infobox with JS."},
+{"task": "W6", "start_ms": 1790471478960, "end_ms": 1790471484865, "success": true, "answer": "I'm a teapot", "notes": "Navigated directly to the known MDN URL."},
+{"task": "W7", "start_ms": 1790471484865, "end_ms": 1790471504360, "success": true, "answer": "MIT license", "notes": "find returned the README link first; read the About sidebar text with JS."},
+{"task": "W8", "start_ms": 1790471504360, "end_ms": 1790471509134, "success": true, "answer": "My YC app: Dropbox - Throw away your USB drive", "notes": ""}
+]

@@ -1,0 +1,16 @@
+[
+{"task": "H1", "start_ms": 1790471515391, "end_ms": 1790471533631, "success": true, "answer": "", "notes": "Date input accepted fill with ISO string."},
+{"task": "H2", "start_ms": 1790471537602, "end_ms": 1790471548240, "success": true, "answer": "", "notes": "Typed prefix, picked suggestion by option role."},
+{"task": "H3", "start_ms": 1790471551991, "end_ms": 1790471564043, "success": true, "answer": "", "notes": ""},
+{"task": "H4", "start_ms": 1790471567910, "end_ms": 1790471573613, "success": true, "answer": "Paper clips", "notes": "Cheapest at $1.25."},
+{"task": "H5", "start_ms": 1790471577295, "end_ms": 1790471586523, "success": true, "answer": "", "notes": "Switch was in hidden Billing tab."},
+{"task": "H6", "start_ms": 1790471590256, "end_ms": 1790471600628, "success": true, "answer": "", "notes": "Contenteditable: select all then keyboard.type."},
+{"task": "H7", "start_ms": 1790471604372, "end_ms": 1790471613643, "success": true, "answer": "Shipped", "notes": "Order was on pagination page 6."},
+{"task": "H8", "start_ms": 1790471617743, "end_ms": 1790471623547, "success": true, "answer": "", "notes": "Hidden file input; setInputFiles worked."},
+{"task": "H9", "start_ms": 1790471627492, "end_ms": 1790471634200, "success": true, "answer": "", "notes": "Iframe refs worked directly from snapshot."},
+{"task": "H10", "start_ms": 1790471638308, "end_ms": 1790471648288, "success": true, "answer": "3", "notes": "fill() set range input to 75."},
+{"task": "W5", "start_ms": 1790471653039, "end_ms": 1790471653649, "success": true, "answer": "Guido van Rossum", "notes": ""},
+{"task": "W6", "start_ms": 1790471659166, "end_ms": 1790471677311, "success": true, "answer": "418 I'm a teapot", "notes": "MDN search results needed snapshot, not DOM query."},
+{"task": "W7", "start_ms": 1790471681765, "end_ms": 1790471701599, "success": true, "answer": "MIT license", "notes": "Guessed sidebar selector timed out; one extra round."},
+{"task": "W8", "start_ms": 1790471701609, "end_ms": 1790471702440, "success": true, "answer": "My YC app: Dropbox - Throw away your USB drive", "notes": ""}
+]

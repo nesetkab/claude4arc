@@ -6,13 +6,15 @@ cookies. It also works in other Chromium browsers: Dia, Google Chrome, Brave,
 Microsoft Edge, and Chromium. Claude works in background tabs, so it does not take over your
 screen, steal focus, or show dialogs.
 
-![claude4arc compared with ego-lite and Claude for Chrome](bench/figures/benchmark.png)
+![claude4arc compared with ego-lite and Claude for Chrome on held-out tasks](bench/figures/heldout.png)
 
-On the same 14 browser tasks with the same model, a Claude Code agent finished
-in about 50 s with claude4arc, 195 s with ego-lite, and 320 s with Claude for
-Chrome. It read about 10 times fewer tokens than with ego-lite and 26 times
-fewer than with Claude for Chrome. See [bench/](bench/README.md) for
-the method and its limits.
+On 14 held-out browser tasks that claude4arc was not tuned on, with the same
+model and three runs per tool, a Claude Code agent finished in 117 s with
+claude4arc, 200 s with ego-lite, and 241 s with Claude for Chrome. It made 8,
+36, and 70 tool calls, and read 0.48M, 2.19M, and 3.83M tokens. Every run
+completed all 14 tasks. On the original tasks, which claude4arc was tuned on,
+it takes about 50 s. See [bench/](bench/README.md) for the method and its
+limits.
 
 ## Requirements
 
