@@ -9,7 +9,7 @@ Drives the user's own Arc (real profile, trusted input events) through a local
 extension. It also works in Dia, Chrome, Brave, Edge, and Chromium; set
 `CLAUDE4ARC_BROWSER=chrome` (or `dia`, `brave`, ...) only when the user names
 another browser. Work happens in background tabs, so the user is not interrupted.
-If a command fails with "Arc bridge is not running", run `claude4arc doctor`
+If a command fails with "bridge is not running", run `claude4arc doctor`
 and relay its output.
 
 ## Speed rules (each tool call costs seconds of model time; the browser is fast)
