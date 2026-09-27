@@ -1,5 +1,8 @@
 # claude4arc
 
+[![npm](https://img.shields.io/npm/v/claude4arc)](https://www.npmjs.com/package/claude4arc)
+[![CI](https://github.com/nesetkab/claude4arc/actions/workflows/ci.yml/badge.svg)](https://github.com/nesetkab/claude4arc/actions/workflows/ci.yml)
+
 Let [Claude Code](https://docs.claude.com/en/docs/claude-code) use your real
 [Arc](https://arc.net) browser: your tabs, your logged-in sessions, your
 cookies. It also works in other Chromium browsers: Dia, Google Chrome, Brave,
@@ -34,7 +37,7 @@ extension, and a Claude skill.
 ### 1. The command-line tool
 
 ```bash
-npm install -g github:nesetkab/claude4arc
+npm install -g claude4arc
 claude4arc install
 ```
 
@@ -232,7 +235,7 @@ edit the file.
 ## Update
 
 ```bash
-npm install -g github:nesetkab/claude4arc   # or: git pull, in a clone
+npm install -g claude4arc   # or: git pull, in a clone
 claude4arc install
 claude4arc reload-extension
 ```

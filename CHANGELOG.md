@@ -14,7 +14,7 @@
   rotates at 512 KB.
 - A Claude Code plugin and marketplace:
   `claude plugin marketplace add nesetkab/claude4arc`.
-- Install with npm from GitHub: `npm install -g github:nesetkab/claude4arc`.
+- Published on npm: `npm install -g claude4arc`.
 - `claude4arc install --no-skill` (for plugin users) and
   `--extension-id <id>` (for a Chrome Web Store build).
 - A Chrome Web Store package (`npm run package:extension`), extension icons,
