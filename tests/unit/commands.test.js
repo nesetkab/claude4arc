@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { shellWords, splitChain, parseBatchLine, batchLabel } from "../../lib/commands.js";
+import { shellWords, splitChain, parseBatchLine, batchLabel, retryDecision, receiptText } from "../../lib/commands.js";
 
 test("shellWords follows shell quoting", () => {
   assert.deepEqual(shellWords(`fill "text=Full name" Ada`), ["fill", "text=Full name", "Ada"]);
@@ -32,4 +32,22 @@ test("parseBatchLine reads the label, the chain, and -s", () => {
 
 test("a URL with a port is not read as a label", () => {
   assert.equal(batchLabel("goto http://127.0.0.1:8900/b1.html", 0), "1");
+});
+
+test("only commands that have not sent input are retried after a detach", () => {
+  const detached = new Error("Detached while handling command.");
+  const stale = new Error("Cannot find context with specified id");
+  assert.equal(retryDecision("click", new Error("Could not find #x"), false), "throw");
+  assert.equal(retryDecision("click", stale, false), "retry");
+  assert.equal(retryDecision("click", detached, true), "stop");
+  assert.equal(retryDecision("type", detached, true), "stop");
+  assert.equal(retryDecision("press", stale, true), "stop");
+  assert.equal(retryDecision("fill", detached, true), "retry");
+  assert.equal(retryDecision("text", detached, false), "retry");
+  assert.equal(retryDecision("reload", detached, false), "stop");
+  assert.equal(retryDecision("eval", stale, false), "retry");
+});
+
+test("receiptText prints a warning once", () => {
+  assert.equal(receiptText({ warning: "#x holds nothing readable after fill" }), "warning: #x holds nothing readable after fill");
 });

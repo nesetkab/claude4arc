@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Drag by points</title>
+<style>
+  .card { width: 160px; padding: 12px; margin: 6px; border: 1px solid #999; background: #f6f6f6; }
+  #zone { margin-top: 40px; width: 240px; height: 100px; border: 2px dashed #999; }
+</style>
+</head>
+<body>
+<main>
+<h1>Drag a card into the zone</h1>
+<div class="card" draggable="true" id="card-a">Alpha</div>
+<div class="card" draggable="true" id="card-b">Bravo</div>
+<div id="zone">Drop here</div>
+<pre id="result">{}</pre>
+</main>
+<script>
+  const zone = document.getElementById("zone");
+  let started = null;
+  const report = (extra = {}) => {
+    document.getElementById("result").textContent = JSON.stringify({ started, ...extra });
+  };
+  document.addEventListener("dragstart", (event) => {
+    started = event.target.id;
+    event.dataTransfer.setData("text/plain", event.target.id);
+    report();
+  });
+  zone.addEventListener("dragover", (event) => event.preventDefault());
+  zone.addEventListener("drop", (event) => {
+    event.preventDefault();
+    const id = event.dataTransfer.getData("text/plain");
+    zone.append(document.getElementById(id));
+    report({ dropped: id, inZone: [...zone.querySelectorAll(".card")].map((card) => card.id) });
+  });
+  report();
+</script>
+</body>
+</html>

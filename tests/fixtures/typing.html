@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Typing</title></head>
+<body>
+<main>
+<h1>Typing</h1>
+<label>Message <textarea id="box" rows="3" cols="40"></textarea></label>
+<pre id="result">{}</pre>
+</main>
+<script>
+  const box = document.getElementById("box");
+  const keys = [];
+  let inputs = 0;
+  const report = () => {
+    document.getElementById("result").textContent = JSON.stringify({ value: box.value, keys, inputs });
+  };
+  box.addEventListener("keydown", (event) => {
+    keys.push({ key: event.key, code: event.code, shift: event.shiftKey, trusted: event.isTrusted });
+    report();
+  });
+  box.addEventListener("input", () => {
+    inputs += 1;
+    report();
+  });
+  report();
+</script>
+</body>
+</html>
