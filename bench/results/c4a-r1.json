@@ -1,0 +1,16 @@
+[
+{"task":"H1","start_ms":1791756195106,"end_ms":1791756244571,"success":true,"answer":"","notes":"Wizard with plan radios; needed three attempts to work through the steps."},
+{"task":"H2","start_ms":1791756202247,"end_ms":1791756203254,"success":true,"answer":"","notes":""},
+{"task":"H3","start_ms":1791756203257,"end_ms":1791756204230,"success":true,"answer":"","notes":""},
+{"task":"H4","start_ms":1791756204230,"end_ms":1791756226649,"success":true,"answer":"Paper clips","notes":"Read table first, added to cart in second batch."},
+{"task":"H5","start_ms":1791756204476,"end_ms":1791756238754,"success":true,"answer":"","notes":"Hidden Billing tab; check on label hit a span, used role=switch."},
+{"task":"H6","start_ms":1791756209709,"end_ms":1791756210349,"success":true,"answer":"","notes":""},
+{"task":"H7","start_ms":1791756210350,"end_ms":1791756211947,"success":true,"answer":"Shipped","notes":"seek paged to page 6."},
+{"task":"H8","start_ms":1791756211947,"end_ms":1791756212518,"success":true,"answer":"","notes":""},
+{"task":"H9","start_ms":1791756212518,"end_ms":1791756213138,"success":true,"answer":"","notes":""},
+{"task":"H10","start_ms":1791756213139,"end_ms":1791756213675,"success":true,"answer":"3","notes":""},
+{"task":"W5","start_ms":1791756213675,"end_ms":1791756214757,"success":true,"answer":"Guido van Rossum","notes":""},
+{"task":"W6","start_ms":1791756214758,"end_ms":1791756215618,"success":true,"answer":"I'm a teapot","notes":""},
+{"task":"W7","start_ms":1791756215618,"end_ms":1791756217494,"success":true,"answer":"MIT license","notes":""},
+{"task":"W8","start_ms":1791756217495,"end_ms":1791756218530,"success":true,"answer":"My YC app: Dropbox - Throw away your USB drive","notes":""}
+]

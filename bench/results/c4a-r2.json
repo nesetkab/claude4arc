@@ -1,0 +1,16 @@
+[
+{"task":"H1","start_ms":1791756361066,"end_ms":1791756411063,"success":true,"answer":"","notes":"Wizard steps; first blind guess failed, retried. Span includes other tasks run in between."},
+{"task":"H2","start_ms":1791756367115,"end_ms":1791756368052,"success":true,"answer":"","notes":""},
+{"task":"H3","start_ms":1791756368052,"end_ms":1791756369100,"success":true,"answer":"","notes":""},
+{"task":"H4","start_ms":1791756369101,"end_ms":1791756394933,"success":true,"answer":"Paper clips","notes":"Read prices first, added in second batch; span includes other tasks."},
+{"task":"H5","start_ms":1791756369358,"end_ms":1791756418128,"success":true,"answer":"","notes":"Hidden Billing tab plus switch control; took three tries. Span includes other tasks."},
+{"task":"H6","start_ms":1791756374584,"end_ms":1791756375236,"success":true,"answer":"","notes":""},
+{"task":"H7","start_ms":1791756375236,"end_ms":1791756376828,"success":true,"answer":"Shipped","notes":"Order was on page 6; seek paged to it."},
+{"task":"H8","start_ms":1791756376829,"end_ms":1791756377377,"success":true,"answer":"","notes":""},
+{"task":"H9","start_ms":1791756377377,"end_ms":1791756378116,"success":true,"answer":"","notes":""},
+{"task":"H10","start_ms":1791756378116,"end_ms":1791756378728,"success":true,"answer":"3","notes":""},
+{"task":"W5","start_ms":1791756378729,"end_ms":1791756379827,"success":true,"answer":"Guido van Rossum","notes":""},
+{"task":"W6","start_ms":1791756379827,"end_ms":1791756380249,"success":true,"answer":"418 I'm a teapot","notes":"Went straight to the known MDN URL."},
+{"task":"W7","start_ms":1791756380249,"end_ms":1791756383325,"success":true,"answer":"MIT license","notes":"Sidebar selector missed; got license from the fallback main text."},
+{"task":"W8","start_ms":1791756383325,"end_ms":1791756384271,"success":true,"answer":"My YC app: Dropbox - Throw away your USB drive","notes":""}
+]
