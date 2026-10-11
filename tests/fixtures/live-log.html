@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Live log</title>
+<style>.row { height: 40px; border-bottom: 1px solid #ddd; }</style>
+</head>
+<body>
+<main>
+<h1>Live log</h1>
+<button type="button" id="start">Start</button>
+<div id="log"></div>
+<pre id="result">0</pre>
+</main>
+<script>
+  const ticks = Number(new URLSearchParams(location.search).get("ticks") ?? 0);
+  const log = document.getElementById("log");
+  let count = 0;
+  let done = 0;
+  const add = (n) => {
+    for (let i = 0; i < n; i += 1) {
+      count += 1;
+      log.insertAdjacentHTML("beforeend", `<div class="row">Entry ${count}</div>`);
+    }
+    document.getElementById("result").textContent = String(count);
+    scrollTo(0, document.documentElement.scrollHeight);
+  };
+  add(40);
+  document.getElementById("start").addEventListener("click", () => {
+    const timer = setInterval(() => {
+      add(3);
+      done += 1;
+      if (ticks && done >= ticks) clearInterval(timer);
+    }, 250);
+  });
+</script>
+</body>
+</html>
