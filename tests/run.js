@@ -305,6 +305,7 @@ const scenarios = [
   {
     name: "editor-type",
     fixture: "editor.html",
+    platform: "darwin",
     async run(s) {
       await s.cmd("click", "#editor", "--", "press", "Meta+a", "--", "type", "Typed", "text");
       const result = await s.result();
@@ -645,6 +646,7 @@ await p.mouse.click(r.x + 60, r.y + 60);`);
   {
     name: "no-intrusion",
     fixture: "intrusive.html",
+    platform: "darwin",
     async run(s) {
       const { execFileSync } = await import("node:child_process");
       const before = execFileSync("pbpaste", { encoding: "utf8" });
@@ -1252,11 +1254,14 @@ function printTable(rows) {
 }
 
 async function main() {
-  const selected = scenarios.filter((scenario) => !filters.length || filters.some((filter) => scenario.name.includes(filter)));
-  if (!selected.length) {
+  const matching = scenarios.filter((scenario) => !filters.length || filters.some((filter) => scenario.name.includes(filter)));
+  if (!matching.length) {
     console.error(`No scenario matches ${filters.join(", ")}. Scenarios: ${scenarios.map((scenario) => scenario.name).join(", ")}`);
     process.exit(2);
   }
+  const selected = matching.filter((scenario) => !scenario.platform || scenario.platform === process.platform);
+  const skipped = matching.filter((scenario) => !selected.includes(scenario));
+  if (skipped.length) console.log(`skipped on ${process.platform}: ${skipped.map((scenario) => `${scenario.name} (${scenario.platform} only)`).join(", ")}`);
   const serving = (await isServing(PORTS[0])) && (await isServing(PORTS[1]));
   const server = serving ? null : await startServer();
   let taskId = null;
