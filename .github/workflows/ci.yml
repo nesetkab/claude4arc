@@ -2,7 +2,6 @@ name: CI
 
 on:
   push:
-    branches: [main]
   pull_request:
 
 jobs:
@@ -20,3 +19,36 @@ jobs:
           node-version: ${{ matrix.node }}
       - run: npm run check
       - run: npm test
+
+  e2e:
+    runs-on: macos-latest
+    timeout-minutes: 20
+    env:
+      CLAUDE4ARC_BROWSER: chrome-for-testing
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Install Chrome for Testing
+        run: |
+          exe=$(npx -y @puppeteer/browsers install chrome@stable --path "$RUNNER_TEMP/browsers" --format '{{path}}' | tail -1)
+          echo "CHROME=$exe" >> "$GITHUB_ENV"
+          mkdir -p ~/Applications
+          ln -s "${exe%/Contents/MacOS/*}" ~/Applications/
+      - run: node bin/claude4arc.js install --no-skill
+      - name: Start the browser with the extension
+        run: |
+          "$CHROME" --headless=new --user-data-dir="$HOME/Library/Application Support/Google/Chrome for Testing" \
+            --load-extension="$PWD/extension" --no-first-run --no-default-browser-check \
+            --use-mock-keychain --password-store=basic about:blank > "$RUNNER_TEMP/chrome.log" 2>&1 &
+          for i in $(seq 60); do [ -S ~/.arc-bridge/chrome-for-testing.sock ] && break; sleep 1; done
+          node bin/claude4arc.js doctor
+      - run: node tests/run.js
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-logs
+          path: |
+            ${{ runner.temp }}/chrome.log
+            ~/.arc-bridge/host.log
