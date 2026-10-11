@@ -1,5 +1,59 @@
 # Changelog
 
+## 0.6.0 (2026-10-11)
+
+### Changed
+
+- `new [url] [name]` always creates a task, so an all-digit name like `3` is
+  a name, not a task id. `<id>` commands always resume.
+- `claude4arc install` pins the Node that runs it instead of the first `node`
+  on the login shell's PATH. `doctor` checks the pinned Node's version.
+- A second host for the same browser, such as one from another profile, waits
+  for the first to exit instead of taking over its socket.
+- Commands that send input are not retried after a detach once input went out;
+  the error says the command may already have taken effect.
+- The in-page helper lives in a locked, non-enumerable slot that only the CLI
+  can open, so a page can no longer replace it.
+
+### Fixed
+
+- Output over 64 KB was cut off when piped, including into Claude Code's Bash
+  tool.
+- A navigation slower than its timeout crashed the CLI instead of throwing.
+- `seek` could loop forever on a list that grew once and then stopped.
+- A call made after the browser or extension went away never settled, and the
+  CLI exited 0 with no output.
+- `waitForEvent("popup")` never resolved on Claude's own tabs, and a popup from
+  an adopted tab got two labels.
+- `type` failed on emoji and other characters outside the US keyboard.
+- `press Shift+a` typed `a`, and a bad chord like `Meta+Foo` left Meta held.
+- `press` and `focus` on an element inside a frame clicked it first, so Enter
+  on a frame's button activated it twice.
+- Checkboxes, switches, and radios drawn over an `opacity: 0` input (MUI,
+  Bootstrap) counted as hidden.
+- Paging through results could click a carousel or wizard "Next" button.
+- `links` and `loc=href:` failed on pages with links inside an SVG.
+- `:has-text()` and `:text-is()` failed after a combinator such as `ul >`, and
+  when chained.
+- Snapshots dropped repeated text in sibling cells, so `Yes Yes No` read
+  `Yes No`.
+- Role names longer than 100 characters never matched.
+- `table <ref>` on something that is not a table read some other table.
+- `aria-labelledby` inside shadow DOM, closed shadow roots on custom elements
+  defined late, and `text` under a strict style CSP now work.
+- Concurrent commands could lose tasks, reuse a label, or bring back a finished
+  task. Writes to `tasks.json` now hold a lock, and an unreadable file is kept
+  as `tasks.json.bad-*` instead of being wiped.
+- Closing a tab could leave `tasks.json.*.tmp` files behind.
+- A batch line ending in `finish` skipped cleanup when an earlier step failed.
+- `drag x,y x,y` on a draggable element did nothing.
+- CodeMirror 6 fill failed on text with `\r\n`.
+- `fetch` ignored a timeout over 60 seconds, and `saveAs` saved error pages.
+- Warnings printed twice, and `wait` with no argument crashed.
+- A malformed request, a message over the browser's 1 MB limit, or another
+  debugger on the tab could crash or drop the host.
+- Install paths containing `$`, quotes, or backslashes broke the launcher.
+
 ## 0.5.0 (2026-09-26)
 
 ### Added
