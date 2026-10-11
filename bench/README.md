@@ -34,8 +34,8 @@ before the fixes.
 
 ## Original tasks
 
-claude4arc was tuned on these tasks over eleven runs, so treat this
-comparison as an upper bound.
+claude4arc was tuned on these tasks across twelve runs (plus one on Sonnet),
+so treat this comparison as an upper bound.
 
 ![Benchmark figure](figures/benchmark.png)
 
@@ -66,8 +66,8 @@ comparison as an upper bound.
 ## Limits
 
 - On the original tasks, claude4arc was improved against the same tasks over
-  eleven runs (`results/arc*.json`), and ego-lite and Claude for Chrome ran
-  once each. The held-out tasks remove that advantage.
+  twelve runs (`results/arc.json` to `arc12.json`) plus one on Sonnet
+  (`results/arcs.meta.json`), and ego-lite and Claude for Chrome ran once each. The held-out tasks remove that advantage.
 - Three runs per tool show the size of the difference, not a precise value.
 - In the held-out benchmark, ego-lite and Claude for Chrome ran at the same
   time as each other (in different browsers). Their third runs were stopped
