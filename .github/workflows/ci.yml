@@ -21,7 +21,11 @@ jobs:
       - run: npm test
 
   e2e:
-    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     env:
       CLAUDE4ARC_BROWSER: chrome-for-testing
@@ -34,21 +38,36 @@ jobs:
         run: |
           exe=$(npx -y @puppeteer/browsers install chrome@stable --path "$RUNNER_TEMP/browsers" --format '{{path}}' | tail -1)
           echo "CHROME=$exe" >> "$GITHUB_ENV"
+      - name: Register the native host
+        if: runner.os == 'macOS'
+        run: |
           mkdir -p ~/Applications
-          ln -s "${exe%/Contents/MacOS/*}" ~/Applications/
-      - run: node bin/claude4arc.js install --no-skill
+          ln -s "${CHROME%/Contents/MacOS/*}" ~/Applications/
+          node bin/claude4arc.js install --no-skill
+          echo "PROFILE=$HOME/Library/Application Support/Google/Chrome for Testing" >> "$GITHUB_ENV"
+      - name: Register the native host
+        if: runner.os == 'Linux'
+        run: |
+          profile="$HOME/.config/google-chrome-for-testing"
+          mkdir -p ~/.arc-bridge "$profile/NativeMessagingHosts"
+          printf '#!/bin/sh\nexec "%s" "%s" "$@"\n' "$(command -v node)" "$PWD/host/host.js" > ~/.arc-bridge/host-launcher.sh
+          chmod +x ~/.arc-bridge/host-launcher.sh
+          printf '{"name":"com.arcforclaude.bridge","description":"claude4arc native bridge","path":"%s","type":"stdio","allowed_origins":["chrome-extension://bfbcdjkeonepklbmjjghoddpahhhnimp/"]}\n' \
+            "$HOME/.arc-bridge/host-launcher.sh" > "$profile/NativeMessagingHosts/com.arcforclaude.bridge.json"
+          echo "PROFILE=$profile" >> "$GITHUB_ENV"
+          echo "CLAUDE4ARC_HOST_BROWSER=chrome-for-testing" >> "$GITHUB_ENV"
+          echo "SANDBOX=--no-sandbox" >> "$GITHUB_ENV"
       - name: Start the browser with the extension
         run: |
-          "$CHROME" --headless=new --user-data-dir="$HOME/Library/Application Support/Google/Chrome for Testing" \
-            --load-extension="$PWD/extension" --no-first-run --no-default-browser-check \
-            --use-mock-keychain --password-store=basic about:blank > "$RUNNER_TEMP/chrome.log" 2>&1 &
+          "$CHROME" --headless=new --user-data-dir="$PROFILE" --load-extension="$PWD/extension" $SANDBOX \
+            --no-first-run --no-default-browser-check --use-mock-keychain --password-store=basic about:blank > "$RUNNER_TEMP/chrome.log" 2>&1 &
           for i in $(seq 60); do [ -S ~/.arc-bridge/chrome-for-testing.sock ] && break; sleep 1; done
-          node bin/claude4arc.js doctor
+          if [ "$RUNNER_OS" = macOS ]; then node bin/claude4arc.js doctor; else node bin/claude4arc.js status; fi
       - run: node tests/run.js
       - if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-logs
+          name: e2e-logs-${{ matrix.os }}
           path: |
             ${{ runner.temp }}/chrome.log
             ~/.arc-bridge/host.log
