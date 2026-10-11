@@ -180,70 +180,6 @@ const EDITORS = [
   ["tinymce", "tinymce.html", ".tox-tinymce", ".tox-edit-area iframe", RICH_TEXT],
   ["ace", "ace.html", "#editor", "#editor", CODE_TEXT],
   ["codemirror5", "codemirror5.html", ".CodeMirror", ".CodeMirror", CODE_TEXT],
-  {
-    name: "popup-adopted-background-tab",
-    fixture: "index.html",
-    async run(s) {
-      const out = await s.script(`
-const tab = await t.bridge.call("tabs.create", { url: ${JSON.stringify(`${BASE}/popups.html`)}, active: false });
-let popup = null;
-try {
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  const user = await t.adopt(tab.id, { as: "u1" });
-  let receipt;
-  [popup, receipt] = await Promise.all([user.waitForEvent("popup", { timeout: 10000 }), user.click("#blank-link")]);
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const pages = await t.pages();
-  const info = await t.bridge.call("tabs.get", popup.tabId);
-  const opener = await t.bridge.call("tabs.get", tab.id);
-  console.log(JSON.stringify({ label: popup.label, receipt: receipt.popups.map((item) => item.label), labels: pages.filter((page) => page.tabId === popup.tabId).map((page) => page.label), count: pages.filter((page) => page.label !== "p1" && page.label !== "u1").length, active: info.active, openerTabId: info.openerTabId, url: info.url, openerActive: opener.active, tabId: tab.id }));
-} finally {
-  if (popup) await popup.close().catch(() => {});
-  await t.release("u1").catch(() => {});
-  await t.bridge.call("tabs.remove", tab.id).catch(() => {});
-}`);
-      const result = parseJson(out.split("\n").at(-1));
-      expect(result?.label, `no popup ${show(out)}`);
-      expect(result.labels.length === 1 && result.labels[0] === result.label && result.count === 1, `popup labels ${show(result)}`);
-      expect(result.receipt.length === 1 && result.receipt[0] === result.label, `receipt ${show(result)}`);
-      expect(!result.active && !result.openerActive, `focus moved ${show(result)}`);
-      expect(result.openerTabId === result.tabId && /via=link/.test(result.url), `popup ${show(result)}`);
-      return `${result.label} ${result.url.split("/").at(-1)}`;
-    },
-  },
-  {
-    name: "popup-adopted-background-dialog",
-    fixture: "index.html",
-    async run(s) {
-      const out = await s.script(`
-const tab = await t.bridge.call("tabs.create", { url: ${JSON.stringify(`${BASE}/popups.html`)}, active: false });
-let popup = null;
-try {
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  const user = await t.adopt(tab.id, { as: "u1" });
-  await user.evaluate("document.getElementById('blank-link').addEventListener('click', () => alert('leaving'))");
-  const waiting = user.waitForEvent("popup", { timeout: 10000 });
-  const receipt = await user.click("#blank-link");
-  await user.acceptDialog();
-  popup = await waiting;
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const pages = await t.pages();
-  const info = await t.bridge.call("tabs.get", popup.tabId);
-  const trap = await user.evaluate("typeof globalThis.__arcPopupTrap");
-  console.log(JSON.stringify({ dialog: receipt.dialog?.message, label: popup.label, count: pages.filter((page) => page.label !== "p1" && page.label !== "u1").length, active: info.active, openerTabId: info.openerTabId, url: info.url, tabId: tab.id, trap }));
-} finally {
-  if (popup) await popup.close().catch(() => {});
-  await t.release("u1").catch(() => {});
-  await t.bridge.call("tabs.remove", tab.id).catch(() => {});
-}`);
-      const result = parseJson(out.split("\n").at(-1));
-      expect(result?.label, `no popup ${show(out)}`);
-      expect(result.dialog === "leaving", `dialog ${show(result)}`);
-      expect(result.count === 1 && !result.active && result.openerTabId === result.tabId && /via=link/.test(result.url), `popup ${show(result)}`);
-      expect(result.trap === "undefined", `trap left in page ${show(result)}`);
-      return `${result.label} after dialog`;
-    },
-  },
 ];
 
 const scenarios = [
@@ -366,6 +302,7 @@ const scenarios = [
     {
       name: `editor-type-${kind}`,
       fixture,
+      platform: "darwin",
       async run(s) {
         await s.cmd("wait", "css=body[data-ready]", "30000");
         await s.cmd("click", typeTarget, "--", "press", "Meta+a", "--", "type", TYPED_TEXT);
@@ -1210,6 +1147,7 @@ console.log(JSON.stringify({ error }));`);
   {
     name: "paste-restores-clipboard",
     fixture: "typing.html",
+    platform: "darwin",
     async run(s) {
       const { execFileSync } = await import("node:child_process");
       const original = execFileSync("pbpaste", { encoding: "utf8" });
@@ -1226,6 +1164,70 @@ console.log(JSON.stringify({ error }));`);
       } finally {
         execFileSync("pbcopy", { input: original });
       }
+    },
+  },
+  {
+    name: "popup-adopted-background-tab",
+    fixture: "index.html",
+    async run(s) {
+      const out = await s.script(`
+const tab = await t.bridge.call("tabs.create", { url: ${JSON.stringify(`${BASE}/popups.html`)}, active: false });
+let popup = null;
+try {
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  const user = await t.adopt(tab.id, { as: "u1" });
+  let receipt;
+  [popup, receipt] = await Promise.all([user.waitForEvent("popup", { timeout: 10000 }), user.click("#blank-link")]);
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  const pages = await t.pages();
+  const info = await t.bridge.call("tabs.get", popup.tabId);
+  const opener = await t.bridge.call("tabs.get", tab.id);
+  console.log(JSON.stringify({ label: popup.label, receipt: receipt.popups.map((item) => item.label), labels: pages.filter((page) => page.tabId === popup.tabId).map((page) => page.label), count: pages.filter((page) => page.label !== "p1" && page.label !== "u1").length, active: info.active, openerTabId: info.openerTabId, url: info.url, openerActive: opener.active, tabId: tab.id }));
+} finally {
+  if (popup) await popup.close().catch(() => {});
+  await t.release("u1").catch(() => {});
+  await t.bridge.call("tabs.remove", tab.id).catch(() => {});
+}`);
+      const result = parseJson(out.split("\n").at(-1));
+      expect(result?.label, `no popup ${show(out)}`);
+      expect(result.labels.length === 1 && result.labels[0] === result.label && result.count === 1, `popup labels ${show(result)}`);
+      expect(result.receipt.length === 1 && result.receipt[0] === result.label, `receipt ${show(result)}`);
+      expect(!result.active && !result.openerActive, `focus moved ${show(result)}`);
+      expect(result.openerTabId === result.tabId && /via=link/.test(result.url), `popup ${show(result)}`);
+      return `${result.label} ${result.url.split("/").at(-1)}`;
+    },
+  },
+  {
+    name: "popup-adopted-background-dialog",
+    fixture: "index.html",
+    async run(s) {
+      const out = await s.script(`
+const tab = await t.bridge.call("tabs.create", { url: ${JSON.stringify(`${BASE}/popups.html`)}, active: false });
+let popup = null;
+try {
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  const user = await t.adopt(tab.id, { as: "u1" });
+  await user.evaluate("document.getElementById('blank-link').addEventListener('click', () => alert('leaving'))");
+  const waiting = user.waitForEvent("popup", { timeout: 10000 });
+  const receipt = await user.click("#blank-link");
+  await user.acceptDialog();
+  popup = await waiting;
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  const pages = await t.pages();
+  const info = await t.bridge.call("tabs.get", popup.tabId);
+  const trap = await user.evaluate("typeof globalThis.__arcPopupTrap");
+  console.log(JSON.stringify({ dialog: receipt.dialog?.message, label: popup.label, count: pages.filter((page) => page.label !== "p1" && page.label !== "u1").length, active: info.active, openerTabId: info.openerTabId, url: info.url, tabId: tab.id, trap }));
+} finally {
+  if (popup) await popup.close().catch(() => {});
+  await t.release("u1").catch(() => {});
+  await t.bridge.call("tabs.remove", tab.id).catch(() => {});
+}`);
+      const result = parseJson(out.split("\n").at(-1));
+      expect(result?.label, `no popup ${show(out)}`);
+      expect(result.dialog === "leaving", `dialog ${show(result)}`);
+      expect(result.count === 1 && !result.active && result.openerTabId === result.tabId && /via=link/.test(result.url), `popup ${show(result)}`);
+      expect(result.trap === "undefined", `trap left in page ${show(result)}`);
+      return `${result.label} after dialog`;
     },
   },
 ];
