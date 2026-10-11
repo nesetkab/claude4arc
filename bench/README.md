@@ -15,6 +15,7 @@ ran three times; the table shows the mean and the range.
 | Tool | Tasks passed | Time | Tool calls | Input tokens read |
 |---|---|---|---|---|
 | claude4arc | 42 / 42 | 117.1 s (107.9–128.8) | 8.0 (7–9) | 0.48 M (0.41–0.54) |
+| claude4arc 0.6 (rerun) | 42 / 42 | 88.7 s (80.2–95.8) | 7.7 (7–8) | 0.33 M (0.30–0.35) |
 | ego-lite | 42 / 42 | 199.5 s (177.6–215.1) | 36.0 (34–39) | 2.19 M (2.05–2.41) |
 | Claude for Chrome | 42 / 42 | 241.0 s (224.8–266.8) | 69.7 (65–76) | 3.83 M (3.26–4.74) |
 
@@ -29,8 +30,27 @@ submits on Enter) and 4 new lookups on Wikipedia, MDN, GitHub, and Hacker News.
 On these tasks claude4arc needed about twice its tuned-task time, mostly
 because its agent retried steps on the wizard, the scrolling modal, the hidden
 tab, and the paginated list. Those four weak spots were fixed after the
-measured runs (see the changelog), so the numbers above describe the version
-before the fixes.
+measured runs (see the changelog), so the first claude4arc row describes the
+version before the fixes.
+
+### Rerun at 0.6
+
+The "0.6 (rerun)" row is three new runs of claude4arc (`c4a-r1` to `c4a-r3`)
+at commit `f1fe3cf`: 0.6.0 plus this branch's background-tab popups, locked
+editor helper, paste fixes, and ProseMirror detection. They ran on October 11,
+one after another, with nothing else using the browser. All three passed every
+task; `node bench/verify.js c4a-r1 c4a-r2 c4a-r3` gives 10/10 each, and all
+four web answers were right in every run.
+
+- ego-lite and Claude for Chrome were not rerun; their rows are still the
+  September runs.
+- The reruns used `claude-opus-5-5`. The September meta files do not record a
+  model, so the model may differ.
+- claude4arc's code is newer than in September, which is the point of the
+  rerun.
+- Weak spots remain: the H1 wizard still took several attempts in every run
+  (three and five in the two runs that counted), and on H5 a `text=Billing`
+  or label click hit a span, so the agent needed role selectors.
 
 ## Original tasks
 

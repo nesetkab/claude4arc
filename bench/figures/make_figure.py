@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 HERE = Path(__file__).resolve().parent
 RESULTS = HERE.parent / "results"
 
-COLORS = {"arc": "#0072B2", "ego": "#D55E00", "cic": "#009E73"}
-HATCHES = {"arc": "", "ego": "//", "cic": ".."}
-NAMES = {"arc": "claude4arc", "ego": "ego-lite", "cic": "Claude for Chrome"}
+COLORS = {"arc": "#0072B2", "arcr": "#56B4E9", "ego": "#D55E00", "cic": "#009E73"}
+HATCHES = {"arc": "", "arcr": "\\\\", "ego": "//", "cic": ".."}
+NAMES = {"arc": "claude4arc", "arcr": "claude4arc 0.6 (rerun)", "ego": "ego-lite", "cic": "Claude for Chrome"}
 
 
 def load(run):
@@ -20,6 +20,7 @@ ARC_RUNS = {run: load(run) for run in ("arc10", "arc11")}
 SINGLE = {"ego": load("ego"), "cic": load("cic")}
 HELDOUT = {
     "arc": [load(run) for run in ("c4a-h1", "c4a-h2", "c4a-h3")],
+    "arcr": [load(run) for run in ("c4a-r1", "c4a-r2", "c4a-r3")],
     "ego": [load(run) for run in ("ego-h1", "ego-h2", "ego-h3b")],
     "cic": [load(run) for run in ("cic-h1", "cic-h2", "cic-h3b")],
 }
@@ -38,7 +39,7 @@ def summary(metric):
 
 
 def heldout_summary(metric):
-    return [(key, *spread([run[metric] for run in HELDOUT[key]])) for key in ("arc", "ego", "cic")]
+    return [(key, *spread([run[metric] for run in HELDOUT[key]])) for key in ("arc", "arcr", "ego", "cic")]
 
 
 def style():
@@ -90,10 +91,10 @@ def bar_panel(axis, metric, xlabel, title, formatter, scale=1.0, names=True, row
     axis.set_axisbelow(True)
 
 
-def draw(path, rows_for):
-    figure, axes = plt.subplots(1, 3, figsize=(7.2, 2.1), gridspec_kw={"wspace": 0.12})
+def draw(path, rows_for, height=2.1, calls_digits=0):
+    figure, axes = plt.subplots(1, 3, figsize=(7.2, height), gridspec_kw={"wspace": 0.12})
     bar_panel(axes[0], "seconds", "Wall-clock time (s)", "(a) Time to finish", lambda value: f"{value:.1f}", rows=rows_for("seconds"))
-    bar_panel(axes[1], "calls", "Tool calls", "(b) Tool calls", lambda value: f"{value:.0f}", names=False, rows=rows_for("calls"))
+    bar_panel(axes[1], "calls", "Tool calls", "(b) Tool calls", lambda value: f"{value:.{calls_digits}f}", names=False, rows=rows_for("calls"))
     bar_panel(axes[2], "read", "Input tokens read (millions)", "(c) Tokens read", lambda value: f"{value / 1e6:.2f}M", scale=1e6, names=False, rows=rows_for("read"))
     for suffix in ("pdf", "png", "svg"):
         figure.savefig(HERE / f"{path}.{suffix}", dpi=300)
@@ -103,7 +104,7 @@ def draw(path, rows_for):
 def main():
     style()
     draw("benchmark", summary)
-    draw("heldout", heldout_summary)
+    draw("heldout", heldout_summary, height=2.6, calls_digits=1)
 
 
 if __name__ == "__main__":
