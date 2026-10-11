@@ -1,6 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { inPageLibrary, openLibrary, LIBRARY_KEY, LIBRARY_PRELUDE } from "../../lib/inpage.js";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+
+const home = fs.mkdtempSync(path.join(os.tmpdir(), "claude4arc-home-"));
+process.env.HOME = home;
+const secretFile = path.join(home, ".arc-bridge", "page-secret");
+const { inPageLibrary, openLibrary, libraryKey, libraryPrelude } = await import("../../lib/inpage.js");
+const { editorPrelude } = await import("../../lib/editors.js");
 
 const { splitSelector } = inPageLibrary();
 
@@ -49,9 +57,31 @@ test("a page that defines the library slot first is refused", () => {
   assert.throws(() => openLibrary(view, "lib", "secret", () => ({})), /interfered/);
 });
 
+test("the page secret is created lazily, privately, and reused", () => {
+  assert.equal(fs.existsSync(secretFile), false);
+  const key = libraryKey();
+  assert.equal(fs.statSync(secretFile).mode & 0o777, 0o600);
+  assert.match(fs.readFileSync(secretFile, "utf8"), /^[0-9a-f]{64}$/);
+  assert.equal(libraryKey(), key);
+});
+
 test("the library slot name and token are not derived from the source alone", () => {
-  assert.match(LIBRARY_KEY.name, /^__arcForClaude_[0-9a-f]{16}$/);
-  assert.match(LIBRARY_KEY.token, /^[0-9a-f]{64}$/);
-  assert.ok(LIBRARY_PRELUDE.includes(LIBRARY_KEY.token));
-  assert.ok(!LIBRARY_PRELUDE.includes("||="));
+  const key = libraryKey();
+  assert.match(key.name, /^__arcForClaude_[0-9a-f]{16}$/);
+  assert.match(key.token, /^[0-9a-f]{64}$/);
+  assert.ok(libraryPrelude().includes(key.token));
+  assert.ok(!libraryPrelude().includes("||="));
+});
+
+test("the editor helper uses its own locked slot", () => {
+  const prelude = editorPrelude();
+  const [, name, token] = prelude.match(/globalThis, "(__arcForClaudeEditors_[0-9a-f]{16})", "([0-9a-f]{64})"/);
+  assert.notEqual(name, libraryKey().name);
+  assert.ok(!prelude.includes("||="));
+  const view = {};
+  const editors = new Function("globalThis", `return ${prelude}`)(view);
+  assert.equal(typeof editors.setValue, "function");
+  assert.equal(view[name]("guess"), null);
+  assert.equal(view[name](token), editors);
+  assert.throws(() => new Function("globalThis", `return ${prelude}`)({ [name]: () => ({ getValue: () => "spoof" }) }), /interfered/);
 });

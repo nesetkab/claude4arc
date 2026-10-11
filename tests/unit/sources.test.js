@@ -2,12 +2,16 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import vm from "node:vm";
 import fs from "node:fs";
-import { LIBRARY_PRELUDE } from "../../lib/inpage.js";
-import { EDITOR_PRELUDE } from "../../lib/editors.js";
-import { AGENT_SHIM } from "../../lib/shim.js";
+import os from "node:os";
+import path from "node:path";
+
+process.env.HOME = fs.mkdtempSync(path.join(os.tmpdir(), "claude4arc-home-"));
+const { libraryPrelude } = await import("../../lib/inpage.js");
+const { editorPrelude } = await import("../../lib/editors.js");
+const { AGENT_SHIM } = await import("../../lib/shim.js");
 
 test("the scripts injected into pages compile", () => {
-  for (const source of [LIBRARY_PRELUDE, EDITOR_PRELUDE, AGENT_SHIM]) assert.doesNotThrow(() => new vm.Script(source));
+  for (const source of [libraryPrelude(), editorPrelude(), AGENT_SHIM]) assert.doesNotThrow(() => new vm.Script(source));
 });
 
 test("the extension manifest is valid and keeps its fixed ID key", () => {
