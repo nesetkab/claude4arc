@@ -68,3 +68,20 @@ test("type inserts emoji, CJK, and accented text instead of throwing", async () 
     assert.ok(keyboard.sent > 0);
   }
 });
+
+test("paste inserts the text directly off macOS", async () => {
+  const platform = Object.getOwnPropertyDescriptor(process, "platform");
+  Object.defineProperty(process, "platform", { value: "linux" });
+  try {
+    const page = fakePage();
+    const keyboard = new Keyboard(page);
+    await keyboard.paste("line one\nline two");
+    await keyboard.paste({ text: "rich" });
+    assert.deepEqual(page.sent, [
+      { method: "Input.insertText", text: "line one\nline two" },
+      { method: "Input.insertText", text: "rich" },
+    ]);
+  } finally {
+    Object.defineProperty(process, "platform", platform);
+  }
+});

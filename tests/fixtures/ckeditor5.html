@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CKEditor 5</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ckeditor5@49.0.0/dist/browser/ckeditor5.css">
+<style>main { width: 600px; } .ck-editor__editable { min-height: 140px; }</style>
+</head>
+<body>
+<main>
+<h1>CKEditor 5 editor</h1>
+<div id="editor"><p>Old <strong>draft</strong></p></div>
+<pre id="result">loading</pre>
+</main>
+<script type="module">
+  import { ClassicEditor, Essentials, Paragraph, Bold, Italic } from "https://cdn.jsdelivr.net/npm/ckeditor5@49.0.0/dist/browser/ckeditor5.js";
+  const log = { changes: 0, keys: 0, untrusted: 0 };
+  document.addEventListener("keydown", (event) => {
+    log.keys += 1;
+    if (!event.isTrusted) log.untrusted += 1;
+  }, true);
+  const editor = await ClassicEditor.create(document.getElementById("editor"), {
+    licenseKey: "GPL",
+    plugins: [Essentials, Paragraph, Bold, Italic],
+    toolbar: ["undo", "redo", "|", "bold", "italic"],
+  });
+  editor.model.document.on("change:data", () => {
+    log.changes += 1;
+  });
+  const text = (node) => (typeof node.data === "string" ? node.data : node.name === "softBreak" ? "\n" : [...(node.getChildren?.() ?? [])].map(text).join(""));
+  const value = () => [...editor.model.document.getRoot().getChildren()].map(text).join("\n");
+  window.probe = () => ({ value: value(), ...log });
+  document.getElementById("result").textContent = "";
+  document.body.dataset.ready = "1";
+</script>
+</body>
+</html>

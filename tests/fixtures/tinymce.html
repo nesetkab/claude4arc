@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TinyMCE</title>
+<style>main { width: 600px; }</style>
+</head>
+<body>
+<main>
+<h1>TinyMCE editor</h1>
+<textarea id="editor"><p>Old <strong>draft</strong></p></textarea>
+<pre id="result">loading</pre>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/tinymce@8.9.3/tinymce.min.js"></script>
+<script>
+  const log = { changes: 0, keys: 0, untrusted: 0 };
+  tinymce.init({
+    selector: "#editor",
+    license_key: "gpl",
+    menubar: false,
+    statusbar: false,
+    promotion: false,
+    toolbar: "undo redo | bold italic",
+    height: 240,
+    init_instance_callback(editor) {
+      editor.on("keydown", (event) => {
+        log.keys += 1;
+        if (!event.isTrusted) log.untrusted += 1;
+      });
+      editor.on("input SetContent", () => {
+        log.changes += 1;
+      });
+      const value = () => [...editor.getBody().children].filter((node) => !node.hasAttribute("data-mce-bogus")).map((node) => node.textContent.replace(/ /g, " ").replace(/﻿/g, "")).join("\n");
+      window.probe = () => ({ value: value(), saved: document.getElementById("editor").value, ...log });
+      document.getElementById("result").textContent = "";
+      document.body.dataset.ready = "1";
+    },
+  });
+</script>
+</body>
+</html>

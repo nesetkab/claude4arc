@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ace</title>
+<style>#editor { width: 560px; height: 220px; border: 1px solid #999; }</style>
+</head>
+<body>
+<main>
+<h1>Ace editor</h1>
+<div id="editor">const old = "draft";</div>
+<pre id="result">loading</pre>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/ace-builds@1.44.0/src-min-noconflict/ace.js"></script>
+<script>
+  const log = { changes: 0, keys: 0, untrusted: 0 };
+  document.addEventListener("keydown", (event) => {
+    log.keys += 1;
+    if (!event.isTrusted) log.untrusted += 1;
+  }, true);
+  const editor = ace.edit("editor", { useWorker: false, showPrintMargin: false });
+  editor.session.on("change", () => {
+    log.changes += 1;
+  });
+  window.probe = () => ({ value: editor.getValue(), ...log });
+  document.getElementById("result").textContent = "";
+  document.body.dataset.ready = "1";
+</script>
+</body>
+</html>
