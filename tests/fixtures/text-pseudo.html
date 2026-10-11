@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Text pseudo selectors</title>
+<style>
+  body { font: 16px system-ui, sans-serif; margin: 24px; }
+  .card { display: inline-block; border: 1px solid #ccc; padding: 8px; margin: 4px; }
+</style>
+</head>
+<body>
+<ul id="fruits">
+  <li><button>Alpha</button></li>
+  <li><button>Beta</button></li>
+  <li><button>Gamma</button></li>
+</ul>
+<form id="login">
+  <label>User <input name="user"></label>
+  <div class="actions"><button type="submit">Submit</button></div>
+</form>
+<table>
+  <tbody>
+    <tr><td>Nuts</td><td><button>Buy</button></td><td><button>Buy later</button></td></tr>
+    <tr><td>Bolts</td><td><button>Buy</button></td><td><button>Buy later</button></td></tr>
+  </tbody>
+</table>
+<div class="card"><p>Basic</p><p>Monthly</p><button>Choose</button></div>
+<div class="card"><p>Pro</p><p>Monthly</p><button>Choose</button></div>
+<div class="card"><p>Pro</p><p>Yearly</p><button>Choose</button></div>
+<pre id="result">none</pre>
+<script>
+  const result = (text) => (document.getElementById("result").textContent = text);
+  for (const item of document.querySelectorAll("#fruits li")) item.onclick = () => result(item.textContent.trim());
+  document.getElementById("login").onsubmit = (event) => {
+    event.preventDefault();
+    result("submitted");
+  };
+  for (const button of document.querySelectorAll("tr button")) button.onclick = () => result(button.closest("tr").cells[0].textContent + ":" + button.textContent);
+  for (const button of document.querySelectorAll(".card button")) {
+    button.onclick = () => result([...button.parentElement.querySelectorAll("p")].map((p) => p.textContent).join("-"));
+  }
+</script>
+</body>
+</html>

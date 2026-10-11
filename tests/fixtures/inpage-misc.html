@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Misc page reading</title>
+<style>
+  body { font: 16px system-ui, sans-serif; margin: 24px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 80px); gap: 4px; }
+</style>
+</head>
+<body>
+<h1>Plans</h1>
+<div class="grid" id="grid">
+  <div>Feature</div><div>Free</div><div>Pro</div><div>Team</div>
+  <div>Exports</div><div>Yes</div><div>Yes</div><div>No</div>
+</div>
+<p id="notes">These notes are not a table.</p>
+<table id="prices">
+  <tr><th>Plan</th><th>Price</th></tr>
+  <tr><td>Free</td><td>0</td></tr>
+  <tr><td>Pro</td><td>12</td></tr>
+</table>
+<button id="long">I have read and agree to the terms of service, the privacy policy, and the acceptable use policy for this workspace</button>
+<p>
+  <svg width="160" height="30" viewBox="0 0 160 30" role="img" aria-label="Diagram">
+    <a href="?via=svg" id="svg-link"><rect width="160" height="30" fill="#eee"></rect><text x="8" y="20">SVG link</text></a>
+  </svg>
+  <a href="?via=html" id="html-link">HTML link</a>
+</p>
+<pre id="result">none</pre>
+<script>
+  const result = (text) => (document.getElementById("result").textContent = text);
+  document.getElementById("long").onclick = () => result("long");
+  for (const link of document.querySelectorAll("a")) {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      result(link.id);
+    });
+  }
+</script>
+</body>
+</html>
