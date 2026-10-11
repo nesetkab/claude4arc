@@ -7,6 +7,7 @@ test("browserForExecutable finds the browser from its binary path", () => {
   assert.equal(browserForExecutable("/Applications/Arc.app/Contents/MacOS/Arc").key, "arc");
   assert.equal(browserForExecutable("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome").key, "chrome");
   assert.equal(browserForExecutable("/tmp/x/chrome-mac/Chromium.app/Contents/MacOS/Chromium").key, "chromium");
+  assert.equal(browserForExecutable("/tmp/x/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing").key, "chrome-for-testing");
   assert.equal(browserForExecutable("/usr/bin/node"), null);
 });
 
