@@ -714,6 +714,304 @@ await p.waitForFunction(() => document.getElementById("result").textContent !== 
       return early.ok ? `disabled click said ${show(early.out)}` : `disabled click: ${early.error.split("\n")[0]}`;
     },
   },
+  {
+    name: "popup-wait-agent-window-open",
+    fixture: "popups.html",
+    cleanup: true,
+    async run(s) {
+      const out = await s.script(`
+const [popup, receipt] = await Promise.all([p.waitForEvent("popup", { timeout: 10000 }), p.click("#open-popup")]);
+const pages = await t.pages();
+console.log(JSON.stringify({ label: popup.label, url: await popup.url(), receipt: receipt.popups.map((item) => item.label), labels: pages.filter((page) => page.tabId === popup.tabId).map((page) => page.label) }));`);
+      const result = parseJson(out.split("\n").at(-1));
+      expect(result?.label && result.url.includes("via=window.open"), `popup ${show(out)}`);
+      expect(result.receipt.length === 1 && result.receipt[0] === result.label, `receipt ${show(result)}`);
+      expect(result.labels.length === 1, `popup tab has labels ${show(result.labels)}`);
+    },
+  },
+  {
+    name: "popup-wait-agent-target-blank",
+    fixture: "popups.html",
+    cleanup: true,
+    async run(s) {
+      const out = await s.script(`
+const [popup] = await Promise.all([p.waitForEvent("popup", { timeout: 10000 }), p.click("#blank-link")]);
+console.log(JSON.stringify({ label: popup.label, url: await popup.url() }));`);
+      const result = parseJson(out.split("\n").at(-1));
+      expect(result?.label && result.url.includes("via=link"), `popup ${show(out)}`);
+    },
+  },
+  {
+    name: "popup-adopted-single-label",
+    fixture: "index.html",
+    async run(s) {
+      const out = await s.script(`
+const tab = await t.bridge.call("tabs.create", { url: ${JSON.stringify(`${BASE}/popups.html`)}, active: false });
+let popup = null;
+try {
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  const user = await t.adopt(tab.id, { as: "u1" });
+  let receipt;
+  [popup, receipt] = await Promise.all([user.waitForEvent("popup", { timeout: 10000 }), user.click("#blank-link")]);
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  const pages = await t.pages();
+  console.log(JSON.stringify({ label: popup.label, receipt: receipt.popups.map((item) => item.label), labels: pages.filter((page) => page.tabId === popup.tabId).map((page) => page.label) }));
+} finally {
+  if (popup) await popup.close().catch(() => {});
+  await t.release("u1").catch(() => {});
+  await t.bridge.call("tabs.remove", tab.id).catch(() => {});
+}`);
+      const result = parseJson(out.split("\n").at(-1));
+      expect(result?.label, `no popup ${show(out)}`);
+      expect(result.labels.length === 1 && result.labels[0] === result.label, `popup tab has labels ${show(result.labels)}`);
+      expect(result.receipt.every((label) => label === result.label), `receipt ${show(result)}`);
+    },
+  },
+  {
+    name: "seek-growing-capped",
+    fixture: "live-log.html",
+    async run(s) {
+      const out = await s.script(`
+await p.evaluate("document.getElementById('start').click()");
+const started = Date.now();
+const error = await p.seek("#nope", { timeout: 4000, idle: 1500 }).then(() => null, (error) => error.message);
+console.log(JSON.stringify({ error, ms: Date.now() - started }));`);
+      const result = parseJson(out.split("\n").at(-1));
+      expect(result?.error && /No match for #nope/.test(result.error), `seek ${show(out)}`);
+      expect(result.ms < 15000, `seek took ${result.ms}ms`);
+    },
+  },
+  {
+    name: "seek-growth-stops",
+    fixture: "live-log.html?ticks=4",
+    async run(s) {
+      const out = await s.script(`
+await p.evaluate("document.getElementById('start').click()");
+const started = Date.now();
+const error = await p.seek("#nope", { timeout: 20000, idle: 1500 }).then(() => null, (error) => error.message);
+console.log(JSON.stringify({ error, ms: Date.now() - started }));`);
+      const result = parseJson(out.split("\n").at(-1));
+      expect(result?.error && /reached the end/.test(result.error), `seek ${show(out)}`);
+      expect(result.ms < 15000, `seek took ${result.ms}ms`);
+    },
+  },
+  {
+    name: "iframe-cross-press-button-once",
+    fixture: "iframe-cross.html",
+    async run(s) {
+      const found = await s.cmd("find", "Frame", "button");
+      const [ref] = refs(found, /Frame button/);
+      expect(ref && ref.includes("."), `find: ${show(found)}`);
+      await s.cmd("press", ref, "Enter", "--", "wait", "300");
+      const result = await s.result();
+      expect(result?.cross?.clicks === 1, `Enter activated the frame button ${result?.cross?.clicks ?? 0} times: ${show(result)}`);
+    },
+  },
+  {
+    name: "iframe-cross-press-submit-once",
+    fixture: "iframe-cross.html",
+    async run(s) {
+      const found = await s.cmd("find", "Cross", "frame");
+      const [frame] = refs(found, /^@[\d.]+ iframe /);
+      expect(frame, `no iframe ref: ${show(found)}`);
+      await s.cmd("fill", `${frame} >> #q`, "pressed", "--", "press", `${frame} >> #send`, "Enter", "--", "wait", "300");
+      const result = await s.result();
+      expect(result?.cross?.submitted === "pressed" && result.cross.value === "pressed", `result ${show(result)}`);
+    },
+  },
+  {
+    name: "fetch-save-non-ok",
+    fixture: "index.html",
+    async run(s) {
+      const os = await import("node:os");
+      const fs = await import("node:fs");
+      const missing = path.join(os.tmpdir(), `claude4arc-e2e-missing-${Date.now()}.bin`);
+      const present = path.join(os.tmpdir(), `claude4arc-e2e-present-${Date.now()}.txt`);
+      try {
+        const out = await s.script(`
+const error = await p.fetch("/no-such-file.bin", { saveAs: ${JSON.stringify(missing)} }).then(() => null, (error) => error.message);
+const saved = await p.fetch("/upload-a.txt", { saveAs: ${JSON.stringify(present)} });
+console.log(JSON.stringify({ error, savedTo: saved.savedTo }));`);
+        const result = parseJson(out.split("\n").at(-1));
+        expect(result?.error && /HTTP 404/.test(result.error), `error ${show(out)}`);
+        expect(!fs.existsSync(missing), "the 404 body was written to disk");
+        expect(result.savedTo === present && fs.existsSync(present), `ok fetch was not saved: ${show(result)}`);
+      } finally {
+        fs.rmSync(missing, { force: true });
+        fs.rmSync(present, { force: true });
+      }
+    },
+  },
+  {
+    name: "navigation-timeout-no-crash",
+    fixture: "index.html",
+    async run(s) {
+      const out = await s.script(`
+const error = await p.reload({ timeout: 1 }).then(() => null, (error) => error.message);
+await p.waitForLoadState("load", { timeout: 10000 });
+console.log(JSON.stringify({ error }));`);
+      const result = parseJson(out.split("\n").at(-1));
+      expect(result && "error" in result, `script output ${show(out)}`);
+      expect(result.error === null || /Navigation did not reach "load"/.test(result.error), `error ${show(result.error)}`);
+    },
+  },
+  {
+    name: "type-emoji-cjk-accents",
+    fixture: "typing.html",
+    async run(s) {
+      const text = "Hi 👋🏽 日本語 café Ünïcode";
+      await s.cmd("click", "#box", "--", "type", text);
+      const result = await s.result();
+      expect(result?.value === text, `value ${show(result?.value ?? result)}`);
+      expect(result.inputs > 0, `no input events: ${show(result)}`);
+      expect(result.keys.every((key) => key.trusted), "untrusted key events");
+    },
+  },
+  {
+    name: "press-shift-text",
+    fixture: "typing.html",
+    async run(s) {
+      await s.cmd("click", "#box", "--", "press", "Shift+a", "--", "press", "Shift+1", "--", "press", "Shift+/", "--", "press", "b");
+      const result = await s.result();
+      expect(result?.value === "A!?b", `value ${show(result?.value ?? result)}`);
+      const shifted = result.keys.filter((key) => key.code === "KeyA" || key.code === "Digit1");
+      expect(shifted.every((key) => key.shift) && shifted.map((key) => key.key).join("") === "A!", `keys ${show(result.keys)}`);
+    },
+  },
+  {
+    name: "press-bad-chord-releases-modifiers",
+    fixture: "typing.html",
+    async run(s) {
+      const bad = await s.attempt("press", "Meta+Foo");
+      expect(!bad.ok && /Unknown key: Foo/.test(bad.error), `bad chord said ${show(bad)}`);
+      await s.cmd("click", "#box", "--", "type", "ok");
+      const result = await s.result();
+      expect(result?.value === "ok", `Meta stayed held? value ${show(result?.value ?? result)}`);
+    },
+  },
+  {
+    name: "drag-points-html5",
+    fixture: "drag-points.html",
+    async run(s) {
+      const points = JSON.parse(
+        await s.cmd(
+          "eval",
+          "JSON.stringify([document.getElementById('card-b'), document.getElementById('zone')].map((el) => { const r = el.getBoundingClientRect(); return [Math.round(r.x + r.width / 2), Math.round(r.y + r.height / 2)].join(','); }))",
+        ),
+      );
+      await s.cmd("drag", points[0], points[1]);
+      const result = await s.result();
+      expect(result?.started === "card-b", `no dragstart: ${show(result)}`);
+      expect(result.dropped === "card-b" && result.inZone?.includes("card-b"), `result ${show(result)}`);
+    },
+  },
+  {
+    name: "wait-without-argument",
+    fixture: "typing.html",
+    async run(s) {
+      const out = await s.attempt("wait");
+      expect(!out.ok && /^Usage: wait/.test(out.error), `wait said ${show(out)}`);
+    },
+  },
+  {
+    name: "opacity-zero-checkboxes",
+    fixture: "opacity-controls.html",
+    async run(s) {
+      const snap = await s.cmd("snap");
+      for (const name of ["Remember me", "Send me news", "I accept the terms"]) {
+        expect(snap.includes(`checkbox "${name}"`), `snap misses checkbox ${show(name)}: ${show(snap)}`);
+      }
+      await s.cmd("check", "#remember", "--", "check", "#news", "--", "check", "#terms");
+      const result = await s.result();
+      expect(result?.remember === true && result.news === true && result.terms === true, `result ${show(result)}`);
+      const after = await s.cmd("snap");
+      expect(/checkbox "Remember me" \[checked/.test(after) && /checkbox "Send me news" \[checked/.test(after), `snap after ${show(after)}`);
+      await s.cmd("uncheck", "#news");
+      const unchecked = await s.result();
+      expect(unchecked?.news === false && unchecked.remember === true, `after uncheck ${show(unchecked)}`);
+    },
+  },
+  {
+    name: "seek-pages-skips-carousel",
+    fixture: "pager-trap.html",
+    async run(s) {
+      const found = await s.cmd("seek", "Invoice 1023");
+      expect(/Invoice 1023.*\(page 5\)/.test(found), `seek ${show(found)}`);
+      const state = await s.result();
+      expect(state?.page === 5 && state.carousel === 0 && state.wizard === 0, `clicked the wrong next control: ${show(state)}`);
+    },
+  },
+  {
+    name: "svg-links",
+    fixture: "inpage-misc.html",
+    async run(s) {
+      const links = await s.cmd("links");
+      expect(links.includes("via=svg") && links.includes("via=html"), `links ${show(links)}`);
+      await s.cmd("click", "loc=href:via=html");
+      expect((await s.result()) === "html-link", `html link click ${show(await s.result())}`);
+      await s.cmd("click", "loc=href:via=svg");
+      expect((await s.result()) === "svg-link", `svg link click ${show(await s.result())}`);
+    },
+  },
+  {
+    name: "css-text-pseudo-combinators",
+    fixture: "text-pseudo.html",
+    async run(s) {
+      await s.cmd("click", 'css=ul > :has-text("Beta")');
+      expect((await s.result()) === "Beta", `ul > :has-text: ${show(await s.result())}`);
+      await s.cmd("click", 'css=form :has-text("Submit")');
+      expect((await s.result()) === "submitted", `form :has-text: ${show(await s.result())}`);
+      await s.cmd("click", 'css=tr:has-text("Bolts") :text-is("Buy")');
+      expect((await s.result()) === "Bolts:Buy", `tr :text-is: ${show(await s.result())}`);
+      await s.cmd("click", 'css=div.card:has-text("Pro"):has-text("Yearly") button');
+      expect((await s.result()) === "Pro-Yearly", `chained :has-text: ${show(await s.result())}`);
+    },
+  },
+  {
+    name: "snap-keeps-repeated-cells",
+    fixture: "inpage-misc.html",
+    async run(s) {
+      const snap = await s.cmd("snap");
+      const lines = snap.split("\n").map((line) => line.trim());
+      const at = lines.indexOf("Exports");
+      expect(at >= 0 && lines.slice(at + 1, at + 4).join(" ") === "Yes Yes No", `grid row ${show(lines.slice(Math.max(0, at), at + 4))}`);
+    },
+  },
+  {
+    name: "role-long-name",
+    fixture: "inpage-misc.html",
+    async run(s) {
+      const name = "I have read and agree to the terms of service, the privacy policy, and the acceptable use policy for this workspace";
+      await s.cmd("click", `role=button[name="${name}"]`);
+      expect((await s.result()) === "long", `exact name: ${show(await s.result())}`);
+      await s.cmd("eval", "document.getElementById('result').textContent = 'none'");
+      await s.cmd("click", 'role=button[name$="policy for this workspace"]');
+      expect((await s.result()) === "long", `suffix name: ${show(await s.result())}`);
+    },
+  },
+  {
+    name: "table-ref-without-table",
+    fixture: "inpage-misc.html",
+    async run(s) {
+      const miss = await s.attempt("table", "#notes");
+      expect(!miss.ok && /is not a table/.test(miss.error), `table #notes: ${show(miss)}`);
+      const scoped = await s.cmd("table", "#prices");
+      expect(/Pro\t12/.test(scoped), `table #prices: ${show(scoped)}`);
+      const fallback = await s.cmd("table");
+      expect(/Pro\t12/.test(fallback), `table: ${show(fallback)}`);
+    },
+  },
+  {
+    name: "text-strict-csp",
+    fixture: "csp-text.html",
+    async run(s) {
+      const text = await s.cmd("text");
+      expect(text.includes("Orders ship within two days."), `text ${show(text)}`);
+      expect(!text.includes("decorative-glyph") && !text.includes("Atlantis"), `hidden text leaked: ${show(text)}`);
+      const styles = await s.cmd("eval", "document.adoptedStyleSheets.length + document.querySelectorAll('style').length");
+      expect(String(styles).trim() === "0", `left styles behind: ${show(styles)}`);
+    },
+  },
 ];
 
 async function isServing(port) {
