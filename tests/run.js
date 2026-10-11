@@ -746,7 +746,7 @@ console.log(JSON.stringify({ label: popup.label, url: await popup.url() }));`);
     fixture: "index.html",
     async run(s) {
       const out = await s.script(`
-const tab = await t.bridge.call("tabs.create", { url: ${JSON.stringify(`${BASE}/popups.html`)}, active: false });
+const tab = await t.bridge.call("tabs.create", { url: ${JSON.stringify(`${BASE}/popups.html`)}, active: true });
 let popup = null;
 try {
   await new Promise((resolve) => setTimeout(resolve, 1500));
