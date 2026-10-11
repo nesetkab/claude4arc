@@ -5,11 +5,14 @@ let port = null;
 let reconnectTimer = null;
 let agentTabs = null;
 
-async function loadAgentTabs() {
-  if (!agentTabs) {
-    const stored = await chrome.storage.session.get("agentTabs");
-    agentTabs = new Set(stored.agentTabs ?? []);
-  }
+function loadAgentTabs() {
+  agentTabs ??= chrome.storage.session.get("agentTabs").then(
+    (stored) => new Set(stored.agentTabs ?? []),
+    (error) => {
+      agentTabs = null;
+      throw error;
+    },
+  );
   return agentTabs;
 }
 

@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { normalizeUrl, urlMatches, poll, fatal, withTimeout } from "../../lib/util.js";
+import { execFileSync } from "node:child_process";
+import { normalizeUrl, urlMatches, poll, fatal, withTimeout, shellQuote } from "../../lib/util.js";
 
 test("normalizeUrl adds a scheme only when one is missing", () => {
   assert.equal(normalizeUrl("example.com"), "https://example.com");
@@ -36,4 +37,10 @@ test("poll stops at once on a fatal error and times out otherwise", async () => 
 test("withTimeout rejects a slow promise", async () => {
   await assert.rejects(withTimeout(new Promise(() => {}), 20, "too slow"), /too slow/);
   assert.equal(await withTimeout(Promise.resolve(7), 20, "x"), 7);
+});
+
+test("shellQuote survives the shell unchanged", () => {
+  for (const value of ["/usr/local/bin/node", "/Users/a b/node", `/x/$HOME/\`id\`/"q"/\\/it's`, ""]) {
+    assert.equal(execFileSync("/bin/sh", ["-c", `printf %s ${shellQuote(value)}`], { encoding: "utf8" }), value);
+  }
 });
