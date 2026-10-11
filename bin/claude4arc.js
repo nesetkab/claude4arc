@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import fs from "node:fs/promises";
-import { realpathSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
@@ -15,7 +14,7 @@ import { normalizePattern, readBlocklist, writeBlocklist, CONFIG_PATH } from "..
 import { readConfig, updateConfig } from "../lib/config.js";
 import { ROOT, STATE_DIR, LOG_PATH, HOST_NAME, EXTENSION_ID } from "../lib/paths.js";
 import { BROWSERS, installedBrowsers, hostManifestDirs, socketCandidates, browserOfSocket } from "../lib/browsers.js";
-import { shellQuote } from "../lib/util.js";
+import { NODE_PATHS, nodeFallbacks, versionedNodePath, stableNode, launcherScript } from "../lib/util.js";
 
 const manifestPathIn = (dir) => path.join(dir, `${HOST_NAME}.json`);
 const manifestDirsFor = (browsers) => [...new Set(browsers.flatMap(hostManifestDirs))];
@@ -170,18 +169,22 @@ async function tabs() {
   });
 }
 
-function resolveNode() {
+function loginShellNode() {
   try {
-    const found = execFileSync("/bin/sh", ["-lc", "command -v node"], { encoding: "utf8" }).trim();
-    if (found && realpathSync(found) === realpathSync(process.execPath)) return found;
-  } catch {}
-  return process.execPath;
+    return execFileSync("/bin/sh", ["-lc", "command -v node"], { encoding: "utf8" }).trim() || null;
+  } catch {
+    return null;
+  }
 }
 
 async function launcherNode() {
   const text = await fs.readFile(LAUNCHER_PATH, "utf8").catch(() => "");
-  const match = /^exec (?:'((?:[^']|'\\'')*)'|"([^"]*)")/m.exec(text);
+  const match = /exec (?:'((?:[^']|'\\'')*)'|"([^"]*)")/.exec(text);
   return match ? (match[1]?.replaceAll("'\\''", "'") ?? match[2]) : null;
+}
+
+async function enginesNode() {
+  return JSON.parse(await fs.readFile(path.join(ROOT, "package.json"), "utf8")).engines.node;
 }
 
 async function removeOwnLink(link) {
@@ -221,9 +224,11 @@ async function install(args = []) {
   if (extra.length) updateConfig({ extensionIds: extensionIds.filter((id) => id !== EXTENSION_ID) });
   await fs.mkdir(STATE_DIR, { recursive: true, mode: 0o700 });
   await removeOwnLink(LEGACY_SKILL_LINK);
-  const node = resolveNode();
-  const hostScript = path.join(ROOT, "host", "host.js");
-  await fs.writeFile(LAUNCHER_PATH, `#!/bin/sh\nexec ${shellQuote(node)} ${shellQuote(hostScript)} "$@"\n`, { mode: 0o755 });
+  const shellNode = loginShellNode();
+  const node = stableNode(process.execPath, [shellNode, ...NODE_PATHS]);
+  const fallbacks = [shellNode, ...nodeFallbacks(os.homedir())];
+  const script = launcherScript({ node, host: path.join(ROOT, "host", "host.js"), fallbacks, minMajor: Number(/\d+/.exec(await enginesNode())[0]) });
+  await fs.writeFile(LAUNCHER_PATH, script, { mode: 0o755 });
   await fs.chmod(LAUNCHER_PATH, 0o755);
   const browsers = installedBrowsers();
   if (!browsers.length) throw new Error(`No supported browser found in /Applications. Supported: ${BROWSERS.map((browser) => browser.name).join(", ")}.`);
@@ -312,13 +317,16 @@ async function doctor() {
   check("host launcher is executable", launcherOk, LAUNCHER_PATH);
   if (launcherOk) {
     const node = await launcherNode();
-    const engines = JSON.parse(await fs.readFile(path.join(ROOT, "package.json"), "utf8")).engines.node;
+    const engines = await enginesNode();
     let version = null;
     try {
       version = execFileSync(node, ["--version"], { encoding: "utf8" }).trim();
     } catch {}
     const ok = Number(/\d+/.exec(version ?? "")?.[0]) >= Number(/\d+/.exec(engines)[0]);
     check("host node version", ok, version ? `${node} is ${version}, needs ${engines}` : `${node ?? "no node"} not found, run \`claude4arc install\``);
+    if (node && versionedNodePath(node)) {
+      checks.push(`warn host node path — ${node} is inside a versioned folder an upgrade can delete; run \`claude4arc install\` so the launcher pins a stable path and falls back to other Node installs`);
+    }
   }
   const bridges = await liveBridges();
   for (const bridge of bridges) {
