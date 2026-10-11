@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from "node:fs/promises";
+import { realpathSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
@@ -14,6 +15,7 @@ import { normalizePattern, readBlocklist, writeBlocklist, CONFIG_PATH } from "..
 import { readConfig, updateConfig } from "../lib/config.js";
 import { ROOT, STATE_DIR, LOG_PATH, HOST_NAME, EXTENSION_ID } from "../lib/paths.js";
 import { BROWSERS, installedBrowsers, hostManifestDirs, socketCandidates, browserOfSocket } from "../lib/browsers.js";
+import { shellQuote } from "../lib/util.js";
 
 const manifestPathIn = (dir) => path.join(dir, `${HOST_NAME}.json`);
 const manifestDirsFor = (browsers) => [...new Set(browsers.flatMap(hostManifestDirs))];
@@ -122,6 +124,7 @@ async function runScript(code, taskId) {
   const cleanup = async () => {
     for (const task of tasks) {
       for (const note of await task._settleDialogs().catch(() => [])) console.log(note);
+      await task.flush();
     }
     bridge.close();
   };
@@ -170,9 +173,15 @@ async function tabs() {
 function resolveNode() {
   try {
     const found = execFileSync("/bin/sh", ["-lc", "command -v node"], { encoding: "utf8" }).trim();
-    if (found) return found;
+    if (found && realpathSync(found) === realpathSync(process.execPath)) return found;
   } catch {}
   return process.execPath;
+}
+
+async function launcherNode() {
+  const text = await fs.readFile(LAUNCHER_PATH, "utf8").catch(() => "");
+  const match = /^exec (?:'((?:[^']|'\\'')*)'|"([^"]*)")/m.exec(text);
+  return match ? (match[1]?.replaceAll("'\\''", "'") ?? match[2]) : null;
 }
 
 async function removeOwnLink(link) {
@@ -214,7 +223,7 @@ async function install(args = []) {
   await removeOwnLink(LEGACY_SKILL_LINK);
   const node = resolveNode();
   const hostScript = path.join(ROOT, "host", "host.js");
-  await fs.writeFile(LAUNCHER_PATH, `#!/bin/sh\nexec "${node}" "${hostScript}" "$@"\n`, { mode: 0o755 });
+  await fs.writeFile(LAUNCHER_PATH, `#!/bin/sh\nexec ${shellQuote(node)} ${shellQuote(hostScript)} "$@"\n`, { mode: 0o755 });
   await fs.chmod(LAUNCHER_PATH, 0o755);
   const browsers = installedBrowsers();
   if (!browsers.length) throw new Error(`No supported browser found in /Applications. Supported: ${BROWSERS.map((browser) => browser.name).join(", ")}.`);
@@ -301,6 +310,16 @@ async function doctor() {
     launcherOk = true;
   } catch {}
   check("host launcher is executable", launcherOk, LAUNCHER_PATH);
+  if (launcherOk) {
+    const node = await launcherNode();
+    const engines = JSON.parse(await fs.readFile(path.join(ROOT, "package.json"), "utf8")).engines.node;
+    let version = null;
+    try {
+      version = execFileSync(node, ["--version"], { encoding: "utf8" }).trim();
+    } catch {}
+    const ok = Number(/\d+/.exec(version ?? "")?.[0]) >= Number(/\d+/.exec(engines)[0]);
+    check("host node version", ok, version ? `${node} is ${version}, needs ${engines}` : `${node ?? "no node"} not found, run \`claude4arc install\``);
+  }
   const bridges = await liveBridges();
   for (const bridge of bridges) {
     check(`extension responds in ${bridge.browser}`, !bridge.error, bridge.error ?? `v${bridge.info.version} (${bridge.info.id})`);
@@ -396,10 +415,13 @@ async function main() {
   }
 }
 
-main().then(
-  () => process.exit(process.exitCode ?? 0),
-  (error) => {
+function exitWhenFlushed() {
+  process.stdout.write("", () => process.stderr.write("", () => process.exit()));
+}
+
+main()
+  .catch((error) => {
     console.error(`Error: ${error.message}`);
-    process.exit(1);
-  },
-);
+    process.exitCode = 1;
+  })
+  .finally(() => setTimeout(exitWhenFlushed, 2000).unref());

@@ -149,8 +149,13 @@ function forgetTab(tabId) {
   popupLinks.delete(tabId);
 }
 
+const MAX_TO_BROWSER = 1024 * 1024;
+
 function sendToExtension(message) {
   const body = Buffer.from(JSON.stringify(message));
+  if (body.length > MAX_TO_BROWSER) {
+    throw new Error(`The ${message.api} request is ${body.length} bytes, over the browser's 1 MB limit for messages to the extension`);
+  }
   const header = Buffer.alloc(4);
   header.writeUInt32LE(body.length, 0);
   process.stdout.write(Buffer.concat([header, body]));
@@ -163,8 +168,8 @@ function sendToClient(client, message) {
 function callExtension(api, args) {
   return new Promise((resolve, reject) => {
     const id = nextId++;
-    pending.set(id, { resolve, reject });
     sendToExtension({ id, api, args });
+    pending.set(id, { resolve, reject });
   });
 }
 
@@ -257,6 +262,8 @@ async function attach(tabId) {
     return { already: false };
   } catch (error) {
     if (!/already attached/i.test(error.message)) throw error;
+    const ours = await send(tabId, null, "Runtime.evaluate", { expression: "0" }).then(() => true, () => false);
+    if (!ours) throw new Error(`Another debugger (DevTools or another extension) is attached to tab ${tabId}. Close it and try again.`);
     attached.add(tabId);
     await enableAutoAttach(tabId, true);
     return { already: true };
@@ -264,8 +271,11 @@ async function attach(tabId) {
 }
 
 async function onClientRequest(client, request) {
-  const { id, api, args = [] } = request;
+  const id = request?.id ?? null;
   try {
+    if (typeof request?.api !== "string") throw new Error("Bad request: expected an object with an api name");
+    const { api, args = [] } = request;
+    if (!Array.isArray(args)) throw new Error("Bad request: args must be an array");
     let result;
     if (api === "host.status") {
       result = { host: { pid: process.pid, node: process.version, browser: BROWSER }, extension: extensionInfo, attached: [...attached] };
@@ -319,13 +329,6 @@ function launchingBrowser() {
 const BROWSER = launchingBrowser();
 const SOCKET_PATH = socketPath(BROWSER);
 
-try {
-  fs.unlinkSync(SOCKET_PATH);
-} catch {}
-try {
-  if (BROWSER === "arc" && fs.lstatSync(LEGACY_SOCKET).isSocket()) fs.unlinkSync(LEGACY_SOCKET);
-} catch {}
-
 const server = net.createServer((client) => {
   clients.add(client);
   let text = "";
@@ -349,12 +352,50 @@ const server = net.createServer((client) => {
 });
 
 let socketInode = null;
+let waiting = false;
+const CLAIM_RETRY_MS = 1000;
 
-server.listen(SOCKET_PATH, () => {
+function socketIsLive(file) {
+  return new Promise((resolve) => {
+    const probe = net.createConnection(file);
+    probe.once("connect", () => {
+      probe.destroy();
+      resolve(true);
+    });
+    probe.once("error", () => resolve(false));
+  });
+}
+
+function waitForSocket() {
+  if (!waiting) log("host", process.pid, "waiting:", SOCKET_PATH, "is served by another host, likely another profile; this one takes over when it exits");
+  waiting = true;
+  setTimeout(claimSocket, CLAIM_RETRY_MS);
+}
+
+async function claimSocket() {
+  if (await socketIsLive(SOCKET_PATH)) return waitForSocket();
+  try {
+    fs.unlinkSync(SOCKET_PATH);
+  } catch {}
+  try {
+    if (BROWSER === "arc" && fs.lstatSync(LEGACY_SOCKET).isSocket()) fs.unlinkSync(LEGACY_SOCKET);
+  } catch {}
+  server.listen(SOCKET_PATH);
+}
+
+server.on("listening", () => {
+  waiting = false;
   fs.chmodSync(SOCKET_PATH, 0o600);
   socketInode = fs.statSync(SOCKET_PATH).ino;
   log("host listening", process.pid, BROWSER);
 });
+
+server.on("error", (error) => {
+  if (error.code === "EADDRINUSE") return waitForSocket();
+  log("host socket error", error.message);
+});
+
+claimSocket();
 
 function shutdown() {
   server.close();

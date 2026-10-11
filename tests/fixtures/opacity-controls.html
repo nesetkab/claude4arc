@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Opacity controls</title>
+<style>
+  body { font: 16px system-ui, sans-serif; margin: 24px; }
+  .mui { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+  .mui-base { position: relative; display: inline-block; width: 20px; height: 20px; }
+  .mui-base input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; z-index: 1; }
+  .mui-box { display: block; width: 18px; height: 18px; border: 1px solid #555; border-radius: 3px; }
+  .mui-base input:checked + .mui-box { background: #1976d2; }
+  .custom-control { position: relative; padding-left: 1.5rem; min-height: 1.5rem; margin-top: 16px; }
+  .custom-control-input { position: absolute; left: 0; top: 0; z-index: -1; width: 1rem; height: 1.25rem; opacity: 0; }
+  .custom-control-label { position: relative; cursor: pointer; }
+  .custom-control-label::before { content: ""; position: absolute; top: 0.2rem; left: -1.5rem; width: 1rem; height: 1rem; border: 1px solid #555; background: #fff; }
+  .custom-control-input:checked + .custom-control-label::before { background: #0d6efd; }
+  .hidden-box { position: absolute; width: 0; height: 0; margin: 0; padding: 0; opacity: 0; border: 0; }
+  .terms { display: block; margin-top: 16px; padding-left: 24px; position: relative; cursor: pointer; }
+</style>
+</head>
+<body>
+<h1>Preferences</h1>
+<label class="mui"><span class="mui-base"><input type="checkbox" id="remember"><span class="mui-box"></span></span>Remember me</label>
+<div class="custom-control">
+  <input type="checkbox" class="custom-control-input" id="news">
+  <label class="custom-control-label" for="news">Send me news</label>
+</div>
+<input type="checkbox" class="hidden-box" id="terms">
+<label class="terms" for="terms">I accept the terms</label>
+<pre id="result">{}</pre>
+<script>
+  const update = () => {
+    const state = {};
+    for (const id of ["remember", "news", "terms"]) state[id] = document.getElementById(id).checked;
+    document.getElementById("result").textContent = JSON.stringify(state);
+  };
+  for (const input of document.querySelectorAll("input")) input.addEventListener("change", update);
+  update();
+</script>
+</body>
+</html>

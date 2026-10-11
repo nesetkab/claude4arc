@@ -82,22 +82,18 @@ code { font-family: var(--mono); font-size: 13px; }
 
 <div class="wrap">
   <header>
-    <div class="eyebrow">Benchmark · September 25, 2026 · same model, same tasks</div>
+    <div class="eyebrow">Benchmark · runs September 25–27, 2026 (UTC) · same model, same tasks</div>
     <h1>claude4arc vs ego-lite vs Claude for Chrome</h1>
-    <p class="lede">On 14 held-out tasks that claude4arc was never tuned on, with three runs per tool, a Claude Code agent finished in 117 s with claude4arc, 200 s with ego-lite, and 241 s with Claude for Chrome, with 8, 36, and 70 tool calls and 0.48M, 2.19M, and 3.83M tokens read. All 126 task runs passed, verified by the benchmark server. The sections below the held-out table cover the original 14 tasks, which claude4arc was tuned on over eleven runs, so treat those gaps as an upper bound.</p>
+    <p class="lede">On 14 held-out tasks that claude4arc was never tuned on, with three runs per tool, a Claude Code agent finished in 117 s with claude4arc, 200 s with ego-lite, and 241 s with Claude for Chrome, with 8.0, 36.0, and 69.7 tool calls and 0.48M, 2.19M, and 3.83M tokens read. Every run passed all 14 tasks. The benchmark server checked the 10 fixture results of each run (90 in all); the 36 web-lookup answers are the agents' own reports, which gave the same answers in all nine runs and match the pages. The sections below the held-out table cover the original 14 tasks, which claude4arc was tuned on across twelve runs (plus one on Sonnet), so treat those gaps as an upper bound. In the scripted run without a model, ego-lite is faster on six of the ten fixtures, mostly single clicks and the popup.</p>
   </header>
 
   <section>
     <h2>Held-out tasks: three runs per tool</h2>
-    <p class="sub">Ten new fixture pages (a wizard, an autocomplete, a scrolling modal, a sortable table, tabs with a switch, a contenteditable note, a paginated list, a file upload, a web component in an iframe, and a slider with Enter-to-search) and four new web lookups. Mean of three runs, with the range.</p>
+    <p class="sub">Ten new fixture pages (a wizard, an autocomplete, a scrolling modal, a sortable table, tabs with a switch, a contenteditable note, a paginated list, a file upload, a web component in an iframe, and a slider with Enter-to-search) and four new web lookups. Mean of three runs, with the range. claude4arc was frozen at commit <code>b9cc78f</code> for these runs, before the fixes for the wizard, the scrolling modal, the hidden tab, and the paginated list shipped in 0.5.0. ego-lite and Claude for Chrome ran at the same time, in different browsers; their third runs were stopped by an account usage limit and rerun as <code>ego-h3b</code> and <code>cic-h3b</code>.</p>
     <div class="board">
-      <table>
+      <table id="heldout-table">
         <thead><tr><th>Tool</th><th>Tasks passed</th><th>Total time</th><th>Tool calls</th><th>Tokens read</th></tr></thead>
-        <tbody>
-          <tr><td><span class="tool"><span class="swatch" style="background:var(--arc)"></span>claude4arc</span></td><td class="num best">42 / 42</td><td class="num best">117.1 s (107.9–128.8)</td><td class="num best">8.0 (7–9)</td><td class="num best">0.48M (0.41–0.54)</td></tr>
-          <tr><td><span class="tool"><span class="swatch" style="background:var(--ego)"></span>ego-lite</span></td><td class="num best">42 / 42</td><td class="num">199.5 s (177.6–215.1)</td><td class="num">36.0 (34–39)</td><td class="num">2.19M (2.05–2.41)</td></tr>
-          <tr><td><span class="tool"><span class="swatch" style="background:var(--cic)"></span>Claude for Chrome</span></td><td class="num best">42 / 42</td><td class="num">241.0 s (224.8–266.8)</td><td class="num">69.7 (65–76)</td><td class="num">3.83M (3.26–4.74)</td></tr>
-        </tbody>
+        <tbody></tbody>
       </table>
     </div>
   </section>
@@ -107,7 +103,7 @@ code { font-family: var(--mono); font-size: 13px; }
     <p class="sub">Each subagent received only its tool's skill and the same instructions: 10 local fixtures (forms, cross-origin iframe, confirm dialog, virtual list, drag and drop, popup, code editor, closed shadow DOM, delayed content, hover menu) and 4 real-web lookups.</p>
     <div class="board">
       <table id="agent-table">
-        <thead><tr><th>Tool</th><th>Tasks passed</th><th>Total time</th><th>Tokens read</th><th>Tool calls</th></tr></thead>
+        <thead><tr><th>Tool</th><th>Tasks passed</th><th>Total time</th><th>Tool calls</th><th>Tokens read</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -115,7 +111,7 @@ code { font-family: var(--mono); font-size: 13px; }
 
   <section>
     <h2>Can the agent run get faster?</h2>
-    <p class="sub">Every row is a fresh subagent with the same instructions. Between runs, claude4arc gained speed rules, selectors that work without looking first (label targets, automatic search in cross-origin frames, exact-text preference), a faster virtual-list seek, a <code>section</code> reader, and a <code>batch</code> command that runs one chain per line with per-line timing and closes the task by itself. v7 exposed a seek bug that v9 fixed. v8 had the first seek fix but still spent a separate call on finish. In-task time is the sum of the agents' own per-task spans; the rest of the total is fixed overhead for every tool (loading the skill, the required timestamp calls, writing the report).</p>
+    <p class="sub">Every row is a fresh subagent with the same instructions. Between runs, claude4arc gained speed rules, selectors that work without looking first (label targets, automatic search in cross-origin frames, exact-text preference), a faster virtual-list seek, a <code>section</code> reader, and a <code>batch</code> command that runs one chain per line with per-line timing and closes the task by itself. v7 exposed a seek bug that v9 fixed. v8 had the first seek fix but still spent a separate call on finish. v12 is a check after the skill was cut by 40%; its harness context size was not recorded, and its B2 retry overlaps later tasks, so its in-task sum counts some seconds twice. In-task time is the sum of the agents' own per-task spans; the rest of the total is fixed overhead for every tool (loading the skill, the required timestamp calls, writing the report).</p>
     <div class="board">
       <table id="config-table">
         <thead><tr><th>Configuration</th><th>Passed</th><th>Total time</th><th>In-task time</th><th>Tool calls</th><th>Context tokens</th><th>Tokens read</th></tr></thead>
@@ -149,11 +145,11 @@ code { font-family: var(--mono); font-size: 13px; }
 
   <section class="notes">
     <h2>Method and caveats</h2>
-    <p><strong>Verification.</strong> Every fixture page reports success to a local benchmark server, which logs the tool, the task, and the submitted value. All fixture results for every run shown are in that log with the expected values. The 4 web answers match the pages (55.845, "Hello World!", "Y Combinator", the MDN return value).</p>
+    <p><strong>Verification.</strong> Every fixture page reports success to a local benchmark server, which logs the run, the task, and the submitted value, and <code>node bench/verify.js</code> checks those values against the expected ones. All fixture results for every run shown pass. The server does not see the web lookups: those answers are the agents' own reports, compared against the pages. On the original tasks they are 55.845, "Hello World!", "Y Combinator", and the MDN return value. On the held-out tasks (W5–W8) they are Guido van Rossum, "I'm a teapot" (418), the MIT license, and "My YC app: Dropbox - Throw away your USB drive", the same in all nine runs.</p>
     <p><strong>Tokens.</strong> "Tokens read" is the sum of input tokens over every model turn, from the agents' transcripts; each turn re-reads the conversation, so it tracks cost. "Context tokens" is the harness figure: the size of the agent's context at the end, mostly the fixed system prompt, skill, and instructions.</p>
     <p><strong>Agent timings.</strong> Total time, tokens, and tool calls come from the Claude Code harness. The agents also reported per-task timestamps, but those are not shown as a chart: ego-lite's three web lookups under one second suggest some start timestamps were taken after the page had loaded.</p>
     <p><strong>Scripted timings.</strong> The scripted runs remove model thinking and measure the tools. The virtual-list task scrolls programmatically in both scripts. The code-editor task uses each tool's native path: claude4arc's editor API, and ego-lite's select-all and paste.</p>
-    <p><strong>Claude for Chrome.</strong> The official extension ran in Google Chrome, signed in by the account owner, through its MCP tools. It passed every task, but with workarounds its agent chose: it replaced <code>window.confirm</code> through JavaScript because a native dialog blocks the tool, it opened the popup's URL in a new tab because the popup window was outside its tab group, and it used the Tab key inside the cross-origin iframe because clicks there did not register. It has no scripted API, so the scripted charts leave its column empty.</p>
+    <p><strong>Claude for Chrome.</strong> The official extension ran in Google Chrome, signed in by the account owner, through its MCP tools. On the original tasks it passed every task, but with workarounds its agent chose: it replaced <code>window.confirm</code> through JavaScript because a native dialog blocks the tool, it opened the popup's URL in a new tab because the popup window was outside its tab group, and it used the Tab key inside the cross-origin iframe because clicks there did not register. On the held-out tasks it again passed everything, but clicks and typing by element reference often did not register (H1, H2, H3, H4, H7), so it fell back to coordinate clicks or <code>form_input</code>; its page readers could not see inside the iframe on H9, so it worked from screenshot coordinates; and in one run it read the Wikipedia infobox and the GitHub sidebar with JavaScript after its find tool missed them (W5, W7). It has no scripted API, so the scripted charts leave its column empty.</p>
   </section>
 </div>
 <div class="tip" id="tip"></div>
@@ -164,6 +160,23 @@ const TOOLS = [
   { key: "ego", name: "ego-lite", color: "var(--ego)" },
   { key: "cic", name: "Claude for Chrome", color: "var(--cic)" },
 ];
+const HELDOUT = {
+  arc: [
+    { run: "c4a-h1", passed: 14, ms: 114582, calls: 8, read: 475404 },
+    { run: "c4a-h2", passed: 14, ms: 107859, calls: 7, read: 414625 },
+    { run: "c4a-h3", passed: 14, ms: 128800, calls: 9, read: 539976 },
+  ],
+  ego: [
+    { run: "ego-h1", passed: 14, ms: 205863, calls: 35, read: 2116783 },
+    { run: "ego-h2", passed: 14, ms: 215130, calls: 39, read: 2410447 },
+    { run: "ego-h3b", passed: 14, ms: 177622, calls: 34, read: 2046418 },
+  ],
+  cic: [
+    { run: "cic-h1", passed: 14, ms: 231235, calls: 65, read: 3500239 },
+    { run: "cic-h2", passed: 14, ms: 224816, calls: 76, read: 3255278 },
+    { run: "cic-h3b", passed: 14, ms: 266822, calls: 68, read: 4739481 },
+  ],
+};
 const AGENT = {
   arc: { passed: 14, seconds: 51.7, tokens: 191147, calls: 3 },
   ego: { passed: 14, seconds: 195.0, tokens: 1933604, calls: 33 },
@@ -192,6 +205,7 @@ const CONFIGS = [
   { name: "claude4arc v9 (faster seek)", color: "var(--arc)", passed: 14, total: 63.4, inTask: 16.6, calls: 4, tokens: 54476 , read: 245495 },
   { name: "claude4arc v10 (batch command)", color: "var(--arc)", passed: 14, total: 49.4, inTask: 17.8, calls: 3, tokens: 53831 , read: 190792 },
   { name: "claude4arc v11 (confirmation)", color: "var(--arc)", passed: 14, total: 51.7, inTask: 17.9, calls: 3, tokens: 54109 , read: 191147 },
+  { name: "claude4arc v12 (smaller skill)", color: "var(--arc)", passed: 14, total: 49.8, inTask: 35.8, calls: 4, tokens: null, read: 238968 },
   { name: "Claude for Chrome", color: "var(--cic)", passed: 14, total: 319.8, inTask: 235.0, calls: 84, tokens: 97762, read: 4950131 },
   { name: "ego-lite", color: "var(--ego)", passed: 14, total: 195.0, inTask: 121.1, calls: 33, tokens: 67192 , read: 1933604 },
 ];
@@ -213,22 +227,48 @@ const showTip = (event, html) => {
 const hideTip = () => { tip.style.opacity = "0"; };
 const fmt = (n) => n.toLocaleString("en-US");
 
-const agentBody = document.querySelector("#agent-table tbody");
-const bestOf = (field, lower) => {
-  const values = TOOLS.map((tool) => AGENT[tool.key]?.[field]).filter((value) => value !== undefined);
+const bestOf = (source, field, lower) => {
+  const values = TOOLS.map((tool) => source[tool.key]?.[field]).filter((value) => value !== undefined);
   return lower ? Math.min(...values) : Math.max(...values);
 };
+const toolCell = (tool, measured = true) => `<td><span class="tool"><span class="swatch${measured ? "" : " hatch"}" style="background:${measured ? tool.color : ""}"></span>${tool.name}</span></td>`;
+
+const mean = (values) => values.reduce((a, b) => a + b, 0) / values.length;
+const HELD = Object.fromEntries(Object.entries(HELDOUT).map(([key, runs]) => {
+  const pick = { seconds: (run) => run.ms / 1000, calls: (run) => run.calls, read: (run) => run.read / 1e6 };
+  const summary = { passed: runs.reduce((sum, run) => sum + run.passed, 0), possible: runs.length * 14, range: {} };
+  for (const [field, get] of Object.entries(pick)) {
+    const values = runs.map(get);
+    summary[field] = mean(values);
+    summary.range[field] = [Math.min(...values), Math.max(...values)];
+  }
+  return [key, summary];
+}));
+const heldBody = document.querySelector("#heldout-table tbody");
+for (const tool of TOOLS) {
+  const data = HELD[tool.key];
+  const cell = (field, lower, digits, rangeDigits, unit = "") => {
+    const best = data[field] === bestOf(HELD, field, lower);
+    const [low, high] = data.range[field];
+    return `<td class="num${best ? " best" : ""}">${data[field].toFixed(digits)}${unit} (${low.toFixed(rangeDigits)}–${high.toFixed(rangeDigits)})</td>`;
+  };
+  const passedBest = data.passed === bestOf(HELD, "passed", false);
+  heldBody.insertAdjacentHTML("beforeend", `<tr>${toolCell(tool)}<td class="num${passedBest ? " best" : ""}">${data.passed} / ${data.possible}</td>` +
+    cell("seconds", true, 1, 1, " s") + cell("calls", true, 1, 0) + cell("read", true, 2, 2, "M") + `</tr>`);
+}
+
+const agentBody = document.querySelector("#agent-table tbody");
 for (const tool of TOOLS) {
   const row = document.createElement("tr");
   const data = AGENT[tool.key];
   const cell = (value, field, lower, suffix = "") => {
     if (!data) return `<td class="na">not measured</td>`;
-    const best = value === bestOf(field, lower);
+    const best = value === bestOf(AGENT, field, lower);
     const shown = field === "passed" ? `${value} / 14` : field === "seconds" ? `${value.toFixed(1)}${suffix}` : fmt(value) + suffix;
     return `<td class="num${best ? " best" : ""}">${shown}</td>`;
   };
-  row.innerHTML = `<td><span class="tool"><span class="swatch${data ? "" : " hatch"}" style="background:${data ? tool.color : ""}"></span>${tool.name}</span></td>` +
-    cell(data?.passed, "passed", false) + cell(data?.seconds, "seconds", true, " s") + cell(data?.tokens, "tokens", true) + cell(data?.calls, "calls", true);
+  row.innerHTML = toolCell(tool, Boolean(data)) +
+    cell(data?.passed, "passed", false) + cell(data?.seconds, "seconds", true, " s") + cell(data?.calls, "calls", true) + cell(data?.tokens, "tokens", true);
   agentBody.appendChild(row);
 }
 
@@ -236,7 +276,7 @@ const configBody = document.querySelector("#config-table tbody");
 const maxTotal = Math.max(...CONFIGS.map((config) => config.total));
 for (const config of CONFIGS) {
   const bar = (value) => `<span style="display:inline-block;vertical-align:middle;height:8px;border-radius:3px;margin-left:10px;width:${Math.round((value / maxTotal) * 120)}px;background:${config.color}"></span>`;
-  configBody.insertAdjacentHTML("beforeend", `<tr><td><span class="tool"><span class="swatch" style="background:${config.color}"></span>${config.name}</span></td><td class="num">${config.passed} / 14</td><td class="num">${config.total.toFixed(1)} s${bar(config.total)}</td><td class="num">${config.inTask.toFixed(1)} s${bar(config.inTask)}</td><td class="num">${config.calls}</td><td class="num">${fmt(config.tokens)}</td><td class="num">${fmt(config.read)}</td></tr>`);
+  configBody.insertAdjacentHTML("beforeend", `<tr><td><span class="tool"><span class="swatch" style="background:${config.color}"></span>${config.name}</span></td><td class="num">${config.passed} / 14</td><td class="num">${config.total.toFixed(1)} s${bar(config.total)}</td><td class="num">${config.inTask.toFixed(1)} s${bar(config.inTask)}</td><td class="num">${config.calls}</td>${config.tokens === null ? `<td class="na">not recorded</td>` : `<td class="num">${fmt(config.tokens)}</td>`}<td class="num">${fmt(config.read)}</td></tr>`);
 }
 
 const legend = document.getElementById("legend");
