@@ -1230,6 +1230,57 @@ try {
       return `${result.label} after dialog`;
     },
   },
+  {
+    name: "text-target-hidden-tab-switch",
+    fixture: "text-targets.html",
+    async run(s) {
+      const act = async (method, ...args) => {
+        const out = await s.script(`console.log(JSON.stringify(await p.${method}(...${JSON.stringify(args)})));`);
+        return parseJson(out.split("\n").at(-1))?.target ?? out;
+      };
+      const early = await s.attempt("check", "text=Paperless billing");
+      expect(!early.ok && /hidden tab panel: open the tab first \(@\d+ tab "Billing"\)/.test(early.error), `hidden check: ${show(early)}`);
+      const tab = await act("click", "text=Billing");
+      expect(/tab "Billing"/.test(tab), `tab receipt ${show(tab)}`);
+      const toggled = await act("check", "text=Paperless billing");
+      expect(/switch "Paperless billing"/.test(toggled), `switch receipt ${show(toggled)}`);
+      const filled = await act("fill", "text=Billing email", "ap@example.com");
+      expect(/textbox "Billing email"/.test(filled), `fill receipt ${show(filled)}`);
+      const billing = await s.result();
+      expect(billing?.tab === "t2" && billing.paperless === true && billing.bill === "ap@example.com", `billing ${show(billing)}`);
+      const general = await act("click", "text=General");
+      expect(/tab "\* General"/.test(general), `general receipt ${show(general)}`);
+      const receipts = await act("check", "text=Email receipts");
+      expect(/switch "Email receipts"/.test(receipts), `label switch receipt ${show(receipts)}`);
+      const renew = await act("click", "text=Auto-renew plan");
+      expect(/checkbox "Auto-renew plan"/.test(renew), `wrapped checkbox receipt ${show(renew)}`);
+      const result = await s.result();
+      expect(result?.tab === "t1" && result.receipts === true && result.renew === true && result.paperless === true, `result ${show(result)}`);
+      await s.cmd("uncheck", "text=Email receipts");
+      expect((await s.result())?.receipts === false, `uncheck ${show(await s.result())}`);
+    },
+  },
+  {
+    name: "text-target-card-radio",
+    fixture: "card-radios.html",
+    async run(s) {
+      const act = async (method, ...args) => {
+        const out = await s.script(`console.log(JSON.stringify(await p.${method}(...${JSON.stringify(args)})));`);
+        return parseJson(out.split("\n").at(-1))?.target ?? out;
+      };
+      const team = await act("click", "text=Team");
+      expect(/radio "Team up to 8 desks"/.test(team), `team receipt ${show(team)}`);
+      expect((await s.result())?.plan === "Team", `team ${show(await s.result())}`);
+      const office = await act("check", "text=Office");
+      expect(/radio "Office private room"/.test(office), `office receipt ${show(office)}`);
+      expect((await s.result())?.plan === "Office", `office ${show(await s.result())}`);
+      const yearly = await act("click", "text=Yearly");
+      expect(/radio "Yearly two months free"/.test(yearly), `yearly receipt ${show(yearly)}`);
+      await s.cmd("check", "text=Monthly");
+      const result = await s.result();
+      expect(result?.plan === "Office" && result.period === "monthly", `result ${show(result)}`);
+    },
+  },
 ];
 
 async function isServing(port) {

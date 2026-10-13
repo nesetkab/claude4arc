@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Card radios</title><style>body{font:16px system-ui;margin:24px}.card{display:inline-block;border:2px solid #ccc;border-radius:8px;padding:14px 18px;margin:6px;cursor:pointer}.card input{position:absolute;opacity:0;pointer-events:none}.card:has(input:checked),[role=radio][aria-checked=true]{border-color:#1f5fbf;background:#eef4ff}.offscreen input{left:-9999px}</style></head><body>
+<h2>Plan</h2>
+<div><label class="card"><input type="radio" name="plan" value="Solo"><strong>Solo</strong><br><small>1 desk</small></label><label class="card"><input type="radio" name="plan" value="Team"><strong>Team</strong><br><small>up to 8 desks</small></label><label class="card offscreen"><input type="radio" name="plan" value="Office"><strong>Office</strong><br><small>private room</small></label></div>
+<h2>Billing period</h2>
+<div role="radiogroup" aria-label="Billing period"><div class="card" role="radio" id="monthly" aria-checked="false" tabindex="0"><span>Monthly</span><br><small>pay as you go</small></div><div class="card" role="radio" id="yearly" aria-checked="false" tabindex="-1"><span>Yearly</span><br><small>two months free</small></div></div>
+<pre id="result">{}</pre><script>
+const update=()=>{result.textContent=JSON.stringify({plan:document.querySelector("input[name=plan]:checked")?.value??null,period:document.querySelector("[role=radio][aria-checked=true]")?.id??null})};
+for(const r of document.querySelectorAll("input[name=plan]"))r.onchange=update;
+for(const r of document.querySelectorAll("[role=radio]"))r.onclick=()=>{for(const o of document.querySelectorAll("[role=radio]"))o.setAttribute("aria-checked",String(o===r));update()};
+update();
+</script></body></html>

@@ -1,0 +1,10 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Text targets</title><style>body{font:16px system-ui;margin:24px}[role=tab]{border:0;background:none;padding:8px 12px;cursor:pointer}[role=tab][aria-selected=true]{border-bottom:3px solid #1f5fbf}[role=switch]{width:44px;height:24px;border-radius:12px;border:1px solid #888;background:#ddd;vertical-align:middle}[role=switch][aria-checked=true]{background:#1f5fbf}label{display:block;margin:10px 0}</style></head><body>
+<div role="tablist"><button role="tab" id="t1" aria-selected="true" aria-controls="p1"><span class="icon">*</span> <span>General</span></button><button role="tab" id="t2" aria-selected="false" aria-controls="p2"><span>Billing</span></button></div>
+<div role="tabpanel" id="p1" aria-labelledby="t1"><label for="sw1">Email receipts</label><button role="switch" id="sw1" aria-checked="false"></button><label><input type="checkbox" id="renew"> <span>Auto-renew plan</span></label></div>
+<div role="tabpanel" id="p2" aria-labelledby="t2" hidden><p>Invoices are emailed each month.</p><span id="pl">Paperless billing</span> <button role="switch" id="sw2" aria-checked="false" aria-labelledby="pl"></button><label>Billing email <input id="bill"></label></div>
+<pre id="result">{}</pre><script>
+const update=()=>{result.textContent=JSON.stringify({tab:document.querySelector("[role=tab][aria-selected=true]").id,receipts:sw1.getAttribute("aria-checked")==="true",paperless:sw2.getAttribute("aria-checked")==="true",renew:renew.checked,bill:bill.value})};
+for(const t of document.querySelectorAll("[role=tab]"))t.onclick=()=>{for(const o of document.querySelectorAll("[role=tab]")){o.setAttribute("aria-selected",String(o===t));document.getElementById(o.getAttribute("aria-controls")).hidden=o!==t}update()};
+for(const s of document.querySelectorAll("[role=switch]"))s.onclick=()=>{s.setAttribute("aria-checked",String(s.getAttribute("aria-checked")!=="true"));update()};
+renew.onchange=update;bill.oninput=update;update();
+</script></body></html>
