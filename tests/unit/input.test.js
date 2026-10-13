@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { Keyboard } from "../../lib/input.js";
+import { Page } from "../../lib/page.js";
+import { sleep } from "../../lib/util.js";
 
 function fakePage({ failOn } = {}) {
   const sent = [];
@@ -84,4 +86,54 @@ test("paste inserts the text directly off macOS", async () => {
   } finally {
     Object.defineProperty(process, "platform", platform);
   }
+});
+
+const turn = () => new Promise(setImmediate);
+
+function hiddenTab({ ack, frame }) {
+  const frames = [];
+  const bridge = {
+    async call(api, target, method) {
+      if (api === "tabs.get") return { id: 1, active: false };
+      if (api !== "debugger.send") return null;
+      if (method === "Runtime.evaluate") return { result: { value: [1280, 800] } };
+      if (method === "Page.captureScreenshot") {
+        frames.push(method);
+        return frame();
+      }
+      if (method.startsWith("Input.")) return ack(frames);
+      return {};
+    },
+  };
+  return { page: new Page({ bridge, spaceId: null }, "p1", 1, "agent"), frames };
+}
+
+const afterNextFrame = async (frames) => {
+  const seen = frames.length;
+  while (frames.length === seen) await turn();
+};
+
+test("a key press in a hidden tab returns on the ack instead of waiting out the frame", async (t) => {
+  const { page } = hiddenTab({ ack: afterNextFrame, frame: () => new Promise(() => {}) });
+  await page.cdp("Runtime.evaluate", {});
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  let done = false;
+  const typing = (async () => {
+    await page.keyboard.press("Shift+a");
+    await page.keyboard.type("ab");
+    done = true;
+  })();
+  for (let elapsed = 0; elapsed < 200 && !done; elapsed += 10) {
+    t.mock.timers.tick(10);
+    for (let i = 0; i < 20; i++) await turn();
+  }
+  assert.ok(done, "the keys waited on a frame that never finished");
+  await typing;
+});
+
+test("a hidden tab still gets frames until input that waits on one is acked", async () => {
+  const { page, frames } = hiddenTab({ ack: afterNextFrame, frame: () => sleep(300) });
+  await page.keyboard.press("a");
+  await page.keyboard.type("bc");
+  assert.ok(frames.length >= 2);
 });
