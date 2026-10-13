@@ -1,8 +1,7 @@
 import net from "node:net";
 import fs from "node:fs";
-import { execFileSync } from "node:child_process";
 import { STATE_DIR, LOG_PATH } from "../lib/paths.js";
-import { browserForExecutable, socketPath, LEGACY_SOCKET } from "../lib/browsers.js";
+import { browserOfProcess, socketPath, LEGACY_SOCKET } from "../lib/browsers.js";
 import { rotateLog, pruneScreenshots, pruneTempFiles } from "../lib/housekeeping.js";
 import { blockedBy, readBlocklist } from "../lib/blocklist.js";
 
@@ -317,13 +316,7 @@ function onClientClose(client) {
 }
 
 function launchingBrowser() {
-  if (process.env.CLAUDE4ARC_HOST_BROWSER) return process.env.CLAUDE4ARC_HOST_BROWSER;
-  try {
-    const executable = execFileSync("ps", ["-o", "comm=", "-p", String(process.ppid)], { encoding: "utf8" }).trim();
-    return browserForExecutable(executable)?.key ?? "browser";
-  } catch {
-    return "browser";
-  }
+  return process.env.CLAUDE4ARC_HOST_BROWSER || (browserOfProcess(process.ppid)?.key ?? "browser");
 }
 
 const BROWSER = launchingBrowser();

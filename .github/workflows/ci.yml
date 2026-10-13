@@ -48,21 +48,16 @@ jobs:
       - name: Register the native host
         if: runner.os == 'Linux'
         run: |
-          profile="$HOME/.config/google-chrome-for-testing"
-          mkdir -p ~/.arc-bridge "$profile/NativeMessagingHosts"
-          printf '#!/bin/sh\nexec "%s" "%s" "$@"\n' "$(command -v node)" "$PWD/host/host.js" > ~/.arc-bridge/host-launcher.sh
-          chmod +x ~/.arc-bridge/host-launcher.sh
-          printf '{"name":"com.arcforclaude.bridge","description":"claude4arc native bridge","path":"%s","type":"stdio","allowed_origins":["chrome-extension://bfbcdjkeonepklbmjjghoddpahhhnimp/"]}\n' \
-            "$HOME/.arc-bridge/host-launcher.sh" > "$profile/NativeMessagingHosts/com.arcforclaude.bridge.json"
-          echo "PROFILE=$profile" >> "$GITHUB_ENV"
-          echo "CLAUDE4ARC_HOST_BROWSER=chrome-for-testing" >> "$GITHUB_ENV"
+          mkdir -p ~/.config/google-chrome-for-testing
+          node bin/claude4arc.js install --no-skill
+          echo "PROFILE=$HOME/.config/google-chrome-for-testing" >> "$GITHUB_ENV"
           echo "SANDBOX=--no-sandbox" >> "$GITHUB_ENV"
       - name: Start the browser with the extension
         run: |
           "$CHROME" --headless=new --user-data-dir="$PROFILE" --load-extension="$PWD/extension" $SANDBOX \
             --no-first-run --no-default-browser-check --use-mock-keychain --password-store=basic about:blank > "$RUNNER_TEMP/chrome.log" 2>&1 &
           for i in $(seq 60); do [ -S ~/.arc-bridge/chrome-for-testing.sock ] && break; sleep 1; done
-          if [ "$RUNNER_OS" = macOS ]; then node bin/claude4arc.js doctor; else node bin/claude4arc.js status; fi
+          node bin/claude4arc.js doctor
       - run: node tests/run.js
       - if: failure()
         uses: actions/upload-artifact@v4
