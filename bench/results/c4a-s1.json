@@ -1,1 +1,16 @@
-null
+[
+{"task": "H1", "start_ms": 1791853406212, "end_ms": 1791853407127, "success": true, "answer": "", "notes": "Page recorded Grace Hopper, 2026-10-15, Team. A look-only pass first (about 0.5 s) isn't counted in these times."},
+{"task": "H2", "start_ms": 1791853418569, "end_ms": 1791853419612, "success": true, "answer": "", "notes": "First line had a typo'd command; reran. Page recorded LIS. A look-only pass first isn't counted."},
+{"task": "H3", "start_ms": 1791853407308, "end_ms": 1791853408044, "success": true, "answer": "", "notes": "Page recorded the bio and public=true. A look-only pass first isn't counted."},
+{"task": "H4", "start_ms": 1791853408044, "end_ms": 1791853408487, "success": true, "answer": "Paper clips", "notes": "$1.25 is the cheapest. A look-only pass first isn't counted."},
+{"task": "H5", "start_ms": 1791853408487, "end_ms": 1791853409053, "success": true, "answer": "", "notes": "Page recorded paperless:on. A look-only pass first isn't counted."},
+{"task": "H6", "start_ms": 1791853409053, "end_ms": 1791853409570, "success": true, "answer": "", "notes": "Page recorded the exact text. A look-only pass first isn't counted."},
+{"task": "H7", "start_ms": 1791853409570, "end_ms": 1791853411003, "success": true, "answer": "Shipped", "notes": "Order is on page 6; seek paged to it. A look-only pass first isn't counted."},
+{"task": "H8", "start_ms": 1791853411003, "end_ms": 1791853411515, "success": true, "answer": "", "notes": "Page recorded receipt-2291.txt as uploaded. A look-only pass first isn't counted."},
+{"task": "H9", "start_ms": 1791853411515, "end_ms": 1791853412056, "success": true, "answer": "", "notes": "Settings in iframe; page showed Applied: dark. A look-only pass first isn't counted."},
+{"task": "H10", "start_ms": 1791853412056, "end_ms": 1791853412654, "success": true, "answer": "3", "notes": "Page recorded volume 75, 3 kiwi results. A look-only pass first isn't counted."},
+{"task": "W5", "start_ms": 1791853419613, "end_ms": 1791853421035, "success": true, "answer": "Guido van Rossum", "notes": ""},
+{"task": "W6", "start_ms": 1791853421035, "end_ms": 1791853421756, "success": true, "answer": "I'm a teapot", "notes": "Went straight to the known MDN URL."},
+{"task": "W7", "start_ms": 1791853421756, "end_ms": 1791853424577, "success": true, "answer": "MIT license", "notes": "CSS selector missed; read MIT license from the page text, not strictly the sidebar."},
+{"task": "W8", "start_ms": 1791853424577, "end_ms": 1791853425571, "success": true, "answer": "My YC app: Dropbox - Throw away your USB drive", "notes": ""}
+]

@@ -1,1 +1,16 @@
-null
+[
+{"task": "H1", "start_ms": 1791854732574, "end_ms": 1791854762901, "success": true, "answer": "", "notes": "First try missed the Next before the plan step; worked on retry. Times are batch per-line stamps."},
+{"task": "H2", "start_ms": 1791854738592, "end_ms": 1791854739544, "success": true, "answer": "", "notes": ""},
+{"task": "H3", "start_ms": 1791854739545, "end_ms": 1791854763631, "success": true, "answer": "", "notes": "Guessed a switch but it was a checkbox; worked on retry."},
+{"task": "H4", "start_ms": 1791854745239, "end_ms": 1791854764083, "success": true, "answer": "Paper clips", "notes": "Read prices first, then added in a second batch."},
+{"task": "H5", "start_ms": 1791854745493, "end_ms": 1791854746059, "success": true, "answer": "", "notes": ""},
+{"task": "H6", "start_ms": 1791854746059, "end_ms": 1791854746643, "success": true, "answer": "", "notes": ""},
+{"task": "H7", "start_ms": 1791854746643, "end_ms": 1791854748177, "success": true, "answer": "Shipped", "notes": ""},
+{"task": "H8", "start_ms": 1791854748178, "end_ms": 1791854748712, "success": true, "answer": "", "notes": ""},
+{"task": "H9", "start_ms": 1791854748713, "end_ms": 1791854749279, "success": true, "answer": "", "notes": ""},
+{"task": "H10", "start_ms": 1791854749279, "end_ms": 1791854749895, "success": true, "answer": "3", "notes": ""},
+{"task": "W5", "start_ms": 1791854749895, "end_ms": 1791854751086, "success": true, "answer": "Guido van Rossum", "notes": ""},
+{"task": "W6", "start_ms": 1791854751086, "end_ms": 1791854751896, "success": true, "answer": "418 I'm a teapot", "notes": "Went straight to the known MDN URL."},
+{"task": "W7", "start_ms": 1791854751896, "end_ms": 1791854754726, "success": true, "answer": "MIT", "notes": "CSS selector missed; the main text showed 'MIT license'."},
+{"task": "W8", "start_ms": 1791854754727, "end_ms": 1791854755753, "success": true, "answer": "My YC app: Dropbox - Throw away your USB drive", "notes": ""}
+]

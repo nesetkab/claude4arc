@@ -1,1 +1,16 @@
-null
+[
+{"task": "H1", "start_ms": 1791854833897, "end_ms": 1791854862494, "success": true, "answer": "", "notes": "First try hit hidden wizard step; reran with Next clicks. Timing spans both attempts."},
+{"task": "H2", "start_ms": 1791854839959, "end_ms": 1791854840846, "success": true, "answer": "", "notes": ""},
+{"task": "H3", "start_ms": 1791854840846, "end_ms": 1791854841583, "success": true, "answer": "", "notes": ""},
+{"task": "H4", "start_ms": 1791854841583, "end_ms": 1791854862956, "success": true, "answer": "Paper clips", "notes": "Read table first, added in second batch; timing spans both."},
+{"task": "H5", "start_ms": 1791854841973, "end_ms": 1791854863512, "success": true, "answer": "", "notes": "Switch was in Billing tab; reran opening tab. Timing spans both attempts."},
+{"task": "H6", "start_ms": 1791854847481, "end_ms": 1791854847996, "success": true, "answer": "", "notes": ""},
+{"task": "H7", "start_ms": 1791854847997, "end_ms": 1791854849496, "success": true, "answer": "Shipped", "notes": "Order was on page 6; seek paged to it."},
+{"task": "H8", "start_ms": 1791854849496, "end_ms": 1791854850009, "success": true, "answer": "", "notes": ""},
+{"task": "H9", "start_ms": 1791854850009, "end_ms": 1791854850545, "success": true, "answer": "", "notes": ""},
+{"task": "H10", "start_ms": 1791854850545, "end_ms": 1791854851100, "success": true, "answer": "3", "notes": ""},
+{"task": "W5", "start_ms": 1791854851100, "end_ms": 1791854852080, "success": true, "answer": "Guido van Rossum", "notes": ""},
+{"task": "W6", "start_ms": 1791854852080, "end_ms": 1791854852519, "success": true, "answer": "I'm a teapot", "notes": ""},
+{"task": "W7", "start_ms": 1791854852519, "end_ms": 1791854854445, "success": true, "answer": "MIT", "notes": ""},
+{"task": "W8", "start_ms": 1791854854446, "end_ms": 1791854855357, "success": true, "answer": "My YC app: Dropbox - Throw away your USB drive", "notes": ""}
+]
