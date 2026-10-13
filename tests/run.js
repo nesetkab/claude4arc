@@ -1200,6 +1200,7 @@ try {
   {
     name: "popup-adopted-background-dialog",
     fixture: "index.html",
+    ciOnly: true,
     async run(s) {
       const out = await s.script(`
 const tab = await t.bridge.call("tabs.create", { url: ${JSON.stringify(`${BASE}/popups.html`)}, active: false });
@@ -1312,9 +1313,10 @@ async function main() {
     console.error(`No scenario matches ${filters.join(", ")}. Scenarios: ${scenarios.map((scenario) => scenario.name).join(", ")}`);
     process.exit(2);
   }
-  const selected = matching.filter((scenario) => !scenario.platform || scenario.platform === process.platform);
+  const runnable = (scenario) => (!scenario.platform || scenario.platform === process.platform) && (!scenario.ciOnly || process.env.CI);
+  const selected = matching.filter(runnable);
   const skipped = matching.filter((scenario) => !selected.includes(scenario));
-  if (skipped.length) console.log(`skipped on ${process.platform}: ${skipped.map((scenario) => `${scenario.name} (${scenario.platform} only)`).join(", ")}`);
+  if (skipped.length) console.log(`skipped: ${skipped.map((scenario) => `${scenario.name} (${scenario.ciOnly && !process.env.CI ? "CI only" : `${scenario.platform} only`})`).join(", ")}`);
   const serving = (await isServing(PORTS[0])) && (await isServing(PORTS[1]));
   const server = serving ? null : await startServer();
   let taskId = null;
