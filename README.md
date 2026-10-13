@@ -11,13 +11,7 @@ screen, steal focus, or show dialogs.
 
 ![claude4arc compared with ego-lite and Claude for Chrome on held-out tasks](bench/figures/heldout.png)
 
-On 14 held-out browser tasks that claude4arc was not tuned on, with the same
-model and three runs per tool, a Claude Code agent finished in 117 s with
-claude4arc, 200 s with ego-lite, and 241 s with Claude for Chrome. It made 8,
-36, and 70 tool calls, and read 0.48M, 2.19M, and 3.83M tokens. Every run
-completed all 14 tasks. On the original tasks, which claude4arc was tuned on,
-it takes about 50 s. See [bench/](bench/README.md) for the method and its
-limits.
+See [bench/](bench/README.md) for the method and its limits.
 
 ## Requirements
 
