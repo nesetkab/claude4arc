@@ -1,4 +1,5 @@
-import test from "node:test";
+import test, { mock } from "node:test";
+import { AsyncLocalStorage } from "node:async_hooks";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
@@ -35,7 +36,7 @@ test("concurrent processes do not lose each other's writes", async () => {
   );
   const state = await readTasks();
   assert.equal(Object.keys(state.tasks).length, 60);
-  const leftovers = (await fs.readdir(stateDir)).filter((name) => name.endsWith(".tmp") || name.endsWith(".lock"));
+  const leftovers = (await fs.readdir(stateDir)).filter((name) => name.endsWith(".tmp") || name.endsWith(".lock") || name.endsWith(".break"));
   assert.deepEqual(leftovers, []);
 });
 
@@ -51,6 +52,69 @@ test("a stale lock is taken over", async () => {
   });
   assert.ok((await readTasks()).tasks["1"]);
   await assert.rejects(fs.stat(lock), { code: "ENOENT" });
+  await assert.rejects(fs.stat(`${lock}.break`), { code: "ENOENT" });
+});
+
+test("a stale lock is still taken over when a crashed takeover left its marker behind", async () => {
+  await reset();
+  await fs.mkdir(stateDir, { recursive: true });
+  const lock = `${tasksPath}.lock`;
+  const old = new Date(Date.now() - 60_000);
+  for (const file of [lock, `${lock}.break`]) {
+    await fs.writeFile(file, "999999");
+    await fs.utimes(file, old, old);
+  }
+  await updateState((state) => {
+    state.tasks["1"] = { id: 1 };
+  });
+  assert.ok((await readTasks()).tasks["1"]);
+  const leftovers = (await fs.readdir(stateDir)).filter((name) => name.endsWith(".lock") || name.endsWith(".break"));
+  assert.deepEqual(leftovers, []);
+});
+
+test("two processes that both see a stale lock do not both take it", async () => {
+  await reset();
+  await fs.mkdir(stateDir, { recursive: true });
+  const lock = `${tasksPath}.lock`;
+  await fs.writeFile(lock, "999999");
+  const old = new Date(Date.now() - 60_000);
+  await fs.utimes(lock, old, old);
+  const who = new AsyncLocalStorage();
+  const realStat = fs.stat;
+  let releaseLate;
+  const firstInside = new Promise((resolve) => (releaseLate = resolve));
+  let settle;
+  const lateSettled = new Promise((resolve) => (settle = resolve));
+  let lateDelayed = false;
+  mock.method(fs, "stat", async (file, ...rest) => {
+    const delay = file === lock && who.getStore() === "late" && !lateDelayed;
+    if (delay) lateDelayed = true;
+    const result = await realStat.call(fs, file, ...rest);
+    if (delay) await firstInside;
+    else if (file === lock && who.getStore() === "late" && Date.now() - result.mtimeMs < 5_000) settle();
+    return result;
+  });
+  let inside = 0;
+  let overlapped = false;
+  const change = (name) => async (state) => {
+    if (inside++) overlapped = true;
+    if (name === "early") {
+      releaseLate();
+      await lateSettled;
+    } else settle();
+    state.tasks[name] = { id: name };
+    inside--;
+  };
+  try {
+    await Promise.all([
+      who.run("early", () => updateState(change("early"))),
+      who.run("late", () => updateState(change("late"))),
+    ]);
+  } finally {
+    mock.restoreAll();
+  }
+  assert.equal(overlapped, false);
+  assert.deepEqual(Object.keys((await readTasks()).tasks).sort(), ["early", "late"]);
 });
 
 test("a change that throws releases the lock and writes nothing", async () => {
