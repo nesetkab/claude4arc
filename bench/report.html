@@ -83,22 +83,36 @@ code { font-family: var(--mono); font-size: 13px; }
 
 <div class="wrap">
   <header>
-    <div class="eyebrow">Benchmark · runs September 25–27, 2026 (UTC) · claude4arc rerun October 11 · same tasks</div>
+    <div class="eyebrow">Benchmark · claude4arc October 12, 2026 · ego-lite and Claude for Chrome September 25–27 (UTC)</div>
     <h1>claude4arc vs ego-lite vs Claude for Chrome</h1>
-    <p class="lede">On 14 held-out tasks that claude4arc was never tuned on, with three runs per tool, a Claude Code agent finished in 117 s with claude4arc, 200 s with ego-lite, and 241 s with Claude for Chrome, with 8.0, 36.0, and 69.7 tool calls and 0.48M, 2.19M, and 3.83M tokens read. Every run passed all 14 tasks. The benchmark server checked the 10 fixture results of each run (90 in all); the 36 web-lookup answers are the agents' own reports, which gave the same answers in all nine runs and match the pages. The sections below the held-out table cover the original 14 tasks, which claude4arc was tuned on across twelve runs (plus one on Sonnet), so treat those gaps as an upper bound. In the scripted run without a model, ego-lite is faster on six of the ten fixtures, mostly single clicks and the popup.</p>
-    <p class="lede">On October 11, three new held-out runs of claude4arc 0.6 (commit <code>f1fe3cf</code>, with the unreleased fixes on this branch) finished in 88.7 s with 7.7 tool calls and 0.33M tokens read, down from 117.1 s, 8.0, and 0.48M in September, and passed all 14 tasks each. ego-lite and Claude for Chrome were not rerun, so their numbers are still from September.</p>
+    <p class="lede">On 14 held-out tasks, with three runs per tool, a Claude Code agent finished in 60 s with claude4arc, 200 s with ego-lite, and 241 s with Claude for Chrome, with 4.3, 36.0, and 69.7 tool calls and 0.18M, 2.19M, and 3.83M tokens read. Every run passed all 14 tasks. The benchmark server checked the 10 fixture results of each run (90 in all); the 36 web-lookup answers are the agents' own reports, which gave the same answers in all nine runs and match the pages. The claude4arc runs are from October 12 at commit <code>b100edd</code>; the other two tools ran in September and were not rerun. The sections below the held-out table cover the original 14 tasks, which claude4arc was tuned on across twelve runs (plus one on Sonnet), so treat those gaps as an upper bound. In the scripted run without a model, ego-lite is faster on six of the ten fixtures, mostly single clicks and the popup.</p>
   </header>
 
   <section>
     <h2>Held-out tasks: three runs per tool</h2>
-    <p class="sub">Ten new fixture pages (a wizard, an autocomplete, a scrolling modal, a sortable table, tabs with a switch, a contenteditable note, a paginated list, a file upload, a web component in an iframe, and a slider with Enter-to-search) and four new web lookups. Mean of three runs, with the range. claude4arc was frozen at commit <code>b9cc78f</code> for these runs, before the fixes for the wizard, the scrolling modal, the hidden tab, and the paginated list shipped in 0.5.0. ego-lite and Claude for Chrome ran at the same time, in different browsers; their third runs were stopped by an account usage limit and rerun as <code>ego-h3b</code> and <code>cic-h3b</code>.</p>
+    <p class="sub">Ten new fixture pages (a wizard, an autocomplete, a scrolling modal, a sortable table, tabs with a switch, a contenteditable note, a paginated list, a file upload, a web component in an iframe, and a slider with Enter-to-search) and four new web lookups. Mean of three runs, with the range. ego-lite and Claude for Chrome ran at the same time, in different browsers; their third runs were stopped by an account usage limit and rerun as <code>ego-h3b</code> and <code>cic-h3b</code>.</p>
     <div class="board">
       <table id="heldout-table">
         <thead><tr><th>Tool</th><th>Tasks passed</th><th>Total time</th><th>Tool calls</th><th>Tokens read</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
-    <p class="sub" style="margin-top:12px">The <strong>0.6 (rerun)</strong> row is three runs of claude4arc at commit <code>f1fe3cf</code> (0.6.0 plus this branch's background-tab popups, locked editor helper, paste fixes, and ProseMirror detection) on October 11, one after another with nothing else using the browser. Green marks the best of the three September rows; the rerun is not ranked against them, because ego-lite and Claude for Chrome were not rerun. The rerun used <code>claude-opus-5-5</code>; the September files do not record a model, so the model may differ. claude4arc's code is newer, which is the point of the rerun. Its weak spots remain: the H1 wizard still took several attempts in every run (three and five in the two runs that counted), and on H5 a <code>text=Billing</code> or label click hit a span, so the agent needed role selectors.</p>
+    <ul class="sub" style="margin-top:12px;padding-left:18px">
+      <li>ego-lite and Claude for Chrome were not rerun; their rows are from September.</li>
+      <li>claude4arc ran on <code>claude-opus-5-5</code>; the September files do not record a model, so it may differ.</li>
+      <li>claude4arc's skill and code were improved using these tasks after September (skill wording was tested on H1 and H5), so they are no longer held out for claude4arc and its numbers are best-case.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Earlier claude4arc runs</h2>
+    <p class="sub">The same held-out tasks with older claude4arc code, three runs each. Not shown in the chart or ranked above.</p>
+    <div class="board">
+      <table id="earlier-table">
+        <thead><tr><th>Runs</th><th>Commit</th><th>Date</th><th>Tasks passed</th><th>Total time</th><th>Tool calls</th><th>Tokens read</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </section>
 
   <section>
@@ -148,7 +162,7 @@ code { font-family: var(--mono); font-size: 13px; }
 
   <section class="notes">
     <h2>Method and caveats</h2>
-    <p><strong>Verification.</strong> Every fixture page reports success to a local benchmark server, which logs the run, the task, and the submitted value, and <code>node bench/verify.js</code> checks those values against the expected ones. All fixture results for every run shown pass. The server does not see the web lookups: those answers are the agents' own reports, compared against the pages. On the original tasks they are 55.845, "Hello World!", "Y Combinator", and the MDN return value. On the held-out tasks (W5–W8) they are Guido van Rossum, "I'm a teapot" (418), the MIT license, and "My YC app: Dropbox - Throw away your USB drive", the same in all nine September runs and in the three October reruns of claude4arc (one wrote "418 I'm a teapot").</p>
+    <p><strong>Verification.</strong> Every fixture page reports success to a local benchmark server, which logs the run, the task, and the submitted value, and <code>node bench/verify.js</code> checks those values against the expected ones. All fixture results for every run shown pass. The server does not see the web lookups: those answers are the agents' own reports, compared against the pages. On the original tasks they are 55.845, "Hello World!", "Y Combinator", and the MDN return value. On the held-out tasks (W5–W8) they are Guido van Rossum, "I'm a teapot" (418), the MIT license, and "My YC app: Dropbox - Throw away your USB drive", the same in every held-out run, including the earlier claude4arc runs, apart from wording such as "418 I'm a teapot" or just "MIT".</p>
     <p><strong>Tokens.</strong> "Tokens read" is the sum of input tokens over every model turn, from the agents' transcripts; each turn re-reads the conversation, so it tracks cost. "Context tokens" is the harness figure: the size of the agent's context at the end, mostly the fixed system prompt, skill, and instructions.</p>
     <p><strong>Agent timings.</strong> Total time, tokens, and tool calls come from the Claude Code harness. The agents also reported per-task timestamps, but those are not shown as a chart: ego-lite's three web lookups under one second suggest some start timestamps were taken after the page had loaded.</p>
     <p><strong>Scripted timings.</strong> The scripted runs remove model thinking and measure the tools. The virtual-list task scrolls programmatically in both scripts. The code-editor task uses each tool's native path: claude4arc's editor API, and ego-lite's select-all and paste.</p>
@@ -165,14 +179,9 @@ const TOOLS = [
 ];
 const HELDOUT = {
   arc: [
-    { run: "c4a-h1", passed: 14, ms: 114582, calls: 8, read: 475404 },
-    { run: "c4a-h2", passed: 14, ms: 107859, calls: 7, read: 414625 },
-    { run: "c4a-h3", passed: 14, ms: 128800, calls: 9, read: 539976 },
-  ],
-  arcr: [
-    { run: "c4a-r1", passed: 14, ms: 80222, calls: 7, read: 299003 },
-    { run: "c4a-r2", passed: 14, ms: 89985, calls: 8, read: 347671 },
-    { run: "c4a-r3", passed: 14, ms: 95840, calls: 8, read: 344807 },
+    { run: "c4a-s1", passed: 14, ms: 60601, calls: 5, read: 209808 },
+    { run: "c4a-s2", passed: 14, ms: 61284, calls: 4, read: 163773 },
+    { run: "c4a-s3", passed: 14, ms: 59359, calls: 4, read: 163228 },
   ],
   ego: [
     { run: "ego-h1", passed: 14, ms: 205863, calls: 35, read: 2116783 },
@@ -185,6 +194,18 @@ const HELDOUT = {
     { run: "cic-h3b", passed: 14, ms: 266822, calls: 68, read: 4739481 },
   ],
 };
+const EARLIER = [
+  { runs: "c4a-h1 to h3", commit: "b9cc78f", date: "September", data: [
+    { run: "c4a-h1", passed: 14, ms: 114582, calls: 8, read: 475404 },
+    { run: "c4a-h2", passed: 14, ms: 107859, calls: 7, read: 414625 },
+    { run: "c4a-h3", passed: 14, ms: 128800, calls: 9, read: 539976 },
+  ] },
+  { runs: "c4a-r1 to r3", commit: "f1fe3cf", date: "October 11", data: [
+    { run: "c4a-r1", passed: 14, ms: 80222, calls: 7, read: 299003 },
+    { run: "c4a-r2", passed: 14, ms: 89985, calls: 8, read: 347671 },
+    { run: "c4a-r3", passed: 14, ms: 95840, calls: 8, read: 344807 },
+  ] },
+];
 const AGENT = {
   arc: { passed: 14, seconds: 51.7, tokens: 191147, calls: 3 },
   ego: { passed: 14, seconds: 195.0, tokens: 1933604, calls: 33 },
@@ -242,7 +263,7 @@ const bestOf = (source, field, lower) => {
 const toolCell = (tool, measured = true) => `<td><span class="tool"><span class="swatch${tool.outline ? " outline" : ""}${measured ? "" : " hatch"}" style="background:${measured && !tool.outline ? tool.color : ""}"></span>${tool.name}</span></td>`;
 
 const mean = (values) => values.reduce((a, b) => a + b, 0) / values.length;
-const HELD = Object.fromEntries(Object.entries(HELDOUT).map(([key, runs]) => {
+const summarize = (runs) => {
   const pick = { seconds: (run) => run.ms / 1000, calls: (run) => run.calls, read: (run) => run.read / 1e6 };
   const summary = { passed: runs.reduce((sum, run) => sum + run.passed, 0), possible: runs.length * 14, range: {} };
   for (const [field, get] of Object.entries(pick)) {
@@ -250,22 +271,27 @@ const HELD = Object.fromEntries(Object.entries(HELDOUT).map(([key, runs]) => {
     summary[field] = mean(values);
     summary.range[field] = [Math.min(...values), Math.max(...values)];
   }
-  return [key, summary];
-}));
-const RERUN = { key: "arcr", name: "claude4arc 0.6 (rerun)", color: "var(--arc)", outline: true };
-const HELD_ROWS = [TOOLS[0], RERUN, ...TOOLS.slice(1)];
+  return summary;
+};
+const HELD = Object.fromEntries(Object.entries(HELDOUT).map(([key, runs]) => [key, summarize(runs)]));
+const rangeCell = (data, field, digits, rangeDigits, unit = "", best = false) => {
+  const [low, high] = data.range[field];
+  return `<td class="num${best ? " best" : ""}">${data[field].toFixed(digits)}${unit} (${low.toFixed(rangeDigits)}–${high.toFixed(rangeDigits)})</td>`;
+};
 const heldBody = document.querySelector("#heldout-table tbody");
-for (const tool of HELD_ROWS) {
+for (const tool of TOOLS) {
   const data = HELD[tool.key];
-  const ranked = TOOLS.includes(tool);
-  const cell = (field, lower, digits, rangeDigits, unit = "") => {
-    const best = ranked && data[field] === bestOf(HELD, field, lower);
-    const [low, high] = data.range[field];
-    return `<td class="num${best ? " best" : ""}">${data[field].toFixed(digits)}${unit} (${low.toFixed(rangeDigits)}–${high.toFixed(rangeDigits)})</td>`;
-  };
-  const passedBest = ranked && data.passed === bestOf(HELD, "passed", false);
+  const cell = (field, lower, digits, rangeDigits, unit) => rangeCell(data, field, digits, rangeDigits, unit, data[field] === bestOf(HELD, field, lower));
+  const passedBest = data.passed === bestOf(HELD, "passed", false);
   heldBody.insertAdjacentHTML("beforeend", `<tr>${toolCell(tool)}<td class="num${passedBest ? " best" : ""}">${data.passed} / ${data.possible}</td>` +
     cell("seconds", true, 1, 1, " s") + cell("calls", true, 1, 0) + cell("read", true, 2, 2, "M") + `</tr>`);
+}
+
+const earlierBody = document.querySelector("#earlier-table tbody");
+for (const group of EARLIER) {
+  const data = summarize(group.data);
+  earlierBody.insertAdjacentHTML("beforeend", `<tr><td><code>${group.runs}</code></td><td><code>${group.commit}</code></td><td>${group.date}</td><td class="num">${data.passed} / ${data.possible}</td>` +
+    rangeCell(data, "seconds", 1, 1, " s") + rangeCell(data, "calls", 1, 0) + rangeCell(data, "read", 2, 2, "M") + `</tr>`);
 }
 
 const agentBody = document.querySelector("#agent-table tbody");

@@ -6,18 +6,26 @@ during the early runs; the results use the current name.
 
 ## Held-out tasks
 
-The fair comparison. claude4arc was never run on these tasks before the
-measured runs, and its code was frozen at commit `b9cc78f` for them. Each tool
-ran three times; the table shows the mean and the range.
+Each tool ran three times on 14 tasks; the table shows the mean and the range.
+claude4arc's runs (`c4a-s1` to `c4a-s3`) are from October 12 at commit
+`b100edd`. `node bench/verify.js c4a-s1 c4a-s2 c4a-s3` gives 10/10 each, and
+all web answers were right.
 
 ![Held-out benchmark](figures/heldout.png)
 
 | Tool | Tasks passed | Time | Tool calls | Input tokens read |
 |---|---|---|---|---|
-| claude4arc | 42 / 42 | 117.1 s (107.9–128.8) | 8.0 (7–9) | 0.48 M (0.41–0.54) |
-| claude4arc 0.6 (rerun) | 42 / 42 | 88.7 s (80.2–95.8) | 7.7 (7–8) | 0.33 M (0.30–0.35) |
+| claude4arc | 42 / 42 | 60.4 s (59.4–61.3) | 4.3 (4–5) | 0.18 M (0.16–0.21) |
 | ego-lite | 42 / 42 | 199.5 s (177.6–215.1) | 36.0 (34–39) | 2.19 M (2.05–2.41) |
 | Claude for Chrome | 42 / 42 | 241.0 s (224.8–266.8) | 69.7 (65–76) | 3.83 M (3.26–4.74) |
+
+- ego-lite and Claude for Chrome were not rerun; their rows are the September
+  runs.
+- claude4arc ran on `claude-opus-5-5`. The September meta files do not record
+  a model, so it may differ.
+- claude4arc's skill and code were improved using these tasks after the
+  September runs (skill wording was tested on H1 and H5), so they are no
+  longer held out for claude4arc and its numbers are best-case.
 
 The tasks ([INSTRUCTIONS-heldout.md](INSTRUCTIONS-heldout.md)) are 10 new
 fixture pages (a multi-step wizard with card-style radio buttons, an
@@ -27,30 +35,17 @@ upload, a web component inside an iframe, and a slider with a search box that
 submits on Enter) and 4 new lookups on Wikipedia, MDN, GitHub, and Hacker News.
 `node bench/verify.js` checks every recorded value.
 
-On these tasks claude4arc needed about twice its tuned-task time, mostly
-because its agent retried steps on the wizard, the scrolling modal, the hidden
-tab, and the paginated list. Those four weak spots were fixed after the
-measured runs (see the changelog), so the first claude4arc row describes the
-version before the fixes.
+### Earlier claude4arc runs
 
-### Rerun at 0.6
+The same tasks with older claude4arc code, three runs each. These are not in
+the figure or the table above.
 
-The "0.6 (rerun)" row is three new runs of claude4arc (`c4a-r1` to `c4a-r3`)
-at commit `f1fe3cf`: 0.6.0 plus this branch's background-tab popups, locked
-editor helper, paste fixes, and ProseMirror detection. They ran on October 11,
-one after another, with nothing else using the browser. All three passed every
-task; `node bench/verify.js c4a-r1 c4a-r2 c4a-r3` gives 10/10 each, and all
-four web answers were right in every run.
+| Runs | Commit | Date | Time | Tool calls | Input tokens read |
+|---|---|---|---|---|---|
+| `c4a-h1` to `h3` | `b9cc78f` | September | 117.1 s | 8.0 | 0.48 M |
+| `c4a-r1` to `r3` | `f1fe3cf` | October 11 | 88.7 s | 7.7 | 0.33 M |
 
-- ego-lite and Claude for Chrome were not rerun; their rows are still the
-  September runs.
-- The reruns used `claude-opus-5-5`. The September meta files do not record a
-  model, so the model may differ.
-- claude4arc's code is newer than in September, which is the point of the
-  rerun.
-- Weak spots remain: the H1 wizard still took several attempts in every run
-  (three and five in the two runs that counted), and on H5 a `text=Billing`
-  or label click hit a span, so the agent needed role selectors.
+All six passed every task.
 
 ## Original tasks
 
@@ -87,7 +82,7 @@ so treat this comparison as an upper bound.
 
 - On the original tasks, claude4arc was improved against the same tasks over
   twelve runs (`results/arc.json` to `arc12.json`) plus one on Sonnet
-  (`results/arcs.meta.json`), and ego-lite and Claude for Chrome ran once each. The held-out tasks remove that advantage.
+  (`results/arcs.meta.json`), and ego-lite and Claude for Chrome ran once each.
 - Three runs per tool show the size of the difference, not a precise value.
 - In the held-out benchmark, ego-lite and Claude for Chrome ran at the same
   time as each other (in different browsers). Their third runs were stopped

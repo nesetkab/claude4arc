@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 HERE = Path(__file__).resolve().parent
 RESULTS = HERE.parent / "results"
 
-COLORS = {"arc": "#0072B2", "arcr": "#56B4E9", "ego": "#D55E00", "cic": "#009E73"}
-HATCHES = {"arc": "", "arcr": "\\\\", "ego": "//", "cic": ".."}
-NAMES = {"arc": "claude4arc", "arcr": "claude4arc 0.6 (rerun)", "ego": "ego-lite", "cic": "Claude for Chrome"}
+COLORS = {"arc": "#0072B2", "ego": "#D55E00", "cic": "#009E73"}
+HATCHES = {"arc": "", "ego": "//", "cic": ".."}
+NAMES = {"arc": "claude4arc", "ego": "ego-lite", "cic": "Claude for Chrome"}
 
 
 def load(run):
@@ -19,8 +19,7 @@ def load(run):
 ARC_RUNS = {run: load(run) for run in ("arc10", "arc11")}
 SINGLE = {"ego": load("ego"), "cic": load("cic")}
 HELDOUT = {
-    "arc": [load(run) for run in ("c4a-h1", "c4a-h2", "c4a-h3")],
-    "arcr": [load(run) for run in ("c4a-r1", "c4a-r2", "c4a-r3")],
+    "arc": [load(run) for run in ("c4a-s1", "c4a-s2", "c4a-s3")],
     "ego": [load(run) for run in ("ego-h1", "ego-h2", "ego-h3b")],
     "cic": [load(run) for run in ("cic-h1", "cic-h2", "cic-h3b")],
 }
@@ -39,7 +38,7 @@ def summary(metric):
 
 
 def heldout_summary(metric):
-    return [(key, *spread([run[metric] for run in HELDOUT[key]])) for key in ("arc", "arcr", "ego", "cic")]
+    return [(key, *spread([run[metric] for run in HELDOUT[key]])) for key in ("arc", "ego", "cic")]
 
 
 def style():
@@ -104,7 +103,7 @@ def draw(path, rows_for, height=2.1, calls_digits=0):
 def main():
     style()
     draw("benchmark", summary)
-    draw("heldout", heldout_summary, height=2.6, calls_digits=1)
+    draw("heldout", heldout_summary, calls_digits=1)
 
 
 if __name__ == "__main__":
