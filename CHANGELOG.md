@@ -11,8 +11,9 @@
   Linux, on every push. Chrome for Testing is a supported browser.
 - Browser tests for Lexical, ProseMirror, CKEditor 5, TinyMCE, Ace,
   CodeMirror 5, batch mode, and paste.
-- A held-out benchmark rerun at 0.6: 88.7 s, 7.7 tool calls, and 0.33 M
-  tokens read, down from 117.1 s, 8.0, and 0.48 M.
+- A held-out benchmark rerun: 60.4 s, 4.3 tool calls, and 0.18 M tokens
+  read, down from 117.1 s, 8.0, and 0.48 M. The skill was tuned on these
+  tasks since, so the numbers are best-case.
 
 ### Changed
 
@@ -20,6 +21,14 @@
   falls back to another Node 22 or newer if the pinned one is gone.
 - The editor helper uses the same locked slot as the in-page helper.
 - `~/.arc-bridge/page-secret` is created on first use, not on import.
+- The skill says to chain a wizard whole and end with `-s`, to `check` radio
+  cards, and to use role selectors for tabs and switches. A chain ending in
+  `-s` that fails shows the page in the error.
+- Key presses on background tabs return when the browser acknowledges them
+  instead of waiting for a frame: 2–8 ms instead of 85–900 ms.
+- Back-to-back pastes keep their text on the clipboard and restore it once,
+  so only the first paste of a command needs a retry. A copy made during a
+  run is kept.
 
 ### Fixed
 
@@ -31,6 +40,9 @@
 - Plain ProseMirror editors were filled through the keyboard instead of
   their own API.
 - Filling an editor without an API used `Meta+a` on Linux.
+- `text=` targets clicked the span inside a tab, switch label, or radio card
+  instead of the control. They now act on the control the text names.
+- Two processes that found the same stale task lock could both take it.
 
 ## 0.6.0 (2026-10-11)
 
