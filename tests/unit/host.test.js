@@ -36,36 +36,46 @@ function startHost(reply = () => {}) {
   return child;
 }
 
-async function connect() {
-  for (let attempt = 0; attempt < 100; attempt++) {
-    try {
-      const socket = await new Promise((resolve, reject) => {
-        const client = net.createConnection(SOCKET, () => resolve(client));
-        client.once("error", reject);
-      });
-      socket.setEncoding("utf8");
-      let text = "";
-      const waiting = [];
-      socket.on("data", (chunk) => {
-        text += chunk;
-        let index;
-        while ((index = text.indexOf("\n")) >= 0) {
-          const line = text.slice(0, index);
-          text = text.slice(index + 1);
-          waiting.shift()?.(JSON.parse(line));
-        }
-      });
-      socket.ask = (line) => new Promise((resolve) => {
-        waiting.push(resolve);
-        socket.write(line + "\n");
-      });
-      return socket;
-    } catch {
-      await sleep(50);
-    }
+async function until(check, message) {
+  const deadline = Date.now() + 10_000;
+  while (Date.now() < deadline) {
+    const value = await check();
+    if (value) return value;
+    await sleep(50);
   }
-  throw new Error("host never listened");
+  throw new Error(message);
 }
+
+async function tryConnect() {
+  try {
+    const socket = await new Promise((resolve, reject) => {
+      const client = net.createConnection(SOCKET, () => resolve(client));
+      client.once("error", reject);
+    });
+    socket.setEncoding("utf8");
+    let text = "";
+    const waiting = [];
+    socket.on("data", (chunk) => {
+      text += chunk;
+      let index;
+      while ((index = text.indexOf("\n")) >= 0) {
+        const line = text.slice(0, index);
+        text = text.slice(index + 1);
+        waiting.shift()?.(JSON.parse(line));
+      }
+    });
+    socket.ask = (line) => new Promise((resolve) => {
+      waiting.push(resolve);
+      socket.write(line + "\n");
+    });
+    return socket;
+  } catch {
+    return null;
+  }
+}
+
+const connect = () => until(tryConnect, "host never listened");
+const hostLog = () => fs.readFileSync(path.join(home, ".arc-bridge", "host.log"), "utf8");
 
 async function stop(child) {
   child.stdin.end();
@@ -94,17 +104,15 @@ test("a second host for the same browser waits instead of stealing the socket, t
   const firstClient = await connect();
   const inode = fs.statSync(SOCKET).ino;
   const second = startHost();
-  await sleep(1500);
+  await until(() => hostLog().includes(`host ${second.pid} waiting`), "the second host never started waiting");
   assert.equal(fs.statSync(SOCKET).ino, inode);
   assert.equal((await firstClient.ask(JSON.stringify({ id: 1, api: "host.status" }))).result.host.pid, first.pid);
   firstClient.destroy();
   await stop(first);
-  await sleep(1500);
   const secondClient = await connect();
   assert.equal((await secondClient.ask(JSON.stringify({ id: 1, api: "host.status" }))).result.host.pid, second.pid);
   secondClient.destroy();
   await stop(second);
-  assert.match(fs.readFileSync(path.join(home, ".arc-bridge", "host.log"), "utf8"), /waiting/);
 });
 
 test("attach tells our own leftover attachment apart from another debugger", async () => {

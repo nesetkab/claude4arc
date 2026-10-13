@@ -18,15 +18,16 @@ function cliIn(dir, ...args) {
   delete env.CLAUDE4ARC_BROWSER;
   const child = spawn(process.execPath, [CLI, ...args], { env, stdio: ["ignore", "pipe", "pipe"] });
   let bytes = 0;
+  let firstByteAt = null;
   let stdout = "";
   let stderr = "";
   child.stdout.on("data", (chunk) => {
+    firstByteAt ??= Date.now();
     bytes += chunk.length;
     if (stdout.length < 100_000) stdout += chunk;
   });
   child.stderr.on("data", (chunk) => (stderr += chunk));
-  const started = Date.now();
-  return new Promise((resolve) => child.on("close", (code) => resolve({ code, bytes, stdout, stderr, ms: Date.now() - started })));
+  return new Promise((resolve) => child.on("close", (code) => resolve({ code, bytes, stdout, stderr, afterOutputMs: Date.now() - (firstByteAt ?? Date.now()) })));
 }
 
 const cli = (...args) => cliIn(home, ...args);
@@ -35,7 +36,7 @@ test("large output reaches a pipe in full and the process exits", async () => {
   const result = await cli("run", "-e", 'console.log("x".repeat(5_000_000))');
   assert.equal(result.code, 0, result.stderr);
   assert.equal(result.bytes, 5_000_001);
-  assert.ok(result.ms < 2000, `took ${result.ms}ms`);
+  assert.ok(result.afterOutputMs < 1500, `exited ${result.afterOutputMs}ms after its output began`);
 });
 
 test("a script that leaves a timer running still exits after its output", async () => {
