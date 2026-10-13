@@ -15,8 +15,16 @@ its output.
 
 - Do not look before you act. Guess selectors from the task's words:
   `text=Save`, `role=button[name="Sign in"]`, or a field's label
-  (`fill "text=Full name" Ada`, `select text=Country Spain`). Selectors also
-  search cross-origin iframes. Only when a guess fails, `find <words>`.
+  (`fill "text=Full name" Ada`). Selectors also search cross-origin iframes.
+  `select` is only for dropdowns: pick a radio, option card, or checkbox with
+  `check "text=Weekly"`, and use role selectors for tabs and switches, whose
+  visible text is often a separate span (`click 'role=tab[name="Privacy"]'`,
+  `check 'role=switch[name*="Private"]'`).
+- Wizards, tabs, and modals: chain the whole flow blind and end it with `-s`.
+  Hidden steps are skipped, so each `click "text=Next"` hits the visible one.
+  If a step fails, the error names the tab or step to open, and `-s` prints
+  the page as it is then: fix that one step and rerun the line. Stop early
+  with `-s` only when the next choice depends on what the page shows.
 - Several tasks: do ALL of them in ONE `claude4arc batch` call. One chain per
   line, optional `label:` prefix. Each line prints
   `== label ok|FAILED <start ms>-<end ms>` and its output; a failure does not
@@ -34,6 +42,8 @@ its output.
   G: goto https://g.test/list -- seek "Row 500" -- click 'text="Row 500"' -s
   H: goto https://h.test/wiki -- text 'css=tr:has-text("Iron")' 400
   I: goto https://i.test/docs -- section "Return value"
+  J: goto https://j.test/survey -- fill "text=Email" a@b.co -- click "text=Next" -- check "text=Weekly" -- click "text=Next" -- click "text=Submit" -s
+  K: goto https://k.test/settings -- click 'role=tab[name="Privacy"]' -- check 'role=switch[name*="Private"]' -- click "text=Save" -s
   EOF
   ```
 
@@ -41,8 +51,7 @@ its output.
   code editors and iframe fields, `drag` handles HTML5 and mouse lists (drop on
   the first item to move to the top), menus open on `click`, `seek` scrolls
   virtual lists and pages through paginated ones, and `click` waits up to 5 s
-  for late content. If a target is in a hidden tab or wizard step, the error
-  names the tab or step to open first.
+  for late content.
 - One task: open and act in one call, `claude4arc new <url> -- fill … -- click … -s`,
   then reuse it with `claude4arc 7 goto …` and `finish` once at the end.
 - Read with `section <heading>`, plain `text` (main content), or `text <sel>`.
@@ -55,7 +64,7 @@ its output.
 ## Commands
 
 ```bash
-claude4arc new <url> [-- <cmd> ...] [-s]  # new task, act right away; -s appends a diff snapshot
+claude4arc new <url> [-- <cmd> ...] [-s]  # new task, act right away; -s appends a diff snapshot, or the page on failure
 claude4arc 7 <cmd> [args] [-- <cmd> ...]  # run on task 7's current page (7:p2 for page p2)
 claude4arc batch [7] [--keep] <<'EOF'     # one chain per line
 ```
