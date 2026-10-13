@@ -4,6 +4,9 @@
 
 ### Added
 
+- Linux support. `install`, `doctor`, and `uninstall` know the native host
+  folders of Chrome, Chromium, Brave, Edge, and Chrome for Testing, and the
+  host finds its browser through `/proc`. PDFs are read with `pdftotext`.
 - CI runs the browser suite in headless Chrome for Testing on macOS and
   Linux, on every push. Chrome for Testing is a supported browser.
 - Browser tests for Lexical, ProseMirror, CKEditor 5, TinyMCE, Ace,

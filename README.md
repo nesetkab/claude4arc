@@ -21,9 +21,9 @@ limits.
 
 ## Requirements
 
-- macOS
+- macOS or Linux
 - [Arc](https://arc.net), or another Chromium browser: Dia, Google Chrome,
-  Brave, Microsoft Edge, or Chromium
+  Brave, Microsoft Edge, or Chromium (Arc and Dia are macOS only)
 - [Node.js](https://nodejs.org) 22 or later
 - [Claude Code](https://docs.claude.com/en/docs/claude-code)
 
@@ -48,7 +48,8 @@ claude4arc install
    supported browser it finds in `/Applications`. Arc reads native hosts from
    Google Chrome's folder
    (`~/Library/Application Support/Google/Chrome/NativeMessagingHosts/`), not
-   from its own.
+   from its own. On Linux it uses each browser's folder under `~/.config`
+   (see [Linux](#linux)).
 3. It links the Claude skill to `~/.claude/skills/claude4arc`. Pass
    `--no-skill` if you install the skill as a plugin (below).
 
@@ -82,6 +83,15 @@ claude4arc doctor
 
 Every line should start with `ok`. Start a new Claude Code session so that it
 loads the skill.
+
+### Linux
+
+`claude4arc install` registers the host for Google Chrome, Chromium, Brave,
+Microsoft Edge, and Chrome for Testing when it finds the browser's command on
+`PATH` or its profile folder (for example `~/.config/google-chrome`). It
+honors `XDG_CONFIG_HOME`. Snap and Flatpak builds are untested: their
+sandboxes usually block native hosts. Paste types the text instead of using the
+clipboard, and reading PDFs needs `pdftotext` from `poppler-utils`.
 
 ### From a clone
 
@@ -181,7 +191,7 @@ records, the blocklist, and screenshots).
   or rich-text editors (Monaco, CodeMirror, Ace, Quill, ProseMirror, Lexical,
   CKEditor, TinyMCE) work.
 - Google Docs and Sheets are read through Google's own export, and PDFs
-  through macOS PDFKit.
+  through macOS PDFKit (`pdftotext` on Linux).
 - `finish` closes only the tabs that Claude opened. Tabs you hand over with
   `adopt` are released, never closed.
 - Each task belongs to the Claude Code session that created it, so parallel
@@ -190,7 +200,7 @@ records, the blocklist, and screenshots).
 
 ## Security
 
-Any process that runs as your macOS user can connect to the socket and control
+Any process that runs as your user can connect to the socket and control
 Arc with your logged-in sessions. This is the same trust model as other local
 browser agents. Only install claude4arc on a machine you trust, and review
 what Claude does in sensitive accounts.

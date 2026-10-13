@@ -13,7 +13,7 @@ import { pruneScreenshots, pruneTempFiles } from "../lib/housekeeping.js";
 import { normalizePattern, readBlocklist, writeBlocklist, CONFIG_PATH } from "../lib/blocklist.js";
 import { readConfig, updateConfig } from "../lib/config.js";
 import { ROOT, STATE_DIR, LOG_PATH, HOST_NAME, EXTENSION_ID } from "../lib/paths.js";
-import { BROWSERS, installedBrowsers, hostManifestDirs, socketCandidates, browserOfSocket } from "../lib/browsers.js";
+import { platformBrowsers, installedBrowsers, runningBrowsers, hostManifestDirs, socketCandidates, browserOfSocket } from "../lib/browsers.js";
 import { NODE_PATHS, nodeFallbacks, versionedNodePath, stableNode, launcherScript } from "../lib/util.js";
 
 const manifestPathIn = (dir) => path.join(dir, `${HOST_NAME}.json`);
@@ -231,7 +231,7 @@ async function install(args = []) {
   await fs.writeFile(LAUNCHER_PATH, script, { mode: 0o755 });
   await fs.chmod(LAUNCHER_PATH, 0o755);
   const browsers = installedBrowsers();
-  if (!browsers.length) throw new Error(`No supported browser found in /Applications. Supported: ${BROWSERS.map((browser) => browser.name).join(", ")}.`);
+  if (!browsers.length) throw new Error(`No supported browser found ${process.platform === "linux" ? "in ~/.config or on PATH" : "in /Applications"}. Supported: ${platformBrowsers().map((browser) => browser.name).join(", ")}.`);
   const manifest = {
     name: HOST_NAME,
     description: "claude4arc native bridge",
@@ -260,7 +260,7 @@ Last step, once in each browser you want Claude to use:
 }
 
 async function uninstall() {
-  for (const dir of manifestDirsFor(BROWSERS)) await fs.rm(manifestPathIn(dir), { force: true });
+  for (const dir of manifestDirsFor(platformBrowsers())) await fs.rm(manifestPathIn(dir), { force: true });
   await fs.rm(LAUNCHER_PATH, { force: true });
   await removeOwnLink(SKILL_LINK);
   await removeOwnLink(LEGACY_SKILL_LINK);
@@ -291,16 +291,9 @@ async function doctor() {
   const checks = [];
   const check = (name, ok, detail) => checks.push(`${ok ? "ok  " : "FAIL"} ${name}${detail ? ` — ${detail}` : ""}`);
   const browsers = installedBrowsers();
-  check("supported browser installed", browsers.length > 0, browsers.map((browser) => browser.name).join(", ") || BROWSERS.map((browser) => browser.name).join(", "));
-  const running = browsers.filter((browser) => {
-    try {
-      execFileSync("pgrep", ["-x", browser.process]);
-      return true;
-    } catch {
-      return false;
-    }
-  });
-  check("browser running", running.length > 0, running.map((browser) => browser.name).join(", ") || "open Arc or another supported browser");
+  check("supported browser installed", browsers.length > 0, browsers.map((browser) => browser.name).join(", ") || platformBrowsers().map((browser) => browser.name).join(", "));
+  const running = runningBrowsers(browsers);
+  check("browser running", running.length > 0, running.map((browser) => browser.name).join(", ") || "open a supported browser");
   for (const dir of manifestDirsFor(browsers)) {
     let manifest = null;
     try {

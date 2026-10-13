@@ -23,7 +23,8 @@
     "node": ">=22"
   },
   "os": [
-    "darwin"
+    "darwin",
+    "linux"
   ],
   "repository": {
     "type": "git",
