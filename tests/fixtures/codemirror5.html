@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CodeMirror 5</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/lib/codemirror.css">
+<style>#editor { width: 560px; border: 1px solid #999; } .CodeMirror { height: 220px; }</style>
+</head>
+<body>
+<main>
+<h1>CodeMirror 5 editor</h1>
+<div id="editor"></div>
+<pre id="result">loading</pre>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.21/lib/codemirror.js"></script>
+<script>
+  const log = { changes: 0, keys: 0, untrusted: 0 };
+  document.addEventListener("keydown", (event) => {
+    log.keys += 1;
+    if (!event.isTrusted) log.untrusted += 1;
+  }, true);
+  const cm = CodeMirror(document.getElementById("editor"), { value: 'const old = "draft";\n', lineNumbers: true });
+  cm.on("change", () => {
+    log.changes += 1;
+  });
+  window.probe = () => ({ value: cm.getValue(), ...log });
+  document.getElementById("result").textContent = "";
+  document.body.dataset.ready = "1";
+</script>
+</body>
+</html>

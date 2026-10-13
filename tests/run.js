@@ -23,11 +23,12 @@ class CliError extends Error {
   }
 }
 
-function execCli(argv) {
+function execCli(argv, input) {
   return new Promise((resolve) => {
-    execFile(process.execPath, [BIN, ...argv], { timeout: CALL_TIMEOUT, maxBuffer: 16 * 1024 * 1024 }, (error, stdout, stderr) => {
+    const child = execFile(process.execPath, [BIN, ...argv], { timeout: CALL_TIMEOUT, maxBuffer: 16 * 1024 * 1024 }, (error, stdout, stderr) => {
       resolve({ code: error ? error.code ?? 1 : 0, stdout: stdout.trim(), stderr: stderr.trim(), killed: Boolean(error?.killed) });
     });
+    if (input !== undefined) child.stdin.end(input);
   });
 }
 
@@ -93,6 +94,20 @@ class Session {
     return out;
   }
 
+  async batch(lines, ...argv) {
+    const started = performance.now();
+    const result = await execCli(["batch", ...argv], lines.join("\n"));
+    const ms = Math.round(performance.now() - started);
+    this.ms += ms;
+    if (verbose) console.log(`    ${String(ms).padStart(6)}ms  claude4arc batch ${argv.join(" ")}`);
+    if (result.killed) throw new Error(`batch timed out after ${CALL_TIMEOUT}ms`);
+    return result;
+  }
+
+  async probe() {
+    return parseJson(await this.cmd("eval", "JSON.stringify(window.probe?.() ?? null)"));
+  }
+
   async goto(fixture) {
     const { out } = await cli([`${this.taskId}:p1`, "goto", `${BASE}/${fixture}`]);
     return out;
@@ -142,6 +157,30 @@ async function expectBackgroundPopup(s, output, check) {
   expect(check(url), `popup ${label} has unexpected url ${url}`);
   return `${label} ${new URL(url).search}`;
 }
+
+function batchSections(output) {
+  return output
+    .split(/^== /m)
+    .slice(1)
+    .map((chunk) => {
+      const [header, ...body] = chunk.split("\n");
+      const match = /^(\S+) (ok|FAILED) (\d+)-(\d+) \((\d+) ms\)$/.exec(header);
+      return { label: match?.[1] ?? header, ok: match ? match[2] === "ok" : null, start: Number(match?.[3]), end: Number(match?.[4]), body: body.join("\n") };
+    });
+}
+
+const RICH_TEXT = "Dear team,\nThe report is ready.\nThanks";
+const CODE_TEXT = "function add(a, b) {\n  return a + b;\n}\n";
+const TYPED_TEXT = "Typed one\nTyped two";
+
+const EDITORS = [
+  ["lexical", "lexical.html", "#editor", "#editor", RICH_TEXT],
+  ["prosemirror", "prosemirror.html", "#editor", ".ProseMirror", RICH_TEXT],
+  ["ckeditor5", "ckeditor5.html", ".ck-editor__editable", ".ck-editor__editable", RICH_TEXT],
+  ["tinymce", "tinymce.html", ".tox-tinymce", ".tox-edit-area iframe", RICH_TEXT],
+  ["ace", "ace.html", "#editor", "#editor", CODE_TEXT],
+  ["codemirror5", "codemirror5.html", ".CodeMirror", ".CodeMirror", CODE_TEXT],
+];
 
 const scenarios = [
   {
@@ -202,6 +241,7 @@ const scenarios = [
   {
     name: "editor-type",
     fixture: "editor.html",
+    platform: "darwin",
     async run(s) {
       await s.cmd("click", "#editor", "--", "press", "Meta+a", "--", "type", "Typed", "text");
       const result = await s.result();
@@ -237,6 +277,52 @@ const scenarios = [
       const result = await s.result();
       expect(result?.value === "Hello\nfrom Arc", `value ${show(result?.value ?? result)}`);
       expect(result.changes > 0, `no text-change events: ${show(result)}`);
+    },
+  },
+  ...EDITORS.flatMap(([kind, fixture, fillTarget, typeTarget, text]) => [
+    {
+      name: `editor-fill-${kind}`,
+      fixture,
+      async run(s) {
+        await s.cmd("wait", "css=body[data-ready]", "30000");
+        const before = await s.probe();
+        expect(before?.value?.startsWith("Old") || before?.value?.startsWith("const old"), `initial value ${show(before)}`);
+        const out = await s.cmd("fill", fillTarget, text);
+        expect(out === "ok", `fill said ${show(out)}`);
+        const filled = await s.probe();
+        expect(filled?.value === text, `value ${show(filled?.value ?? filled)}`);
+        expect(filled.changes > 0, `no change events: ${show(filled)}`);
+        const again = await s.cmd("fill", fillTarget, "Replaced");
+        expect(again === "ok", `second fill said ${show(again)}`);
+        const replaced = await s.probe();
+        expect(replaced?.value === "Replaced", `after second fill ${show(replaced?.value ?? replaced)}`);
+        return filled.keys ? "via keyboard fallback" : "via editor API";
+      },
+    },
+    {
+      name: `editor-type-${kind}`,
+      fixture,
+      platform: "darwin",
+      async run(s) {
+        await s.cmd("wait", "css=body[data-ready]", "30000");
+        await s.cmd("click", typeTarget, "--", "press", "Meta+a", "--", "type", TYPED_TEXT);
+        const result = await s.probe();
+        expect(result?.value === TYPED_TEXT, `value ${show(result?.value ?? result)}`);
+        expect(result.keys > 0 && result.untrusted === 0, `keys ${result.keys}, untrusted ${result.untrusted}`);
+        expect(result.changes > 0, `no change events: ${show(result)}`);
+      },
+    },
+  ]),
+  {
+    name: "editor-fill-prosemirror-global-view",
+    fixture: "prosemirror.html?global",
+    async run(s) {
+      await s.cmd("wait", "css=body[data-ready]", "30000");
+      const out = await s.cmd("fill", ".ProseMirror", RICH_TEXT);
+      expect(out === "ok", `fill said ${show(out)}`);
+      const result = await s.probe();
+      expect(result?.value === RICH_TEXT, `value ${show(result?.value ?? result)}`);
+      expect(result.keys === 0, `fill used the keyboard (${result.keys} keydowns) instead of window.view`);
     },
   },
   {
@@ -497,6 +583,7 @@ await p.mouse.click(r.x + 60, r.y + 60);`);
   {
     name: "no-intrusion",
     fixture: "intrusive.html",
+    platform: "darwin",
     async run(s) {
       const { execFileSync } = await import("node:child_process");
       const before = execFileSync("pbpaste", { encoding: "utf8" });
@@ -1012,6 +1099,137 @@ console.log(JSON.stringify({ error }));`);
       expect(String(styles).trim() === "0", `left styles behind: ${show(styles)}`);
     },
   },
+  {
+    name: "batch-lines-finish",
+    fixture: "index.html",
+    async run(s) {
+      const marker = `batch${Date.now()}`;
+      const result = await s.batch([
+        `form: goto ${BASE}/react-form.html?${marker} -- fill #name Ada -- fill #email ada@example.com -s`,
+        "# comments and blank lines are skipped",
+        "",
+        "wait #missing-field 500",
+        `last: eval "document.querySelector('#name').value"`,
+      ]);
+      const taskId = /^task (\d+)$/m.exec(result.stdout)?.[1];
+      expect(taskId && taskId !== String(s.taskId), `batch task ${show(result.stdout.split("\n")[0])}`);
+      expect(result.code === 1, `exit ${result.code} with one failed line (${show(result.stderr)})`);
+      const sections = batchSections(result.stdout);
+      expect(sections.map((section) => section.label).join(",") === "form,2,last,finish", `sections ${show(sections.map((section) => section.label))}`);
+      const [form, failed, last, finish] = sections;
+      expect(form.ok && /textbox "Full name".*="Ada"/.test(form.body) && /textbox "Email".*="ada@example.com"/.test(form.body), `form line has no -s snapshot: ${show(form)}`);
+      expect(failed.ok === false && /^Error: .*#missing-field/.test(failed.body), `failed line ${show(failed)}`);
+      expect(last.ok && last.body.trim() === "Ada", `last line ${show(last)}`);
+      expect(form.start <= form.end && form.end <= failed.start && failed.end <= last.start, `timestamps ${show(sections)}`);
+      expect(/^closed p1 kept - released -$/.test(finish.body.trim()), `finish ${show(finish.body)}`);
+      const gone = await cli([taskId, "pages"]).then(
+        (done) => done.out,
+        (error) => error.message,
+      );
+      expect(/does not exist/.test(gone), `batch task still exists: ${show(gone)}`);
+      const open = await s.script(`console.log((await t.bridge.call("tabs.query", {})).filter((tab) => tab.url?.includes(${JSON.stringify(marker)})).length);`);
+      expect(open.trim().split("\n").at(-1) === "0", `batch tab still open (${show(open)})`);
+    },
+  },
+  {
+    name: "batch-existing-task-keeps",
+    fixture: "index.html",
+    async run(s) {
+      const result = await s.batch([`goto ${BASE}/typing.html -- fill #box kept -- eval "document.getElementById('box').value"`], String(s.taskId));
+      expect(result.code === 0, `exit ${result.code}: ${show(result.stderr || result.stdout)}`);
+      const sections = batchSections(result.stdout);
+      expect(sections.length === 1 && sections[0].ok && sections[0].body.trim().endsWith("kept"), `sections ${show(sections)}`);
+      expect(new RegExp(`^task ${s.taskId}$`, "m").test(result.stdout), `batch used another task: ${show(result.stdout)}`);
+      const value = await s.cmd("eval", "document.getElementById('box').value");
+      expect(value === "kept", `task was finished or moved: ${show(value)}`);
+    },
+  },
+  {
+    name: "paste-restores-clipboard",
+    fixture: "typing.html",
+    platform: "darwin",
+    async run(s) {
+      const { execFileSync } = await import("node:child_process");
+      const original = execFileSync("pbpaste", { encoding: "utf8" });
+      const sentinel = `claude4arc clipboard sentinel ${Date.now()}`;
+      const text = "Pasted line one\nPasted line two";
+      try {
+        execFileSync("pbcopy", { input: sentinel });
+        await s.script(`await p.click("#box");\nawait p.keyboard.paste(${JSON.stringify(text)});`);
+        const after = execFileSync("pbpaste", { encoding: "utf8" });
+        expect(after === sentinel, `clipboard holds ${show(after.slice(0, 80))} after paste`);
+        const result = await s.result();
+        expect(result?.value === text, `pasted value ${show(result?.value ?? result)}`);
+        expect(result.inputs > 0, `no input events: ${show(result)}`);
+      } finally {
+        execFileSync("pbcopy", { input: original });
+      }
+    },
+  },
+  {
+    name: "popup-adopted-background-tab",
+    fixture: "index.html",
+    async run(s) {
+      const out = await s.script(`
+const tab = await t.bridge.call("tabs.create", { url: ${JSON.stringify(`${BASE}/popups.html`)}, active: false });
+let popup = null;
+try {
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  const user = await t.adopt(tab.id, { as: "u1" });
+  let receipt;
+  [popup, receipt] = await Promise.all([user.waitForEvent("popup", { timeout: 10000 }), user.click("#blank-link")]);
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  const pages = await t.pages();
+  const info = await t.bridge.call("tabs.get", popup.tabId);
+  const opener = await t.bridge.call("tabs.get", tab.id);
+  console.log(JSON.stringify({ label: popup.label, receipt: receipt.popups.map((item) => item.label), labels: pages.filter((page) => page.tabId === popup.tabId).map((page) => page.label), count: pages.filter((page) => page.label !== "p1" && page.label !== "u1").length, active: info.active, openerTabId: info.openerTabId, url: info.url, openerActive: opener.active, tabId: tab.id }));
+} finally {
+  if (popup) await popup.close().catch(() => {});
+  await t.release("u1").catch(() => {});
+  await t.bridge.call("tabs.remove", tab.id).catch(() => {});
+}`);
+      const result = parseJson(out.split("\n").at(-1));
+      expect(result?.label, `no popup ${show(out)}`);
+      expect(result.labels.length === 1 && result.labels[0] === result.label && result.count === 1, `popup labels ${show(result)}`);
+      expect(result.receipt.length === 1 && result.receipt[0] === result.label, `receipt ${show(result)}`);
+      expect(!result.active && !result.openerActive, `focus moved ${show(result)}`);
+      expect(result.openerTabId === result.tabId && /via=link/.test(result.url), `popup ${show(result)}`);
+      return `${result.label} ${result.url.split("/").at(-1)}`;
+    },
+  },
+  {
+    name: "popup-adopted-background-dialog",
+    fixture: "index.html",
+    async run(s) {
+      const out = await s.script(`
+const tab = await t.bridge.call("tabs.create", { url: ${JSON.stringify(`${BASE}/popups.html`)}, active: false });
+let popup = null;
+try {
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  const user = await t.adopt(tab.id, { as: "u1" });
+  await user.evaluate("document.getElementById('blank-link').addEventListener('click', () => alert('leaving'))");
+  const waiting = user.waitForEvent("popup", { timeout: 10000 });
+  const receipt = await user.click("#blank-link");
+  await user.acceptDialog();
+  popup = await waiting;
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  const pages = await t.pages();
+  const info = await t.bridge.call("tabs.get", popup.tabId);
+  const trap = await user.evaluate("typeof globalThis.__arcPopupTrap");
+  console.log(JSON.stringify({ dialog: receipt.dialog?.message, label: popup.label, count: pages.filter((page) => page.label !== "p1" && page.label !== "u1").length, active: info.active, openerTabId: info.openerTabId, url: info.url, tabId: tab.id, trap }));
+} finally {
+  if (popup) await popup.close().catch(() => {});
+  await t.release("u1").catch(() => {});
+  await t.bridge.call("tabs.remove", tab.id).catch(() => {});
+}`);
+      const result = parseJson(out.split("\n").at(-1));
+      expect(result?.label, `no popup ${show(out)}`);
+      expect(result.dialog === "leaving", `dialog ${show(result)}`);
+      expect(result.count === 1 && !result.active && result.openerTabId === result.tabId && /via=link/.test(result.url), `popup ${show(result)}`);
+      expect(result.trap === "undefined", `trap left in page ${show(result)}`);
+      return `${result.label} after dialog`;
+    },
+  },
 ];
 
 async function isServing(port) {
@@ -1038,11 +1256,14 @@ function printTable(rows) {
 }
 
 async function main() {
-  const selected = scenarios.filter((scenario) => !filters.length || filters.some((filter) => scenario.name.includes(filter)));
-  if (!selected.length) {
+  const matching = scenarios.filter((scenario) => !filters.length || filters.some((filter) => scenario.name.includes(filter)));
+  if (!matching.length) {
     console.error(`No scenario matches ${filters.join(", ")}. Scenarios: ${scenarios.map((scenario) => scenario.name).join(", ")}`);
     process.exit(2);
   }
+  const selected = matching.filter((scenario) => !scenario.platform || scenario.platform === process.platform);
+  const skipped = matching.filter((scenario) => !selected.includes(scenario));
+  if (skipped.length) console.log(`skipped on ${process.platform}: ${skipped.map((scenario) => `${scenario.name} (${scenario.platform} only)`).join(", ")}`);
   const serving = (await isServing(PORTS[0])) && (await isServing(PORTS[1]));
   const server = serving ? null : await startServer();
   let taskId = null;

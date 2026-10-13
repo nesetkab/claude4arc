@@ -1,5 +1,34 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- CI runs the browser suite in headless Chrome for Testing on macOS and
+  Linux, on every push. Chrome for Testing is a supported browser.
+- Browser tests for Lexical, ProseMirror, CKEditor 5, TinyMCE, Ace,
+  CodeMirror 5, batch mode, and paste.
+- A held-out benchmark rerun at 0.6: 88.7 s, 7.7 tool calls, and 0.33 M
+  tokens read, down from 117.1 s, 8.0, and 0.48 M.
+
+### Changed
+
+- `install` pins a Node path that `brew upgrade` keeps, and the launcher
+  falls back to another Node 22 or newer if the pinned one is gone.
+- The editor helper uses the same locked slot as the in-page helper.
+- `~/.arc-bridge/page-secret` is created on first use, not on import.
+
+### Fixed
+
+- New-tab links and `window.open` did nothing on a user tab in the
+  background. They now open a background tab, also after a dialog.
+- The first paste in a tab could insert nothing. Paste checks the result,
+  retries, and falls back to inserting the text.
+- Paste lost images and rich text on the clipboard. It restores every type.
+- Plain ProseMirror editors were filled through the keyboard instead of
+  their own API.
+- Filling an editor without an API used `Meta+a` on Linux.
+
 ## 0.6.0 (2026-10-11)
 
 ### Changed

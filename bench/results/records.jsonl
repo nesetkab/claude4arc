@@ -379,3 +379,33 @@
 {"time":"2026-09-27T01:34:40.015Z","run":"cic-h3b","task":"h8","value":"{\"name\":\"receipt-2291.txt\",\"size\":40,\"text\":\"Receipt 2291\\nTaxi to airport: 38.40 EUR\"}"}
 {"time":"2026-09-27T01:34:54.180Z","run":"cic-h3b","task":"h9","value":"dark"}
 {"time":"2026-09-27T01:35:06.863Z","run":"cic-h3b","task":"h10","value":"{\"volume\":75,\"query\":\"kiwi\",\"results\":3}"}
+{"time":"2026-10-11T22:03:22.948Z","run":"c4a-r1","task":"h2","value":"LIS"}
+{"time":"2026-10-11T22:03:24.001Z","run":"c4a-r1","task":"h3","value":"{\"bio\":\"Compiler pioneer.\",\"public\":true}"}
+{"time":"2026-10-11T22:03:30.113Z","run":"c4a-r1","task":"h6","value":"Meeting moved to 3 pm."}
+{"time":"2026-10-11T22:03:31.873Z","run":"c4a-r1","task":"h7","value":"4521"}
+{"time":"2026-10-11T22:03:32.297Z","run":"c4a-r1","task":"h8","value":"{\"name\":\"receipt-2291.txt\",\"size\":40,\"text\":\"Receipt 2291\\nTaxi to airport: 38.40 EUR\"}"}
+{"time":"2026-10-11T22:03:32.896Z","run":"c4a-r1","task":"h9","value":"dark"}
+{"time":"2026-10-11T22:03:33.529Z","run":"c4a-r1","task":"h10","value":"{\"volume\":75,\"query\":\"kiwi\",\"results\":3}"}
+{"time":"2026-10-11T22:03:45.866Z","run":"c4a-r1","task":"h4","value":"Paper clips"}
+{"time":"2026-10-11T22:03:58.511Z","run":"c4a-r1","task":"h5","value":"paperless:on"}
+{"time":"2026-10-11T22:04:04.098Z","run":"c4a-r1","task":"h1","value":"{\"name\":\"Grace Hopper\",\"date\":\"2026-10-15\",\"plan\":\"Team\"}"}
+{"time":"2026-10-11T22:06:07.740Z","run":"c4a-r2","task":"h2","value":"LIS"}
+{"time":"2026-10-11T22:06:08.866Z","run":"c4a-r2","task":"h3","value":"{\"bio\":\"Compiler pioneer.\",\"public\":true}"}
+{"time":"2026-10-11T22:06:14.978Z","run":"c4a-r2","task":"h6","value":"Meeting moved to 3 pm."}
+{"time":"2026-10-11T22:06:16.739Z","run":"c4a-r2","task":"h7","value":"4521"}
+{"time":"2026-10-11T22:06:17.163Z","run":"c4a-r2","task":"h8","value":"{\"name\":\"receipt-2291.txt\",\"size\":40,\"text\":\"Receipt 2291\\nTaxi to airport: 38.40 EUR\"}"}
+{"time":"2026-10-11T22:06:17.879Z","run":"c4a-r2","task":"h9","value":"dark"}
+{"time":"2026-10-11T22:06:18.579Z","run":"c4a-r2","task":"h10","value":"{\"volume\":75,\"query\":\"kiwi\",\"results\":3}"}
+{"time":"2026-10-11T22:06:34.694Z","run":"c4a-r2","task":"h4","value":"Paper clips"}
+{"time":"2026-10-11T22:06:50.585Z","run":"c4a-r2","task":"h1","value":"{\"name\":\"Grace Hopper\",\"date\":\"2026-10-15\",\"plan\":\"Team\"}"}
+{"time":"2026-10-11T22:06:57.675Z","run":"c4a-r2","task":"h5","value":"paperless:on"}
+{"time":"2026-10-11T22:21:13.349Z","run":"c4a-r3","task":"h2","value":"LIS"}
+{"time":"2026-10-11T22:21:14.711Z","run":"c4a-r3","task":"h3","value":"{\"bio\":\"Compiler pioneer.\",\"public\":true}"}
+{"time":"2026-10-11T22:21:20.876Z","run":"c4a-r3","task":"h6","value":"Meeting moved to 3 pm."}
+{"time":"2026-10-11T22:21:22.767Z","run":"c4a-r3","task":"h7","value":"4521"}
+{"time":"2026-10-11T22:21:23.302Z","run":"c4a-r3","task":"h8","value":"{\"name\":\"receipt-2291.txt\",\"size\":40,\"text\":\"Receipt 2291\\nTaxi to airport: 38.40 EUR\"}"}
+{"time":"2026-10-11T22:21:23.885Z","run":"c4a-r3","task":"h9","value":"dark"}
+{"time":"2026-10-11T22:21:24.586Z","run":"c4a-r3","task":"h10","value":"{\"volume\":75,\"query\":\"kiwi\",\"results\":3}"}
+{"time":"2026-10-11T22:21:37.744Z","run":"c4a-r3","task":"h4","value":"Paper clips"}
+{"time":"2026-10-11T22:21:53.347Z","run":"c4a-r3","task":"h5","value":"paperless:on"}
+{"time":"2026-10-11T22:22:08.144Z","run":"c4a-r3","task":"h1","value":"{\"name\":\"Grace Hopper\",\"date\":\"2026-10-15\",\"plan\":\"Team\"}"}

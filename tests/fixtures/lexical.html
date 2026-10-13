@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lexical</title>
+<style>#editor { width: 560px; min-height: 140px; border: 1px solid #999; padding: 8px; } #editor p { margin: 0 0 6px; }</style>
+</head>
+<body>
+<main>
+<h1>Lexical editor</h1>
+<div id="editor" contenteditable="true" aria-label="Lexical body"></div>
+<pre id="result">loading</pre>
+</main>
+<script type="module">
+  import { createEditor, $getRoot, $createParagraphNode, $createTextNode } from "https://cdn.jsdelivr.net/npm/lexical@0.52.0/+esm";
+  import { registerRichText, HeadingNode, QuoteNode } from "https://cdn.jsdelivr.net/npm/@lexical/rich-text@0.52.0/+esm";
+  import { registerHistory, createEmptyHistoryState } from "https://cdn.jsdelivr.net/npm/@lexical/history@0.52.0/+esm";
+  const log = { changes: 0, keys: 0, untrusted: 0 };
+  document.addEventListener("keydown", (event) => {
+    log.keys += 1;
+    if (!event.isTrusted) log.untrusted += 1;
+  }, true);
+  const editor = createEditor({ namespace: "fixture", nodes: [HeadingNode, QuoteNode], onError: (error) => { throw error; } });
+  editor.setRootElement(document.getElementById("editor"));
+  registerRichText(editor);
+  registerHistory(editor, createEmptyHistoryState(), 300);
+  editor.update(() => {
+    $getRoot().append($createParagraphNode().append($createTextNode("Old draft")));
+  }, { discrete: true });
+  const value = () => editor.getEditorState().read(() => $getRoot().getChildren().map((node) => node.getTextContent()).join("\n"));
+  editor.registerTextContentListener(() => {
+    log.changes += 1;
+  });
+  window.probe = () => ({ value: value(), ...log });
+  document.getElementById("result").textContent = "";
+  document.body.dataset.ready = "1";
+</script>
+</body>
+</html>

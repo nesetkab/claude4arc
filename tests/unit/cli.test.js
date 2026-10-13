@@ -13,17 +13,23 @@ fs.mkdirSync(path.join(home, ".arc-bridge"));
 const server = net.createServer(() => {});
 await new Promise((resolve) => server.listen(path.join(home, ".arc-bridge", "arc.sock"), resolve));
 
-function cli(...args) {
-  const env = { ...process.env, HOME: home };
+function cliIn(dir, ...args) {
+  const env = { ...process.env, HOME: dir };
   delete env.CLAUDE4ARC_BROWSER;
   const child = spawn(process.execPath, [CLI, ...args], { env, stdio: ["ignore", "pipe", "pipe"] });
   let bytes = 0;
+  let stdout = "";
   let stderr = "";
-  child.stdout.on("data", (chunk) => (bytes += chunk.length));
+  child.stdout.on("data", (chunk) => {
+    bytes += chunk.length;
+    if (stdout.length < 100_000) stdout += chunk;
+  });
   child.stderr.on("data", (chunk) => (stderr += chunk));
   const started = Date.now();
-  return new Promise((resolve) => child.on("close", (code) => resolve({ code, bytes, stderr, ms: Date.now() - started })));
+  return new Promise((resolve) => child.on("close", (code) => resolve({ code, bytes, stdout, stderr, ms: Date.now() - started })));
 }
+
+const cli = (...args) => cliIn(home, ...args);
 
 test("large output reaches a pipe in full and the process exits", async () => {
   const result = await cli("run", "-e", 'console.log("x".repeat(5_000_000))');
@@ -42,6 +48,21 @@ test("errors still set a failing exit code", async () => {
   const result = await cli("run", "-e", 'throw new Error("nope")');
   assert.equal(result.code, 1);
   assert.match(result.stderr, /Error: nope/);
+});
+
+test("install pins a node that survives upgrades and doctor reads it back", async () => {
+  const installHome = fs.mkdtempSync(path.join(os.tmpdir(), "c4a-install-"));
+  try {
+    await cliIn(installHome, "install", "--no-skill");
+    const launcher = fs.readFileSync(path.join(installHome, ".arc-bridge", "host-launcher.sh"), "utf8");
+    const pinned = /exec '([^']*)'/.exec(launcher)[1];
+    assert.equal(fs.realpathSync(pinned), fs.realpathSync(process.execPath));
+    if (process.execPath.includes("/Cellar/")) assert.ok(!pinned.includes("/Cellar/"), pinned);
+    const doctor = await cliIn(installHome, "doctor");
+    assert.match(doctor.stdout, new RegExp(`ok   host node version — ${pinned.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} is v`));
+  } finally {
+    fs.rmSync(installHome, { recursive: true, force: true });
+  }
 });
 
 test.after(async () => {
