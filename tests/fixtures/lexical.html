@@ -27,6 +27,13 @@
   editor.update(() => {
     $getRoot().append($createParagraphNode().append($createTextNode("Old draft")));
   }, { discrete: true });
+  if (new URLSearchParams(location.search).has("broken-json")) {
+    const original = editor.getEditorState.bind(editor);
+    editor.getEditorState = () => {
+      const state = original();
+      return Object.assign(Object.create(state), { toJSON() { throw new Error("Minified Lexical error #130"); } });
+    };
+  }
   const value = () => editor.getEditorState().read(() => $getRoot().getChildren().map((node) => node.getTextContent()).join("\n"));
   editor.registerTextContentListener(() => {
     log.changes += 1;

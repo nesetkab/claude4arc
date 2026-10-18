@@ -1282,6 +1282,92 @@ try {
       expect(result?.plan === "Office" && result.period === "monthly", `result ${show(result)}`);
     },
   },
+  {
+    name: "hidden-copy-inside-visible-match",
+    fixture: "notices.html",
+    async run(s) {
+      await s.cmd("click", "text=Invoice 2291", "--", "click", "role=link >> nth=1");
+      const result = await s.probe();
+      expect(result?.opened === "1" && result.link === "Visible two", `result ${show(result)}`);
+      const text = await s.cmd("text");
+      expect(text.includes("Weekly plan"), `empty main gave no text: ${show(text)}`);
+    },
+  },
+  {
+    name: "type-reports-rejection-dialog",
+    fixture: "notices.html",
+    async run(s) {
+      const accepted = await s.cmd("click", "#status", "--", "type", "Open");
+      expect(accepted === "ok", `accepted input reported ${show(accepted)}`);
+      const rejected = await s.cmd("press", "Meta+a", "--", "type", "Maybe");
+      expect(/page now shows: "There was a problem/.test(rejected), `rejection not reported: ${show(rejected)}`);
+    },
+  },
+  {
+    name: "editor-fill-lexical-unreadable-state",
+    fixture: "lexical.html?broken-json",
+    async run(s) {
+      await s.cmd("wait", "body[data-ready]", "20000");
+      const out = await s.cmd("fill", "#editor", RICH_TEXT);
+      expect(!/error/i.test(out), `fill said ${show(out)}`);
+      const result = await s.probe();
+      expect(result?.value === RICH_TEXT, `value ${show(result)}`);
+    },
+  },
+  {
+    name: "frozen-page-gives-up-and-reloads",
+    fixture: "index.html",
+    async run(s) {
+      const started = performance.now();
+      const frozen = await cli([`${s.taskId}:p1`, "goto", `${BASE}/frozen.html?ms=60000`, "--", "click", "#freeze", "--timeout", "4000"]).then(
+        () => null,
+        (error) => error.message,
+      );
+      const waited = performance.now() - started;
+      expect(/click gave up after 4s/.test(frozen ?? ""), `frozen click said ${show(frozen)}`);
+      expect(waited < 20_000, `frozen click took ${Math.round(waited)}ms`);
+      await s.cmd("reload");
+      const value = await s.result();
+      expect(value === "idle", `page after reload ${show(value)}`);
+    },
+  },
+  {
+    name: "batch-keep-tab-per-line",
+    fixture: "index.html",
+    async run(s) {
+      const result = await s.batch([`A: goto ${BASE}/typing.html`, `B: goto ${BASE}/notices.html`], "--keep");
+      const taskId = /^task (\d+)$/m.exec(result.stdout)?.[1];
+      try {
+        expect(result.code === 0, `exit ${result.code}: ${show(result.stderr || result.stdout)}`);
+        const headers = result.stdout.split("\n").filter((line) => line.startsWith("== "));
+        expect(/^== A ok .* p1$/.test(headers[0]) && /^== B ok .* p2$/.test(headers[1]), `headers ${show(headers)}`);
+        const pages = (await cli([taskId, "pages"])).out;
+        expect(/typing\.html/.test(pages) && /notices\.html/.test(pages), `pages ${show(pages)}`);
+      } finally {
+        if (taskId) await cli([taskId, "finish"]).catch(() => {});
+      }
+    },
+  },
+  {
+    name: "adopt-without-blank-tab",
+    fixture: "index.html",
+    async run(s) {
+      const out = await s.script(`const tab = await t.bridge.call("tabs.create", { url: ${JSON.stringify(`${BASE}/typing.html`)}, active: false }); console.log(tab.id);`);
+      const tabId = out.trim().split("\n").at(-1);
+      let taskId = null;
+      try {
+        const adopted = (await cli(["adopt", tabId, "--", "eval", "location.pathname"])).out;
+        taskId = /^task (\d+) p1 /.exec(adopted)?.[1];
+        expect(taskId && adopted.endsWith("/typing.html"), `adopt said ${show(adopted)}`);
+        const pages = (await cli([taskId, "pages"])).out.split("\n");
+        expect(pages.length === 1 && pages[0].startsWith(`p1 ${tabId}`), `pages ${show(pages)}`);
+        const closed = (await cli([taskId, "close", "p1"])).out;
+        expect(/^released p1; it is the user's tab/.test(closed), `close said ${show(closed)}`);
+      } finally {
+        await s.script(`await t.bridge.call("tabs.remove", ${tabId}).catch(() => {});`);
+      }
+    },
+  },
 ];
 
 async function isServing(port) {

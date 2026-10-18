@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Notices</title>
+<style>
+  .row { display: flex; gap: 8px; padding: 6px; border-bottom: 1px solid #ddd; cursor: pointer; }
+  .sr { display: none; }
+  .dialog { border: 1px solid #c00; padding: 8px; margin: 8px 0; }
+</style>
+</head>
+<body>
+<div role="main"></div>
+<div id="app">
+  <div id="rows">
+    <div class="row" data-id="1" tabindex="0"><span>Invoice 2291 from Acme<span class="sr">Invoice 2291 from Acme, unread</span></span></div>
+    <div class="row" data-id="2" tabindex="0"><span>Weekly plan</span><span class="sr">Weekly plan</span></div>
+  </div>
+  <nav>
+    <a class="sr" href="#h1">Hidden one</a>
+    <a class="sr" href="#h2">Hidden two</a>
+    <a href="#v1" id="v1">Visible one</a>
+    <a href="#v2" id="v2">Visible two</a>
+  </nav>
+  <label>Status <input id="status" aria-label="Status"></label>
+  <p id="result"></p>
+</div>
+<script>
+  const result = { opened: null, link: null, status: null };
+  const show = () => (document.getElementById("result").textContent = JSON.stringify(result));
+  document.getElementById("rows").addEventListener("click", (event) => {
+    result.opened = event.target.closest(".row")?.dataset.id ?? null;
+    show();
+  });
+  document.querySelector("nav").addEventListener("click", (event) => {
+    event.preventDefault();
+    result.link = event.target.textContent;
+    show();
+  });
+  const status = document.getElementById("status");
+  status.addEventListener("input", () => {
+    document.querySelector(".dialog")?.remove();
+    if (["Open", "Closed"].includes(status.value) || "Open".startsWith(status.value) || "Closed".startsWith(status.value)) return;
+    const dialog = document.createElement("div");
+    dialog.className = "dialog";
+    dialog.setAttribute("role", "dialog");
+    dialog.textContent = "There was a problem: input must be an item on the specified list";
+    document.getElementById("app").append(dialog);
+  });
+  window.probe = () => result;
+</script>
+</body>
+</html>
