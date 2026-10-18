@@ -23,10 +23,9 @@ async function setAgentTab(tabId, enabled) {
   await chrome.storage.session.set({ agentTabs: [...tabs] });
 }
 
-async function messageTab(tabId, message) {
+async function messageTab(tabId, message, options) {
   try {
-    await chrome.tabs.sendMessage(tabId, message);
-    return true;
+    return (await chrome.tabs.sendMessage(tabId, message, options)) ?? true;
   } catch {
     return false;
   }
@@ -40,6 +39,7 @@ const handlers = {
   "tabs.create": (props) => chrome.tabs.create(props ?? {}),
   "tabs.update": (tabId, props) => chrome.tabs.update(tabId, props),
   "tabs.remove": (tabId) => chrome.tabs.remove(tabId),
+  "tabs.reload": (tabId) => chrome.tabs.reload(tabId),
   "tabs.goBack": (tabId) => chrome.tabs.goBack(tabId),
   "tabs.goForward": (tabId) => chrome.tabs.goForward(tabId),
   "windows.getAll": (query) => chrome.windows.getAll(query ?? {}),
@@ -53,7 +53,7 @@ const handlers = {
     version: chrome.runtime.getManifest().version,
     id: chrome.runtime.id,
     userAgent: navigator.userAgent,
-    features: ["sessions", "reload", "guard", "downloads"],
+    features: ["sessions", "reload", "guard", "downloads", "sweep-once"],
   }),
   "guard.enable": async (tabId) => {
     await setAgentTab(tabId, true);
@@ -63,6 +63,11 @@ const handlers = {
   "guard.sweep": async (tabId) => {
     await setAgentTab(tabId, true);
     return messageTab(tabId, { type: "arc-sweep" });
+  },
+  "guard.sweepOnce": (tabId) => messageTab(tabId, { type: "arc-sweep-once" }),
+  "guard.foreignFrames": async (tabId) => {
+    const frames = await messageTab(tabId, { type: "arc-foreign?" }, { frameId: 0 });
+    return Array.isArray(frames) ? frames : [];
   },
   "downloads.search": (query) => chrome.downloads.search(query ?? {}),
   "downloads.erase": (query) => chrome.downloads.erase(query ?? {}),

@@ -51,14 +51,26 @@ function sweep() {
   if (document.documentElement) inspect(document.documentElement);
 }
 
+function foreignFrames(root = document) {
+  const found = [];
+  for (const frame of root.querySelectorAll("iframe, frame")) if (isForeign(frame)) found.push(frame);
+  for (const element of root.querySelectorAll("*")) {
+    const shadow = chrome.dom.openOrClosedShadowRoot(element);
+    if (shadow) found.push(...foreignFrames(shadow));
+  }
+  return found;
+}
+
 watch(document);
 
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type === "arc-guard") enable();
   if (message?.type === "arc-sweep") {
     enable();
     sweep();
   }
+  if (message?.type === "arc-sweep-once") for (const frame of foreignFrames()) frame.remove();
+  if (message?.type === "arc-foreign?") sendResponse(foreignFrames().map((frame) => frame.getAttribute("src")));
 });
 
 chrome.runtime.sendMessage({ type: "arc-guard?" }).then((agent) => {

@@ -14,7 +14,7 @@ const tasksPath = path.join(stateDir, "tasks.json");
 const taskUrl = new URL("../../lib/task.js", import.meta.url).href;
 const commandsUrl = new URL("../../lib/commands.js", import.meta.url).href;
 const { updateState, writeState, mergeRecord, Task } = await import(taskUrl);
-const { runBatch } = await import(commandsUrl);
+const { runBatch, runCommands, adoptTask } = await import(commandsUrl);
 
 const readTasks = async () => JSON.parse(await fs.readFile(tasksPath, "utf8"));
 const reset = () => fs.rm(stateDir, { recursive: true, force: true });
@@ -185,12 +185,12 @@ function fakeBridge() {
     async call(method, ...args) {
       calls.push([method, ...args]);
       if (method === "tabs.create") {
-        const tab = { id: nextTab++, windowId: 1, url: args[0].url, title: "" };
+        const tab = { id: nextTab++, windowId: 1, url: args[0].url, title: "", active: Boolean(args[0].active) };
         tabs.set(tab.id, tab);
         return tab;
       }
       if (method === "tabs.remove") return tabs.delete(args[0]);
-      if (method === "tabs.query") return [...tabs.values()];
+      if (method === "tabs.query") return [...tabs.values()].filter((tab) => !args[0]?.active || tab.active);
       if (method === "tabs.get") return tabs.get(args[0]);
       if (method === "debugger.attach") throw new Error(`No tab with id: ${args[0]}`);
       return null;
@@ -253,4 +253,52 @@ test("two commands on one task get different labels and keep both pages", async 
   assert.notEqual(pageA.label, pageB.label);
   const pages = (await readTasks()).tasks[String(task.spaceId)].pages;
   assert.deepEqual(Object.keys(pages).sort(), ["p1", pageA.label, pageB.label].sort());
+});
+
+test("batch --keep gives each line its own tab", async () => {
+  await reset();
+  const bridge = fakeBridge();
+  const output = [];
+  await runBatch(bridge, "A: url\nB: url\nC: url", { keep: true, tabPerLine: true, write: (text) => output.push(text) });
+  assert.deepEqual(output.slice(1).map((text) => text.split("\n")[0].split(" ").at(-1)), ["p1", "p2", "p3"]);
+  assert.equal(bridge.calls.filter(([method]) => method === "tabs.create").length, 3);
+  assert.ok(!bridge.calls.some(([method]) => method === "tabs.remove"));
+});
+
+test("finish leaves a Claude tab open when the user is looking at it", async () => {
+  await reset();
+  const bridge = fakeBridge();
+  const task = await Task.create(bridge, "watched");
+  await task.newPage();
+  const shown = await bridge.call("tabs.get", task.page("p1").tabId);
+  shown.active = true;
+  const result = await task.finish();
+  assert.deepEqual(result.closed, ["p2"]);
+  assert.deepEqual(result.kept, ["p1"]);
+  assert.deepEqual(result.onScreen, ["p1"]);
+});
+
+test("close takes a page label and only releases a user's tab", async () => {
+  await reset();
+  const bridge = fakeBridge();
+  const task = await Task.create(bridge, "close");
+  const user = await bridge.call("tabs.create", { url: "https://user.test" });
+  await task.adopt(user.id);
+  await task.flush();
+  const id = task.spaceId;
+  assert.equal(await runCommands(bridge, `${id}:p2`, ["close", "p1"]), "closed p1");
+  assert.ok(bridge.calls.some(([method, tabId]) => method === "tabs.remove" && tabId === 100));
+  assert.match(await runCommands(bridge, String(id), ["close", "p2"]), /^released p2; it is the user's tab/);
+  assert.ok(!bridge.calls.some(([method, tabId]) => method === "tabs.remove" && tabId === user.id));
+});
+
+test("adopt makes a task without a blank tab", async () => {
+  await reset();
+  const bridge = fakeBridge();
+  const user = await bridge.call("tabs.create", { url: "https://user.test" });
+  const out = await adoptTask(bridge, [String(user.id)]);
+  assert.match(out, /^task \d+ p1 \| /);
+  assert.equal(bridge.calls.filter(([method]) => method === "tabs.create").length, 1);
+  const [record] = Object.values((await readTasks()).tasks);
+  assert.deepEqual(record.pages, { p1: { tabId: user.id, openedBy: "user" } });
 });

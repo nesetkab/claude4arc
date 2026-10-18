@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { shellWords, splitChain, parseBatchLine, batchLabel, retryDecision, receiptText } from "../../lib/commands.js";
+import { shellWords, splitChain, parseBatchLine, batchLabel, retryDecision, receiptText, stepLimit } from "../../lib/commands.js";
 
 test("shellWords follows shell quoting", () => {
   assert.deepEqual(shellWords(`fill "text=Full name" Ada`), ["fill", "text=Full name", "Ada"]);
@@ -50,4 +50,13 @@ test("only commands that have not sent input are retried after a detach", () => 
 
 test("receiptText prints a warning once", () => {
   assert.equal(receiptText({ warning: "#x holds nothing readable after fill" }), "warning: #x holds nothing readable after fill");
+});
+
+test("each step has a time limit that waits can stretch", () => {
+  assert.equal(stepLimit("click", ["#x"], 45_000), 45_000);
+  assert.equal(stepLimit("wait", ["#x"], 45_000), 45_000);
+  assert.equal(stepLimit("wait", ["#x", "90000"], 45_000), 95_000);
+  assert.equal(stepLimit("wait", ["70000"], 45_000), 75_000);
+  assert.equal(stepLimit("wait", ["download"], 45_000), 65_000);
+  assert.equal(stepLimit("click", ["#x"], 5_000), 5_000);
 });

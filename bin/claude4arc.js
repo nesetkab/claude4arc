@@ -8,7 +8,7 @@ import { Console } from "node:console";
 globalThis.console = new Console({ stdout: process.stdout, stderr: process.stderr, colorMode: false });
 import { Bridge } from "../lib/client.js";
 import { Task, listTasks, browserOfTask } from "../lib/task.js";
-import { runCommands, createTask, runBatch, COMMAND_NAMES } from "../lib/commands.js";
+import { runCommands, createTask, adoptTask, runBatch, COMMAND_NAMES } from "../lib/commands.js";
 import { pruneScreenshots, pruneTempFiles } from "../lib/housekeeping.js";
 import { normalizePattern, readBlocklist, writeBlocklist, CONFIG_PATH } from "../lib/blocklist.js";
 import { readConfig, updateConfig } from "../lib/config.js";
@@ -26,10 +26,13 @@ const USAGE = `claude4arc: let Claude Code drive Arc (or Dia, Chrome, Brave, Edg
 
 Usage:
   claude4arc new [url] [name] [-s]          Create a task (page p1), -s prints a snapshot
+  claude4arc adopt [tabId] [-- <cmd> ...]   Create a task from one of the user's tabs (the one on screen by default)
   claude4arc <id>[:page] <cmd> [args] [-- <cmd> ...] [-s]
                                              Run one or more commands; -s appends a diff snapshot
+                                             Each step gives up after 45 s; --timeout <ms> changes that
   claude4arc batch [id] [--keep]            Run one command chain per stdin line ("B1: goto … -- click …");
-                                             prints each line's start/end ms; finishes the task unless --keep or an id
+                                             prints each line's start/end ms; finishes the task unless --keep or an id;
+                                             --keep gives each line its own tab and leaves them open
   claude4arc run [id] [-e <code>]           Run a script (stdin when -e is absent); with id, t and page are set
   claude4arc status            Show bridge, extension, and task state
   claude4arc clean [--all]     Delete screenshots older than a day (or all) and stale temp files
@@ -336,8 +339,17 @@ async function doctor() {
   if (checks.some((line) => line.startsWith("FAIL"))) process.exitCode = 1;
 }
 
+function takeTimeoutFlag(argv) {
+  const index = argv.indexOf("--timeout");
+  if (index < 0) return argv;
+  const value = argv[index + 1];
+  if (!/^\d+$/.test(value ?? "")) throw new Error(`--timeout needs a number of milliseconds, for example --timeout 90000`);
+  process.env.CLAUDE4ARC_TIMEOUT = value;
+  return [...argv.slice(0, index), ...argv.slice(index + 2)];
+}
+
 async function main() {
-  const [command = "help", ...rest] = process.argv.slice(2);
+  const [command = "help", ...rest] = takeTimeoutFlag(process.argv.slice(2));
   if (/^\d+(:[\w-]+)?$/.test(command)) {
     if (!rest.length) throw new Error(`Give a command after the task id. Commands: ${COMMAND_NAMES.join(", ")}`);
     console.log(await withBridge((bridge) => runCommands(bridge, command, rest), { taskId: command.split(":")[0] }));
@@ -347,11 +359,15 @@ async function main() {
     case "new":
       console.log(await withBridge((bridge) => createTask(bridge, rest)));
       break;
+    case "adopt":
+      console.log(await withBridge((bridge) => adoptTask(bridge, rest)));
+      break;
     case "batch": {
       const taskId = rest.find((arg) => /^\d+$/.test(arg));
       const keep = rest.includes("--keep") || Boolean(taskId);
       const script = await readStdin();
-      const failures = await withBridge((bridge) => runBatch(bridge, script, { taskId, keep, write: (text) => console.log(text) }), { taskId });
+      const tabPerLine = rest.includes("--keep") && !taskId;
+      const failures = await withBridge((bridge) => runBatch(bridge, script, { taskId, keep, tabPerLine, write: (text) => console.log(text) }), { taskId });
       if (failures) process.exitCode = 1;
       break;
     }

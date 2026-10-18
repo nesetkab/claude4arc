@@ -149,6 +149,7 @@ function forgetTab(tabId) {
 }
 
 const MAX_TO_BROWSER = 1024 * 1024;
+const PROBE_TIMEOUT_MS = 3_000;
 
 function sendToExtension(message) {
   const body = Buffer.from(JSON.stringify(message));
@@ -261,7 +262,8 @@ async function attach(tabId) {
     return { already: false };
   } catch (error) {
     if (!/already attached/i.test(error.message)) throw error;
-    const ours = await send(tabId, null, "Runtime.evaluate", { expression: "0" }).then(() => true, () => false);
+    const probe = send(tabId, null, "Runtime.evaluate", { expression: "0" }).then(() => true, () => false);
+    const ours = await Promise.race([probe, new Promise((resolve) => setTimeout(resolve, PROBE_TIMEOUT_MS, true))]);
     if (!ours) throw new Error(`Another debugger (DevTools or another extension) is attached to tab ${tabId}. Close it and try again.`);
     attached.add(tabId);
     await enableAutoAttach(tabId, true);

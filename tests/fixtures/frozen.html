@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Frozen</title></head>
+<body>
+<button id="freeze">Freeze</button>
+<p id="result">idle</p>
+<script>
+  document.getElementById("freeze").addEventListener("click", () => {
+    const until = Date.now() + Number(new URLSearchParams(location.search).get("ms") ?? 120000);
+    while (Date.now() < until) {}
+    document.getElementById("result").textContent = "thawed";
+  });
+</script>
+</body>
+</html>
