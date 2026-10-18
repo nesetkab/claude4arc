@@ -115,7 +115,8 @@ claude4arc 7 finish                        # close the tabs Claude opened
 
 For several tasks, `batch` runs one command chain per line in a single call.
 It prints the start and end time of each line, keeps going after a failure,
-and closes its tabs at the end:
+and closes its tabs at the end (`batch --keep` gives each line its own tab and
+leaves them open):
 
 ```bash
 claude4arc batch <<'EOF'
@@ -186,8 +187,11 @@ records, the blocklist, and screenshots).
   CKEditor, TinyMCE) work.
 - Google Docs and Sheets are read through Google's own export, and PDFs
   through macOS PDFKit (`pdftotext` on Linux).
-- `finish` closes only the tabs that Claude opened. Tabs you hand over with
-  `adopt` are released, never closed.
+- `finish` closes only the tabs that Claude opened, and leaves open any of
+  them you are looking at. Tabs you hand over with `adopt` are released, never
+  closed, by both `close` and `finish`.
+- Each step gives up after 45 seconds instead of hanging on a frozen page
+  (`--timeout <ms>` changes it), and `reload` stops the page's stuck script.
 - Each task belongs to the Claude Code session that created it, so parallel
   sessions do not interfere with each other. Set `CLAUDE4ARC_ANY_TASK=1` to
   use a task from another session.

@@ -1,5 +1,36 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `claude4arc adopt [tabId]` starts a task from one of your tabs without
+  opening a blank one first.
+- `batch --keep` gives each line its own tab and leaves them open. Each
+  line's header ends with its page label.
+- Each step gives up after 45 s with "stopped responding" instead of hanging
+  on a frozen page. `--timeout <ms>` changes the limit. `reload` on a frozen
+  page stops its stuck script and reloads it in about 2 s.
+- `type`, `fill`, and `press` report a dialog or alert that appears, such as
+  a sheet rejecting a value that fails data validation.
+
+### Fixed
+
+- `close p1` closes p1. It used to ignore the label and close the current
+  page. On a tab you adopted, `close` releases it instead of closing it.
+- `finish` leaves open a Claude tab you are looking at.
+- `text=` and `nth=` selectors no longer pick a hidden copy over the visible
+  element, which made Gmail rows and links read as hidden.
+- `fill` on a Lexical editor whose state cannot be read back (WhatsApp)
+  succeeds instead of throwing "Minified Lexical error #130".
+- `text all` on Google Sheets returns the cells, and `text` falls back to the
+  whole page when the main region is empty.
+- Adopting a tab that holds another extension's frame removes the frame once
+  and retries, and otherwise says which extension is in the way. The old
+  error blamed Arc's internal pages.
+- Starting control of a page, and every in-page lookup, now has a time limit,
+  so a busy page fails fast instead of blocking every later command.
+
 ## 0.7.0 (2026-10-12)
 
 ### Added

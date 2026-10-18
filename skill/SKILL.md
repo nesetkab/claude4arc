@@ -29,7 +29,9 @@ its output.
   line, optional `label:` prefix. Each line prints
   `== label ok|FAILED <start ms>-<end ms>` and its output; a failure does not
   stop later lines, and the tab closes at the end (no `new`, `finish`, ids, or
-  timestamp commands needed). Then retry only the failed lines.
+  timestamp commands needed). Then retry only the failed lines. To leave pages
+  open for the user, use `batch --keep`: each line gets its own tab, and its
+  header ends with that page's label (`== A ok … p2`).
 
   ```bash
   claude4arc batch <<'EOF'
@@ -59,6 +61,8 @@ its output.
   the main text.
 - Trust receipts: `ok`, `popup p2`, `confirm "…" accepted`, `navigated → …`,
   or a `-s` diff confirm the step. Do not re-check with `eval` or `snap`.
+  `page now shows: "…"` after `type`, `fill`, or `press` means a dialog or
+  alert appeared, often because the page rejected the input: read it.
 - Quote selectors that contain `[`, `]`, spaces, or `*`.
 
 ## Commands
@@ -66,8 +70,12 @@ its output.
 ```bash
 claude4arc new <url> [-- <cmd> ...] [-s]  # new task, act right away; -s appends a diff snapshot, or the page on failure
 claude4arc 7 <cmd> [args] [-- <cmd> ...]  # run on task 7's current page (7:p2 for page p2)
-claude4arc batch [7] [--keep] <<'EOF'     # one chain per line
+claude4arc batch [7] [--keep] <<'EOF'     # one chain per line; --keep: one tab per line, left open
+claude4arc adopt [tabId] [-- <cmd> ...]   # new task from the user's tab (the one on screen by default)
 ```
+
+Each step gives up after 45 s with "stopped responding". Add `--timeout <ms>`
+for slow steps. On a frozen page, `reload` stops its stuck script and reloads.
 
 | Command | Does |
 |---|---|
@@ -84,7 +92,7 @@ claude4arc batch [7] [--keep] <<'EOF'     # one chain per line
 | `accept [text]` | accept the next confirm or prompt; put it before the action |
 | `wait <sel\|ms\|url:part\|gone:sel>`, `wait download` | wait for a condition or a download (prints its path) |
 | `scroll <dy> [sel]`, `eval [@frame] <js>`, `shot [full]` | scroll; run JS; screenshot path (image x,y = mouse x,y) |
-| `open <url>`, `use p2`, `pages`, `tabs`, `adopt [tabId]`, `close`, `finish [keep...]` | pages and tabs; `finish` closes only Claude's tabs |
+| `open <url>`, `use p2`, `pages`, `tabs`, `adopt [tabId]`, `close [p2]`, `finish [keep...]` | pages and tabs; `close` and `finish` close only Claude's tabs |
 
 `fill` sets Monaco, CodeMirror, Ace, Quill, ProseMirror, Lexical, CKEditor, and
 TinyMCE through their own APIs, so newlines and indentation stay exact.
@@ -127,8 +135,12 @@ between actions: they return once the page reacts. Wait for a condition:
   permission prompts, file pickers, and `mailto:` links are blocked and
   reported. Use `upload` for files.
 - `adopt` takes over the user's current tab. Never close, navigate, or submit
-  there unless asked; `finish` only releases it.
-- Google Docs and Sheets: `text` returns the real content. To edit a Doc,
+  there unless asked; `close` and `finish` only release it. `finish` also
+  leaves open any Claude tab the user is looking at.
+- If adopting fails because another extension put a frame in the page, `open`
+  the same URL in a Claude tab instead.
+- Google Docs and Sheets: `text` and `text all` return the real content (a
+  sheet comes back as CSV). To edit a Doc,
   `click css=.kix-page-paginated >> nth=0` and `type`. In Sheets, go to a cell
   with `fill css=#t-name-box B2 -- press css=#t-name-box Enter`, then `type`
   with `\t` between cells and `\n` between rows. PDFs: `text` reads them.
